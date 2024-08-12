@@ -17,7 +17,7 @@ RUN npm install
 COPY . .
 
 # Exposer le port sur lequel le service sera disponible
-EXPOSE 3001
+EXPOSE 3002
 
 # Utiliser nodemon pour suivre les changements
 CMD ["nodemon", "--watch", "src", "--exec", "npm", "run", "start:dev"]

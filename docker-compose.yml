@@ -3,8 +3,6 @@ services:
     build:
       context: ./customer_service
       dockerfile: Dockerfile
-    volumes:
-      - /app/node_modules
     ports:
       - "3001:3001"
     networks:
@@ -14,8 +12,6 @@ services:
     build:
       context: ./item_service
       dockerfile: Dockerfile
-    volumes:
-      - /app/node_modules
     ports:
       - "3002:3002"
     networks:
@@ -25,8 +21,6 @@ services:
     build:
       context: ./api_gateway
       dockerfile: Dockerfile
-    volumes:
-      - /app/node_modules
     ports:
       - "3000:3000"
     networks:
