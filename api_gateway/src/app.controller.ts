@@ -15,7 +15,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 
-@Controller('api')
+@Controller('')
 export class AppController {
   constructor(
     @Inject('CUSTOMER_SERVICE')

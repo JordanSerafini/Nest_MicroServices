@@ -10,7 +10,8 @@ import { AppService } from './app.service';
         name: 'ITEM_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '127.0.0.1',
+          host: 'item_service',
+          //          host: '127.0.0.1',
           port: 3001,
         },
       },
@@ -18,7 +19,7 @@ import { AppService } from './app.service';
         name: 'CUSTOMER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '127.0.0.1',
+          host: 'customer_service',
           port: 3002,
         },
       },
