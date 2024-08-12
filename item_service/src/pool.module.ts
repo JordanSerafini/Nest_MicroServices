@@ -8,7 +8,7 @@ import { Pool } from 'pg';
       provide: 'PG_CONNECTION',
       useFactory: async () => {
         const pool = new Pool({
-          host: 'localhost',
+          host: 'host.docker.internal',
           port: 5432,
           user: 'jordans',
           password: 'slitest',

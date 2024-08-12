@@ -9,10 +9,11 @@ import {
   Inject,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateCustomerDto } from '@customer/dto/create-customer.dto';
-import { UpdateCustomerDto } from '@customer/dto/update-customer.dto';
-import { CreateItemDto } from '@item/dto/create-item.dto';
-import { UpdateItemDto } from '@item/dto/update-item.dto';
+
+import { CreateCustomerDto } from './dto/create-customer.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { CreateItemDto } from './dto/create-item.dto';
+import { UpdateItemDto } from './dto/update-item.dto';
 
 @Controller('api')
 export class AppController {

@@ -4,7 +4,6 @@ services:
       context: ./customer_service
       dockerfile: Dockerfile
     volumes:
-      - ./customer_service:/app
       - /app/node_modules
     ports:
       - "3001:3001"
@@ -16,7 +15,6 @@ services:
       context: ./item_service
       dockerfile: Dockerfile
     volumes:
-      - ./item_service:/app
       - /app/node_modules
     ports:
       - "3002:3002"
@@ -28,7 +26,6 @@ services:
       context: ./api_gateway
       dockerfile: Dockerfile
     volumes:
-      - ./api_gateway:/app
       - /app/node_modules
     ports:
       - "3000:3000"
