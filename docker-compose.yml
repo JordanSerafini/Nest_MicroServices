@@ -1,0 +1,43 @@
+services:
+  customer_service:
+    build:
+      context: ./customer_service
+      dockerfile: Dockerfile
+    volumes:
+      - ./customer_service:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    networks:
+      - nestjs_network
+
+  item_service:
+    build:
+      context: ./item_service
+      dockerfile: Dockerfile
+    volumes:
+      - ./item_service:/app
+      - /app/node_modules
+    ports:
+      - "3002:3002"
+    networks:
+      - nestjs_network
+
+  api_gateway:
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile
+    volumes:
+      - ./api_gateway:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - nestjs_network
+    depends_on:
+      - customer_service
+      - item_service
+
+networks:
+  nestjs_network:
+    driver: bridge
