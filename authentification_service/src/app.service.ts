@@ -2,15 +2,15 @@ import {
   Injectable,
   Inject,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
+import { CustomLogger } from './logging/custom-logger.service';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
+  private readonly logger = new CustomLogger(AuthService.name);
 
   constructor(
     @Inject('PG_CONNECTION') private readonly pool: Pool,
@@ -33,7 +33,7 @@ export class AuthService {
 
     if (result.rows.length === 0) {
       this.logger.warn(`User with email: ${email} not found`);
-      return null; // Utilisateur non trouvé
+      return null;
     }
 
     const user = result.rows[0];

@@ -1,12 +1,13 @@
-import { Inject, Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Pool } from 'pg';
 import { Item } from './entities/item.entity';
+import { CustomLogger } from './logging/custom-logger.service';
 
 @Injectable()
 export class ItemService {
-  private readonly logger = new Logger(ItemService.name);
+  private readonly logger = new CustomLogger('ItemService');
 
   constructor(@Inject('PG_CONNECTION') private readonly pool: Pool) {}
 
@@ -32,7 +33,7 @@ export class ItemService {
     });
 
     if (fields.length === 0) {
-      this.logger.error('No data provided to create an item.');
+      this.logger.error('No data provided to create an item.', '');
       throw new Error('No data provided to create an item.');
     }
 
@@ -85,11 +86,11 @@ export class ItemService {
     });
 
     if (fields.length === 0) {
-      this.logger.error('No data provided to update the item.');
+      this.logger.error('No data provided to update the item.', '');
       throw new Error('No data provided to update the item.');
     }
 
-    values.push(id); // Ajouter l'id à la fin des valeurs
+    values.push(id);
 
     const query = `
       UPDATE "Item"

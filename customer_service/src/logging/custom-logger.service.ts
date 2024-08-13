@@ -7,15 +7,18 @@ export class CustomLogger extends Logger {
   private logDirectory: string;
   private logFileName: string;
 
-  constructor(private serviceName: string) {
+  constructor(private serviceName: string = 'CustomerService') {
     super();
-    this.logDirectory = path.join('/var/log', `Logs_${this.serviceName}`);
+    this.logDirectory = path.join('/var/log', `Logs_CustomerService`);
+    console.log(`Log directory: ${this.logDirectory}`);
+    console.log(`Service name: ${this.serviceName}`);
     this.ensureLogDirectoryExists();
     this.updateLogFileName();
   }
 
   private ensureLogDirectoryExists() {
     if (!fs.existsSync(this.logDirectory)) {
+      console.log(`Creating log directory: ${this.logDirectory}`);
       fs.mkdirSync(this.logDirectory, { recursive: true });
     }
   }
@@ -24,10 +27,12 @@ export class CustomLogger extends Logger {
     const date = new Date();
     const dateString = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
     this.logFileName = path.join(this.logDirectory, `${dateString}.log`);
+    console.log(`Log file name: ${this.logFileName}`);
   }
 
   private writeLog(message: string) {
     this.updateLogFileName();
+    console.log(`Writing log: ${message}`);
     fs.appendFileSync(this.logFileName, message + '\n');
   }
 

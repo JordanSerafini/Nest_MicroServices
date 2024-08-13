@@ -7,11 +7,17 @@ export class CustomLogger extends Logger {
   private logDirectory: string;
   private logFileName: string;
 
-  constructor(private serviceName: string) {
+  constructor(serviceName: string) {
     super();
-    this.logDirectory = path.join('/var/log', `Logs_${this.serviceName}`);
+    this.logDirectory = path.join('/var/log', `Logs_${serviceName}`);
+    this.logFileName = path.join(this.logDirectory, this.getLogFileName());
     this.ensureLogDirectoryExists();
-    this.updateLogFileName();
+  }
+
+  private getLogFileName(): string {
+    const date = new Date();
+    const dateString = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+    return `${dateString}.log`;
   }
 
   private ensureLogDirectoryExists() {
@@ -20,15 +26,12 @@ export class CustomLogger extends Logger {
     }
   }
 
-  private updateLogFileName() {
-    const date = new Date();
-    const dateString = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-    this.logFileName = path.join(this.logDirectory, `${dateString}.log`);
-  }
-
   private writeLog(message: string) {
-    this.updateLogFileName();
-    fs.appendFileSync(this.logFileName, message + '\n');
+    if (!fs.existsSync(this.logDirectory)) {
+      this.ensureLogDirectoryExists();
+    }
+    const logMessage = `[${new Date().toISOString()}] ${message}\n`;
+    fs.appendFileSync(this.logFileName, logMessage);
   }
 
   log(message: string) {
