@@ -1,20 +1,24 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { CustomersController } from './customers/customers.controller';
+import { ItemsController } from './items/items.controller';
 import { AuthController } from './auth/auth.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
+    JwtModule.register({
+      secret: 'zdf4e4fs6e4fesz4v1svds+df784+e+9zef4654fe4potydkyj',
+      signOptions: { expiresIn: '60m' },
+    }),
     ClientsModule.register([
       {
-        name: 'AUTHENTIFICATION_SERVICE',
+        name: 'ITEM_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'authentification_service',
-          port: 3003,
+          host: 'item_service',
+          port: 3001,
         },
       },
       {
@@ -26,20 +30,16 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         },
       },
       {
-        name: 'ITEM_SERVICE',
+        name: 'AUTHENTIFICATION_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'item_service',
-          port: 3001,
+          host: 'authentification_service',
+          port: 3003,
         },
       },
     ]),
-    JwtModule.register({
-      secret: 'secretKey',
-      signOptions: { expiresIn: '60m' },
-    }),
   ],
-  controllers: [AppController, AuthController],
-  providers: [AppService, JwtAuthGuard],
+  controllers: [CustomersController, ItemsController, AuthController],
+  providers: [JwtAuthGuard],
 })
 export class AppModule {}

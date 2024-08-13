@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
-@Controller('auth')
+@Controller('')
 export class AuthController {
   constructor(
     @Inject('AUTHENTIFICATION_SERVICE')
@@ -9,12 +9,12 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  async login(@Body() loginDto: { username: string; password: string }) {
+  async login(@Body() loginDto: { email: string; password: string }) {
     return this.authServiceClient.send({ cmd: 'login' }, loginDto).toPromise();
   }
 
   @Post('register')
-  async register(@Body() registerDto: { username: string; password: string }) {
+  async register(@Body() registerDto: { email: string; password: string }) {
     return this.authServiceClient
       .send({ cmd: 'register' }, registerDto)
       .toPromise();

@@ -11,6 +11,6 @@ async function bootstrap() {
     },
   });
   app.listen();
-  console.log('Customer service is listening on port 3001');
+  console.log('Customer service is listening on port 3002');
 }
 bootstrap();

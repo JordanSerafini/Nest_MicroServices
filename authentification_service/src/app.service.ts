@@ -1,4 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
@@ -10,9 +14,14 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const query = `SELECT * FROM "Utilisateurs" WHERE username = $1`;
-    const result = await this.pool.query(query, [username]);
+  async validateUser(email: string, password: string): Promise<any> {
+    let result;
+    try {
+      const query = `SELECT * FROM "Utilisateurs" WHERE email = $1`;
+      result = await this.pool.query(query, [email]);
+    } catch (error) {
+      throw new InternalServerErrorException('Database query failed');
+    }
 
     if (result.rows.length === 0) {
       return null; // Utilisateur non trouvé
@@ -31,20 +40,25 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
+    const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  async register(username: string, password: string): Promise<any> {
+  async register(email: string, password: string): Promise<any> {
+    let result;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const query = `
-      INSERT INTO "Utilisateurs" (username, password)
-      VALUES ($1, $2)
-      RETURNING id, username;
-    `;
-    const result = await this.pool.query(query, [username, hashedPassword]);
+    try {
+      const query = `
+        INSERT INTO "Utilisateurs" (email, password)
+        VALUES ($1, $2)
+        RETURNING id, email;
+      `;
+      result = await this.pool.query(query, [email, hashedPassword]);
+    } catch (error) {
+      throw new InternalServerErrorException('Database insert failed');
+    }
 
     return result.rows[0];
   }

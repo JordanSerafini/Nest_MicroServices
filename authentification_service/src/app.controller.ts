@@ -1,31 +1,47 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { AuthService } from './app.service';
+import { MessagePattern } from '@nestjs/microservices';
 
-@Controller('auth')
+@Controller('')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Pour les requêtes HTTP
   @Post('login')
-  async login(@Body() loginDto: { username: string; password: string }) {
+  async login(@Body() loginDto: { email: string; password: string }) {
+    return this.handleLogin(loginDto);
+  }
+
+  @Post('register')
+  async register(@Body() registerDto: { email: string; password: string }) {
+    return this.handleRegister(registerDto);
+  }
+
+  // Pour les commandes microservices
+  @MessagePattern({ cmd: 'login' })
+  async handleLogin(loginDto: { email: string; password: string }) {
     const user = await this.authService.validateUser(
-      loginDto.username,
+      loginDto.email,
       loginDto.password,
     );
 
     if (!user) {
-      return { message: 'Invalid credentials' };
+      throw new BadRequestException('Invalid credentials');
     }
 
     return this.authService.login(user);
   }
 
-  @Post('register')
-  async register(@Body() registerDto: { username: string; password: string }) {
-    const user = await this.authService.register(
-      registerDto.username,
-      registerDto.password,
-    );
-
-    return user;
+  @MessagePattern({ cmd: 'register' })
+  async handleRegister(registerDto: { email: string; password: string }) {
+    try {
+      const user = await this.authService.register(
+        registerDto.email,
+        registerDto.password,
+      );
+      return user;
+    } catch (error) {
+      throw new BadRequestException('Registration failed');
+    }
   }
 }

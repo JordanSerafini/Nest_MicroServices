@@ -13,7 +13,8 @@ export class JwtAuthGuard implements CanActivate {
     const authHeader = request.headers['authorization'];
 
     if (!authHeader) {
-      return false;
+      return true;
+      //! --------->>> return false apres dev
     }
 
     const [type, token] = authHeader.split(' ');
@@ -23,7 +24,9 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const decoded = this.jwtService.verify(token, { secret: 'secretKey' });
+      const decoded = this.jwtService.verify(token, {
+        secret: 'zdf4e4fs6e4fesz4v1svds+df784+e+9zef4654fe4potydkyj',
+      });
       request.user = decoded;
       return true;
     } catch (error) {
