@@ -1,21 +1,22 @@
 services:
-  customer_service:
-    build:
-      context: ./customer_service
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
-    networks:
-      - nestjs_network
-
   item_service:
     build:
       context: ./item_service
       dockerfile: Dockerfile
     ports:
+      - "3001:3001"
+    networks:
+      - nestjs_network
+      
+  customer_service:
+    build:
+      context: ./customer_service
+      dockerfile: Dockerfile
+    ports:
       - "3002:3002"
     networks:
       - nestjs_network
+
 
   authentification_service:
     build:

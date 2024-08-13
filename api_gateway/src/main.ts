@@ -5,6 +5,7 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Connexion au microservice item_service
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {
@@ -13,11 +14,21 @@ async function bootstrap() {
     },
   });
 
+  // Connexion au microservice customer_service
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {
       host: '127.0.0.1',
       port: 3002,
+    },
+  });
+
+  // Connexion au microservice authentification_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3003,
     },
   });
 
