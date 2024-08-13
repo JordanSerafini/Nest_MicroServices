@@ -17,6 +17,15 @@ services:
     networks:
       - nestjs_network
 
+  authentification_service:
+    build:
+      context: ./authentification_service
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    networks:
+      - nestjs_network
+
   api_gateway:
     build:
       context: ./api_gateway
@@ -28,6 +37,7 @@ services:
     depends_on:
       - customer_service
       - item_service
+      - authentification_service
 
 networks:
   nestjs_network:
