@@ -15,7 +15,14 @@ export class CustomerService {
     return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
   }
 
-  async create(createCustomerDto: CreateCustomerDto): Promise<any> {
+  async create(
+    createCustomerDto: CreateCustomerDto,
+    email: string,
+  ): Promise<any> {
+    this.logger.log(
+      `Creating a new customer with data: ${JSON.stringify(createCustomerDto)}, User: ${email}`,
+    );
+
     const fields: string[] = [];
     const placeholders: string[] = [];
     const values: any[] = [];
@@ -29,7 +36,10 @@ export class CustomerService {
     });
 
     if (fields.length === 0) {
-      this.logger.error('No data provided to create a customer.', '');
+      this.logger.error(
+        `No data provided to create a customer, User: ${email}`,
+        '',
+      );
       throw new Error('No data provided to create a customer.');
     }
 
@@ -41,48 +51,60 @@ export class CustomerService {
 
     try {
       const result = await this.pool.query(query, values);
-      this.logger.log(`Customer created with ID: ${result.rows[0].id}`);
+      this.logger.log(
+        `Customer created with ID: ${result.rows[0].id}, User: ${email}`,
+      );
       return result.rows[0] as Customer;
     } catch (error) {
-      this.logger.error('Error creating customer', error.stack || '');
-      throw error;
-    }
-  }
-
-  async findAll(): Promise<any[]> {
-    try {
-      const result = await this.pool.query('SELECT * FROM "Customer"');
-      this.logger.log('Fetched all customers');
-      return result.rows as Customer[];
-    } catch (error) {
-      this.logger.error('Error fetching customers', error.stack || '');
-      throw error;
-    }
-  }
-
-  async findOne(id: number): Promise<any> {
-    const query = `SELECT * FROM "Customer" WHERE id = $1`;
-    const values = [id];
-
-    try {
-      const result = await this.pool.query(query, values);
-      if (result.rows.length > 0) {
-        this.logger.log(`Customer with ID: ${id} found`);
-        return result.rows[0] as Customer;
-      } else {
-        this.logger.warn(`Customer with ID: ${id} not found`);
-        return null;
-      }
-    } catch (error) {
       this.logger.error(
-        `Error finding customer with ID: ${id}`,
+        `Error creating customer, User: ${email}`,
         error.stack || '',
       );
       throw error;
     }
   }
 
-  async update(id: number, updateCustomerDto: UpdateCustomerDto): Promise<any> {
+  async findAll(email: string): Promise<any[]> {
+    try {
+      const result = await this.pool.query('SELECT * FROM "Customer"');
+      this.logger.log(`Fetched all customers, User: ${email}`);
+      return result.rows as Customer[];
+    } catch (error) {
+      this.logger.error(
+        `Error fetching customers, User: ${email}`,
+        error.stack || '',
+      );
+      throw error;
+    }
+  }
+
+  async findOne(id: number, email: string): Promise<any> {
+    const query = `SELECT * FROM "Customer" WHERE id = $1`;
+    const values = [id];
+
+    try {
+      const result = await this.pool.query(query, values);
+      if (result.rows.length > 0) {
+        this.logger.log(`Customer with ID: ${id} found, User: ${email}`);
+        return result.rows[0] as Customer;
+      } else {
+        this.logger.warn(`Customer with ID: ${id} not found, User: ${email}`);
+        return null;
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error finding customer with ID: ${id}, User: ${email}`,
+        error.stack || '',
+      );
+      throw error;
+    }
+  }
+
+  async update(
+    id: number,
+    updateCustomerDto: UpdateCustomerDto,
+    email: string,
+  ): Promise<any> {
     const query = `
       UPDATE "Customer"
       SET name = $1, email = $2, address = $3
@@ -98,28 +120,28 @@ export class CustomerService {
 
     try {
       const result = await this.pool.query(query, values);
-      this.logger.log(`Customer with ID: ${id} updated`);
+      this.logger.log(`Customer with ID: ${id} updated, User: ${email}`);
       return result.rows[0] as Customer;
     } catch (error) {
       this.logger.error(
-        `Error updating customer with ID: ${id}`,
+        `Error updating customer with ID: ${id}, User: ${email}`,
         error.stack || '',
       );
       throw error;
     }
   }
 
-  async remove(id: number): Promise<any> {
+  async remove(id: number, email: string): Promise<any> {
     const query = `DELETE FROM "Customer" WHERE id = $1 RETURNING *`;
     const values = [id];
 
     try {
       const result = await this.pool.query(query, values);
-      this.logger.log(`Customer with ID: ${id} deleted`);
+      this.logger.log(`Customer with ID: ${id} deleted, User: ${email}`);
       return result.rows[0] as Customer;
     } catch (error) {
       this.logger.error(
-        `Error deleting customer with ID: ${id}`,
+        `Error deleting customer with ID: ${id}, User: ${email}`,
         error.stack || '',
       );
       throw error;

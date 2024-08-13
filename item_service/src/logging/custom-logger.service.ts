@@ -34,28 +34,43 @@ export class CustomLogger extends Logger {
     fs.appendFileSync(this.logFileName, logMessage);
   }
 
-  log(message: string) {
-    super.log(message);
-    this.writeLog(`[LOG] ${message}`);
+  log(message: string, email?: string) {
+    const logMessage = email
+      ? `[LOG] [User: ${email}] ${message}`
+      : `[LOG] ${message}`;
+    super.log(logMessage);
+    this.writeLog(logMessage);
   }
 
-  error(message: string, trace: string) {
-    super.error(message, trace);
-    this.writeLog(`[ERROR] ${message} - ${trace}`);
+  error(message: string, trace: string, email?: string) {
+    const logMessage = email
+      ? `[ERROR] [User: ${email}] ${message} - ${trace}`
+      : `[ERROR] ${message} - ${trace}`;
+    super.error(logMessage);
+    this.writeLog(logMessage);
   }
 
-  warn(message: string) {
-    super.warn(message);
-    this.writeLog(`[WARN] ${message}`);
+  warn(message: string, email?: string) {
+    const logMessage = email
+      ? `[WARN] [User: ${email}] ${message}`
+      : `[WARN] ${message}`;
+    super.warn(logMessage);
+    this.writeLog(logMessage);
   }
 
-  debug(message: string) {
-    super.debug(message);
-    this.writeLog(`[DEBUG] ${message}`);
+  debug(message: string, email?: string) {
+    const logMessage = email
+      ? `[DEBUG] [User: ${email}] ${message}`
+      : `[DEBUG] ${message}`;
+    super.debug(logMessage);
+    this.writeLog(logMessage);
   }
 
-  verbose(message: string) {
-    super.verbose(message);
-    this.writeLog(`[VERBOSE] ${message}`);
+  verbose(message: string, email?: string) {
+    const logMessage = email
+      ? `[VERBOSE] [User: ${email}] ${message}`
+      : `[VERBOSE] ${message}`;
+    super.verbose(logMessage);
+    this.writeLog(logMessage);
   }
 }
