@@ -8,7 +8,7 @@ services:
     networks:
       - nestjs_network
     volumes:
-      - item_service_logs:/var/log/item_service
+      - ./item_service/logs:/var/log/item_service
 
   customer_service:
     build:
@@ -19,7 +19,7 @@ services:
     networks:
       - nestjs_network
     volumes:
-      - customer_service_logs:/var/log/customer_service
+      - ./customer_service/logs:/var/log/customer_service
 
   authentification_service:
     build:
@@ -30,7 +30,7 @@ services:
     networks:
       - nestjs_network
     volumes:
-      - authentification_service_logs:/var/log/authentification_service
+      - ./authentification_service/logs:/var/log/authentification_service
 
   api_gateway:
     build:
@@ -45,18 +45,8 @@ services:
       - item_service
       - authentification_service
     volumes:
-      - api_gateway_logs:/var/log/api_gateway
+      - ./api_gateway/logs:/var/log/api_gateway
 
 networks:
   nestjs_network:
     driver: bridge
-
-volumes:
-  item_service_logs:
-    driver: local
-  customer_service_logs:
-    driver: local
-  authentification_service_logs:
-    driver: local
-  api_gateway_logs:
-    driver: local
