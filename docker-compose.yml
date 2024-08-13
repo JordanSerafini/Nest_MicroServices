@@ -7,7 +7,9 @@ services:
       - "3001:3001"
     networks:
       - nestjs_network
-      
+    volumes:
+      - item_service_logs:/var/log/item_service
+
   customer_service:
     build:
       context: ./customer_service
@@ -16,7 +18,8 @@ services:
       - "3002:3002"
     networks:
       - nestjs_network
-
+    volumes:
+      - customer_service_logs:/var/log/customer_service
 
   authentification_service:
     build:
@@ -26,6 +29,8 @@ services:
       - "3003:3003"
     networks:
       - nestjs_network
+    volumes:
+      - authentification_service_logs:/var/log/authentification_service
 
   api_gateway:
     build:
@@ -39,7 +44,19 @@ services:
       - customer_service
       - item_service
       - authentification_service
+    volumes:
+      - api_gateway_logs:/var/log/api_gateway
 
 networks:
   nestjs_network:
     driver: bridge
+
+volumes:
+  item_service_logs:
+    driver: local
+  customer_service_logs:
+    driver: local
+  authentification_service_logs:
+    driver: local
+  api_gateway_logs:
+    driver: local

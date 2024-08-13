@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AuthService } from './app.service';
 import { AuthController } from './app.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { PoolModule } from 'pool.module';
+import { CustomLogger } from './logging/custom-logger.service';
 
 @Module({
   imports: [
@@ -14,6 +15,10 @@ import { PoolModule } from 'pool.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    { provide: Logger, useClass: CustomLogger },
+  ],
 })
 export class AppModule {}
