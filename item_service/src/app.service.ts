@@ -45,45 +45,71 @@ export class ItemService {
       throw new Error('No data provided to create an item.');
     }
 
-    const query = `
-      INSERT INTO "Item" (${fields.join(', ')})
-      VALUES (${placeholders.join(', ')})
-      RETURNING *;
-    `;
+    try {
+      const query = `
+        INSERT INTO "Item" (${fields.join(', ')})
+        VALUES (${placeholders.join(', ')})
+        RETURNING *;
+      `;
 
-    const result = await this.pool.query(query, values);
-    this.logger.log(
-      `Item created with ID: ${result.rows[0].id}, User: ${email}`,
-    );
-    return result.rows[0] as Item;
+      const result = await this.pool.query(query, values);
+      this.logger.log(
+        `Item created with ID: ${result.rows[0].id}, User: ${email}`,
+      );
+      return result.rows[0] as Item;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create item, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   async findAll(email: string): Promise<Item[]> {
     this.logger.log(`Fetching all items, User: ${email}`);
-    const result = await this.pool.query('SELECT * FROM "Item"');
-    this.logger.log(`Found ${result.rows.length} items, User: ${email}`);
-    return result.rows as Item[];
+    try {
+      const result = await this.pool.query('SELECT * FROM "Item"');
+      this.logger.log(`Found ${result.rows.length} items, User: ${email}`);
+      return result.rows as Item[];
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch all items, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   async findOne(id: string | number, email: string): Promise<Item> {
     const parsedId = Number(id);
     if (isNaN(parsedId)) {
-      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
-      throw new BadRequestException('Invalid ID');
+      const errorMessage = `Invalid ID received: ${id}, User: ${email}`;
+      this.logger.error(errorMessage, 'BadRequestException');
+      throw new BadRequestException(errorMessage);
     }
 
     this.logger.log(`Fetching item with ID: ${parsedId}, User: ${email}`);
-    const query = `SELECT * FROM "Item" WHERE id = $1`;
-    const values = [parsedId];
-    const result = await this.pool.query(query, values);
+    try {
+      const query = `SELECT * FROM "Item" WHERE id = $1`;
+      const values = [parsedId];
+      const result = await this.pool.query(query, values);
 
-    if (result.rows.length === 0) {
-      this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
-      throw new NotFoundException(`Item with id ${parsedId} not found`);
+      if (result.rows.length === 0) {
+        const notFoundMessage = `Item with ID: ${parsedId} not found, User: ${email}`;
+        this.logger.warn(notFoundMessage);
+        throw new NotFoundException(notFoundMessage);
+      }
+
+      this.logger.log(`Item with ID: ${parsedId} found, User: ${email}`);
+      return result.rows[0] as Item;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch item with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
     }
-
-    this.logger.log(`Item with ID: ${parsedId} found, User: ${email}`);
-    return result.rows[0] as Item;
   }
 
   async update(
@@ -121,22 +147,30 @@ export class ItemService {
 
     values.push(parsedId);
 
-    const query = `
-      UPDATE "Item"
-      SET ${fields.join(', ')}
-      WHERE id = $${values.length}
-      RETURNING *;
-    `;
+    try {
+      const query = `
+        UPDATE "Item"
+        SET ${fields.join(', ')}
+        WHERE id = $${values.length}
+        RETURNING *;
+      `;
 
-    const result = await this.pool.query(query, values);
+      const result = await this.pool.query(query, values);
 
-    if (result.rows.length === 0) {
-      this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
-      throw new NotFoundException(`Item with id ${parsedId} not found`);
+      if (result.rows.length === 0) {
+        this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
+        throw new NotFoundException(`Item with id ${parsedId} not found`);
+      }
+
+      this.logger.log(`Item with ID: ${parsedId} updated, User: ${email}`);
+      return result.rows[0] as Item;
+    } catch (error) {
+      this.logger.error(
+        `Failed to update item with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
     }
-
-    this.logger.log(`Item with ID: ${parsedId} updated, User: ${email}`);
-    return result.rows[0] as Item;
   }
 
   async remove(id: string | number, email: string): Promise<Item> {
@@ -148,17 +182,25 @@ export class ItemService {
 
     this.logger.log(`Deleting item with ID: ${parsedId}, User: ${email}`);
 
-    const query = `DELETE FROM "Item" WHERE id = $1 RETURNING *`;
-    const values = [parsedId];
+    try {
+      const query = `DELETE FROM "Item" WHERE id = $1 RETURNING *`;
+      const values = [parsedId];
 
-    const result = await this.pool.query(query, values);
+      const result = await this.pool.query(query, values);
 
-    if (result.rows.length === 0) {
-      this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
-      throw new NotFoundException(`Item with id ${parsedId} not found`);
+      if (result.rows.length === 0) {
+        this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
+        throw new NotFoundException(`Item with id ${parsedId} not found`);
+      }
+
+      this.logger.log(`Item with ID: ${parsedId} deleted, User: ${email}`);
+      return result.rows[0] as Item;
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete item with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
     }
-
-    this.logger.log(`Item with ID: ${parsedId} deleted, User: ${email}`);
-    return result.rows[0] as Item;
   }
 }

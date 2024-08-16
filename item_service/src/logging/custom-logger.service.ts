@@ -8,7 +8,7 @@ export class CustomLogger extends Logger {
   private logFileName: string;
 
   constructor(serviceName: string) {
-    super();
+    super(serviceName);
     this.logDirectory = path.join('/var/log', `Logs_${serviceName}`);
     this.logFileName = path.join(this.logDirectory, this.getLogFileName());
     this.ensureLogDirectoryExists();
@@ -27,11 +27,8 @@ export class CustomLogger extends Logger {
   }
 
   private writeLog(message: string) {
-    if (!fs.existsSync(this.logDirectory)) {
-      this.ensureLogDirectoryExists();
-    }
     const logMessage = `[${new Date().toISOString()}] ${message}\n`;
-    fs.appendFileSync(this.logFileName, logMessage);
+    fs.appendFileSync(this.logFileName, logMessage, { flag: 'a' });
   }
 
   log(message: string, email?: string) {
@@ -46,7 +43,7 @@ export class CustomLogger extends Logger {
     const logMessage = email
       ? `[ERROR] [User: ${email}] ${message} - ${trace}`
       : `[ERROR] ${message} - ${trace}`;
-    super.error(logMessage);
+    super.error(logMessage, trace);
     this.writeLog(logMessage);
   }
 
