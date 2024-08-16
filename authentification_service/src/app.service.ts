@@ -56,7 +56,7 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
       secret: 'zdf4e4fs6e4fesz4v1svds+df784+e+9zef4654fe4potydkyj',
-      expiresIn: '1h', // Durée de vie du token
+      expiresIn: '10000h',
     });
 
     this.logger.log(`User with email: ${user.email} logged in successfully`);
