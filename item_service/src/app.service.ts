@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Pool } from 'pg';
@@ -15,9 +20,9 @@ export class ItemService {
     return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
   }
 
-  async create(createItemDto: CreateItemDto): Promise<Item> {
+  async create(createItemDto: CreateItemDto, email: string): Promise<Item> {
     this.logger.log(
-      `Creating a new item with data: ${JSON.stringify(createItemDto)}`,
+      `Creating a new item with data: ${JSON.stringify(createItemDto)}, User: ${email}`,
     );
 
     const fields: string[] = [];
@@ -33,7 +38,10 @@ export class ItemService {
     });
 
     if (fields.length === 0) {
-      this.logger.error('No data provided to create an item.', '');
+      this.logger.error(
+        `No data provided to create an item, User: ${email}`,
+        '',
+      );
       throw new Error('No data provided to create an item.');
     }
 
@@ -44,35 +52,53 @@ export class ItemService {
     `;
 
     const result = await this.pool.query(query, values);
-    this.logger.log(`Item created with ID: ${result.rows[0].id}`);
+    this.logger.log(
+      `Item created with ID: ${result.rows[0].id}, User: ${email}`,
+    );
     return result.rows[0] as Item;
   }
 
-  async findAll(): Promise<Item[]> {
-    this.logger.log('Fetching all items');
+  async findAll(email: string): Promise<Item[]> {
+    this.logger.log(`Fetching all items, User: ${email}`);
     const result = await this.pool.query('SELECT * FROM "Item"');
-    this.logger.log(`Found ${result.rows.length} items`);
+    this.logger.log(`Found ${result.rows.length} items, User: ${email}`);
     return result.rows as Item[];
   }
 
-  async findOne(id: number): Promise<Item> {
-    this.logger.log(`Fetching item with ID: ${id}`);
+  async findOne(id: string | number, email: string): Promise<Item> {
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
+      throw new BadRequestException('Invalid ID');
+    }
+
+    this.logger.log(`Fetching item with ID: ${parsedId}, User: ${email}`);
     const query = `SELECT * FROM "Item" WHERE id = $1`;
-    const values = [id];
+    const values = [parsedId];
     const result = await this.pool.query(query, values);
 
     if (result.rows.length === 0) {
-      this.logger.warn(`Item with ID: ${id} not found`);
-      throw new NotFoundException(`Item with id ${id} not found`);
+      this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
+      throw new NotFoundException(`Item with id ${parsedId} not found`);
     }
 
-    this.logger.log(`Item with ID: ${id} found`);
+    this.logger.log(`Item with ID: ${parsedId} found, User: ${email}`);
     return result.rows[0] as Item;
   }
 
-  async update(id: number, updateItemDto: UpdateItemDto): Promise<Item> {
+  async update(
+    id: string | number,
+    updateItemDto: UpdateItemDto,
+    email: string,
+  ): Promise<Item> {
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
+      throw new BadRequestException('Invalid ID');
+    }
+
     this.logger.log(
-      `Updating item with ID: ${id} with data: ${JSON.stringify(updateItemDto)}`,
+      `Updating item with ID: ${parsedId} with data: ${JSON.stringify(updateItemDto)}, User: ${email}`,
     );
 
     const fields: string[] = [];
@@ -86,11 +112,14 @@ export class ItemService {
     });
 
     if (fields.length === 0) {
-      this.logger.error('No data provided to update the item.', '');
+      this.logger.error(
+        `No data provided to update the item, User: ${email}`,
+        '',
+      );
       throw new Error('No data provided to update the item.');
     }
 
-    values.push(id);
+    values.push(parsedId);
 
     const query = `
       UPDATE "Item"
@@ -102,28 +131,34 @@ export class ItemService {
     const result = await this.pool.query(query, values);
 
     if (result.rows.length === 0) {
-      this.logger.warn(`Item with ID: ${id} not found`);
-      throw new NotFoundException(`Item with id ${id} not found`);
+      this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
+      throw new NotFoundException(`Item with id ${parsedId} not found`);
     }
 
-    this.logger.log(`Item with ID: ${id} updated`);
+    this.logger.log(`Item with ID: ${parsedId} updated, User: ${email}`);
     return result.rows[0] as Item;
   }
 
-  async remove(id: number): Promise<Item> {
-    this.logger.log(`Deleting item with ID: ${id}`);
+  async remove(id: string | number, email: string): Promise<Item> {
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
+      throw new BadRequestException('Invalid ID');
+    }
+
+    this.logger.log(`Deleting item with ID: ${parsedId}, User: ${email}`);
 
     const query = `DELETE FROM "Item" WHERE id = $1 RETURNING *`;
-    const values = [id];
+    const values = [parsedId];
 
     const result = await this.pool.query(query, values);
 
     if (result.rows.length === 0) {
-      this.logger.warn(`Item with ID: ${id} not found`);
-      throw new NotFoundException(`Item with id ${id} not found`);
+      this.logger.warn(`Item with ID: ${parsedId} not found, User: ${email}`);
+      throw new NotFoundException(`Item with id ${parsedId} not found`);
     }
 
-    this.logger.log(`Item with ID: ${id} deleted`);
+    this.logger.log(`Item with ID: ${parsedId} deleted, User: ${email}`);
     return result.rows[0] as Item;
   }
 }

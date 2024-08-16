@@ -37,7 +37,10 @@ export class CustomersController {
 
   @Get(':id')
   findOneCustomer(@Param('id') id: string) {
-    return this.customerServiceClient.send({ cmd: 'find_one_customer' }, id);
+    return this.customerServiceClient.send(
+      { cmd: 'find_one_customer' },
+      { id },
+    );
   }
 
   @Patch(':id')
@@ -53,6 +56,6 @@ export class CustomersController {
 
   @Delete(':id')
   removeCustomer(@Param('id') id: string) {
-    return this.customerServiceClient.send({ cmd: 'remove_customer' }, id);
+    return this.customerServiceClient.send({ cmd: 'remove_customer' }, { id });
   }
 }
