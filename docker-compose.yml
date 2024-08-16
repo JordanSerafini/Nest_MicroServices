@@ -47,6 +47,7 @@ services:
     volumes:
       - ./api_gateway/logs:/var/log/Logs_ApiGateway
 
+
 networks:
   nestjs_network:
     driver: bridge
