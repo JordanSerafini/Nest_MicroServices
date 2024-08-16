@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { Pool } from 'pg';
@@ -18,7 +23,7 @@ export class CustomerService {
   async create(
     createCustomerDto: CreateCustomerDto,
     email: string,
-  ): Promise<any> {
+  ): Promise<Customer> {
     this.logger.log(
       `Creating a new customer with data: ${JSON.stringify(createCustomerDto)}, User: ${email}`,
     );
@@ -64,7 +69,7 @@ export class CustomerService {
     }
   }
 
-  async findAll(email: string): Promise<any[]> {
+  async findAll(email: string): Promise<Customer[]> {
     try {
       const result = await this.pool.query('SELECT * FROM "Customer"');
       this.logger.log(`Fetched all customers, User: ${email}`);
@@ -78,22 +83,30 @@ export class CustomerService {
     }
   }
 
-  async findOne(id: number, email: string): Promise<any> {
+  async findOne(id: string | number, email: string): Promise<Customer | null> {
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
+      throw new BadRequestException('Invalid ID');
+    }
+
     const query = `SELECT * FROM "Customer" WHERE id = $1`;
-    const values = [id];
+    const values = [parsedId];
 
     try {
       const result = await this.pool.query(query, values);
       if (result.rows.length > 0) {
-        this.logger.log(`Customer with ID: ${id} found, User: ${email}`);
+        this.logger.log(`Customer with ID: ${parsedId} found, User: ${email}`);
         return result.rows[0] as Customer;
       } else {
-        this.logger.warn(`Customer with ID: ${id} not found, User: ${email}`);
-        return null;
+        this.logger.warn(
+          `Customer with ID: ${parsedId} not found, User: ${email}`,
+        );
+        throw new NotFoundException(`Customer with id ${parsedId} not found`);
       }
     } catch (error) {
       this.logger.error(
-        `Error finding customer with ID: ${id}, User: ${email}`,
+        `Error finding customer with ID: ${parsedId}, User: ${email}`,
         error.stack || '',
       );
       throw error;
@@ -101,47 +114,85 @@ export class CustomerService {
   }
 
   async update(
-    id: number,
+    id: string | number,
     updateCustomerDto: UpdateCustomerDto,
     email: string,
-  ): Promise<any> {
+  ): Promise<Customer> {
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
+      throw new BadRequestException('Invalid ID');
+    }
+
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    Object.entries(updateCustomerDto).forEach(([key, value], index) => {
+      if (value !== undefined && value !== null) {
+        fields.push(`${this.toSnakeCase(key)} = $${index + 1}`);
+        values.push(value);
+      }
+    });
+
+    if (fields.length === 0) {
+      this.logger.error(
+        `No data provided to update the customer, User: ${email}`,
+        '',
+      );
+      throw new Error('No data provided to update the customer.');
+    }
+
+    values.push(parsedId);
+
     const query = `
       UPDATE "Customer"
-      SET name = $1, email = $2, address = $3
-      WHERE id = $4
+      SET ${fields.join(', ')}
+      WHERE id = $${values.length}
       RETURNING *;
     `;
-    const values = [
-      updateCustomerDto.Name,
-      updateCustomerDto.MainInvoicingContact_Email,
-      updateCustomerDto.MainInvoicingAddress_Address1,
-      id,
-    ];
 
     try {
       const result = await this.pool.query(query, values);
-      this.logger.log(`Customer with ID: ${id} updated, User: ${email}`);
+      if (result.rows.length === 0) {
+        this.logger.warn(
+          `Customer with ID: ${parsedId} not found, User: ${email}`,
+        );
+        throw new NotFoundException(`Customer with id ${parsedId} not found`);
+      }
+      this.logger.log(`Customer with ID: ${parsedId} updated, User: ${email}`);
       return result.rows[0] as Customer;
     } catch (error) {
       this.logger.error(
-        `Error updating customer with ID: ${id}, User: ${email}`,
+        `Error updating customer with ID: ${parsedId}, User: ${email}`,
         error.stack || '',
       );
       throw error;
     }
   }
 
-  async remove(id: number, email: string): Promise<any> {
+  async remove(id: string | number, email: string): Promise<Customer> {
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
+      throw new BadRequestException('Invalid ID');
+    }
+
     const query = `DELETE FROM "Customer" WHERE id = $1 RETURNING *`;
-    const values = [id];
+    const values = [parsedId];
 
     try {
       const result = await this.pool.query(query, values);
-      this.logger.log(`Customer with ID: ${id} deleted, User: ${email}`);
+      if (result.rows.length === 0) {
+        this.logger.warn(
+          `Customer with ID: ${parsedId} not found, User: ${email}`,
+        );
+        throw new NotFoundException(`Customer with id ${parsedId} not found`);
+      }
+      this.logger.log(`Customer with ID: ${parsedId} deleted, User: ${email}`);
       return result.rows[0] as Customer;
     } catch (error) {
       this.logger.error(
-        `Error deleting customer with ID: ${id}, User: ${email}`,
+        `Error deleting customer with ID: ${parsedId}, User: ${email}`,
         error.stack || '',
       );
       throw error;

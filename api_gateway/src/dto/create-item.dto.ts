@@ -8,6 +8,9 @@ import {
 } from 'class-validator';
 
 export class CreateItemDto {
+  Reference: number;
+  id: number;
+
   @IsOptional()
   @IsDate()
   Date?: Date;

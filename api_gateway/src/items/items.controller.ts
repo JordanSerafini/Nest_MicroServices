@@ -32,8 +32,8 @@ export class ItemsController {
   }
 
   @Get(':id')
-  findOneItem(@Param('id') id: string) {
-    return this.itemServiceClient.send({ cmd: 'find_one_item' }, id);
+  findOneItem(@Param('id') id: number | string) {
+    return this.itemServiceClient.send({ cmd: 'find_one_item' }, { id });
   }
 
   @Patch(':id')
@@ -46,6 +46,6 @@ export class ItemsController {
 
   @Delete(':id')
   removeItem(@Param('id') id: string) {
-    return this.itemServiceClient.send({ cmd: 'remove_item' }, id);
+    return this.itemServiceClient.send({ cmd: 'remove_item' }, { id });
   }
 }

@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { BadRequestException, Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CustomerService } from './app.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -32,7 +32,11 @@ export class CustomerController {
     @Payload()
     { id, email }: { id: string; email: string },
   ) {
-    return this.customerService.findOne(+id, email);
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    return this.customerService.findOne(parsedId, email);
   }
 
   @MessagePattern({ cmd: 'update_customer' })
