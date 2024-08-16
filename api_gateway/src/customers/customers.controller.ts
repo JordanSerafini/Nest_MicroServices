@@ -8,6 +8,7 @@ import {
   Delete,
   Inject,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
@@ -23,23 +24,29 @@ export class CustomersController {
   ) {}
 
   @Post()
-  createCustomer(@Body() createCustomerDto: CreateCustomerDto) {
+  createCustomer(@Body() createCustomerDto: CreateCustomerDto, @Request() req) {
+    const email = req.user.email;
     return this.customerServiceClient.send(
       { cmd: 'create_customer' },
-      createCustomerDto,
+      { createCustomerDto, email },
     );
   }
 
   @Get()
-  findAllCustomers() {
-    return this.customerServiceClient.send({ cmd: 'find_all_customers' }, {});
+  findAllCustomers(@Request() req) {
+    const email = req.user.email;
+    return this.customerServiceClient.send(
+      { cmd: 'find_all_customers' },
+      { email },
+    );
   }
 
   @Get(':id')
-  findOneCustomer(@Param('id') id: string) {
+  findOneCustomer(@Param('id') id: string, @Request() req) {
+    const email = req.user.email;
     return this.customerServiceClient.send(
       { cmd: 'find_one_customer' },
-      { id },
+      { id, email },
     );
   }
 
@@ -47,15 +54,21 @@ export class CustomersController {
   updateCustomer(
     @Param('id') id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
+    @Request() req,
   ) {
+    const email = req.user.email;
     return this.customerServiceClient.send(
       { cmd: 'update_customer' },
-      { id, ...updateCustomerDto },
+      { id, updateCustomerDto, email },
     );
   }
 
   @Delete(':id')
-  removeCustomer(@Param('id') id: string) {
-    return this.customerServiceClient.send({ cmd: 'remove_customer' }, { id });
+  removeCustomer(@Param('id') id: string, @Request() req) {
+    const email = req.user.email;
+    return this.customerServiceClient.send(
+      { cmd: 'remove_customer' },
+      { id, email },
+    );
   }
 }

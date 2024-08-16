@@ -8,6 +8,7 @@ import {
   Delete,
   Inject,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateItemDto } from '../dto/create-item.dto';
@@ -22,30 +23,42 @@ export class ItemsController {
   ) {}
 
   @Post()
-  createItem(@Body() createItemDto: CreateItemDto) {
-    return this.itemServiceClient.send({ cmd: 'create_item' }, createItemDto);
+  createItem(@Body() createItemDto: CreateItemDto, @Request() req) {
+    const email = req.user.email;
+    return this.itemServiceClient.send(
+      { cmd: 'create_item' },
+      { createItemDto, email },
+    );
   }
 
   @Get()
-  findAllItems() {
-    return this.itemServiceClient.send({ cmd: 'find_all_items' }, {});
+  findAllItems(@Request() req) {
+    const email = req.user.email;
+    return this.itemServiceClient.send({ cmd: 'find_all_items' }, { email });
   }
 
   @Get(':id')
-  findOneItem(@Param('id') id: number | string) {
-    return this.itemServiceClient.send({ cmd: 'find_one_item' }, { id });
+  findOneItem(@Param('id') id: number | string, @Request() req) {
+    const email = req.user.email;
+    return this.itemServiceClient.send({ cmd: 'find_one_item' }, { id, email });
   }
 
   @Patch(':id')
-  updateItem(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
+  updateItem(
+    @Param('id') id: string,
+    @Body() updateItemDto: UpdateItemDto,
+    @Request() req,
+  ) {
+    const email = req.user.email;
     return this.itemServiceClient.send(
       { cmd: 'update_item' },
-      { id, ...updateItemDto },
+      { id, updateItemDto, email },
     );
   }
 
   @Delete(':id')
-  removeItem(@Param('id') id: string) {
-    return this.itemServiceClient.send({ cmd: 'remove_item' }, { id });
+  removeItem(@Param('id') id: string, @Request() req) {
+    const email = req.user.email;
+    return this.itemServiceClient.send({ cmd: 'remove_item' }, { id, email });
   }
 }
