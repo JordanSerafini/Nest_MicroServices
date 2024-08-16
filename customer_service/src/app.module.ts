@@ -7,9 +7,6 @@ import { CustomLogger } from './logging/custom-logger.service';
 @Module({
   imports: [PoolModule],
   controllers: [CustomerController],
-  providers: [
-    CustomerService,
-    CustomLogger, // Ajoute le CustomLogger aux providers
-  ],
+  providers: [CustomerService, CustomLogger],
 })
 export class CustomerModule {}

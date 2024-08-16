@@ -41,6 +41,11 @@ export class AuthController {
       );
       return user;
     } catch (error) {
+      // Ajout d'un log pour capturer l'erreur en cas d'échec de l'enregistrement
+      console.error(
+        `Registration failed for email: ${registerDto.email}`,
+        error.message,
+      );
       throw new BadRequestException('Registration failed');
     }
   }
