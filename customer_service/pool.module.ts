@@ -10,8 +10,8 @@ import { Pool } from 'pg';
         const pool = new Pool({
           host: 'host.docker.internal',
           port: 5432,
-          user: 'jordans',
-          password: 'slitest',
+          user: 'sjordan',
+          password: ' ',
           database: 'SLI',
         });
 
