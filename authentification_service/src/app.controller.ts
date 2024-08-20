@@ -6,7 +6,7 @@ import { MessagePattern } from '@nestjs/microservices';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // Pour les requêtes HTTP
+  // Pour les requêtes classiqeus
   @Post('login')
   async login(@Body() loginDto: { email: string; password: string }) {
     return this.handleLogin(loginDto);
