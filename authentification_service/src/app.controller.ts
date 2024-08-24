@@ -17,7 +17,7 @@ export class AuthController {
     return this.handleRegister(registerDto);
   }
 
-  //* Pour les commandes microservices
+  // Pour les commandes microservices
   @MessagePattern({ cmd: 'login' })
   async handleLogin(loginDto: { email: string; password: string }) {
     const user = await this.authService.validateUser(
