@@ -18,6 +18,10 @@ export class AuthController {
     return this.handleRegister(registerDto);
   }
 
+  @Post('validate')
+  async validate(@Body() token: { token: string }) {
+    return this.authService.validateToken(token.token);
+  }
   // Pour les commandes microservices
   @MessagePattern({ cmd: 'login' })
   async handleLogin(loginDto: { email: string; password: string }) {
