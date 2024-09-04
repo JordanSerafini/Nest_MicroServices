@@ -11,10 +11,10 @@ import {
   Request,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateItemDto } from '../dto/create-item.dto';
-import { UpdateItemDto } from '../dto/update-item.dto';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { CustomLogger } from '../logging/custom-logger.service';
+import { CreateItemDto } from '../../dto/create-item.dto';
+import { UpdateItemDto } from '../../dto/update-item.dto';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
+import { CustomLogger } from '../../logging/custom-logger.service';
 
 @Controller('items')
 @UseGuards(JwtAuthGuard)

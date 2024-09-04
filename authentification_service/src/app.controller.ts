@@ -10,7 +10,6 @@ export class AuthController {
   async login(@Body() loginDto: { email: string; password: string }) {
     return this.handleLogin(loginDto);
   }
-  //test
 
   @Post('register')
   async register(@Body() registerDto: { email: string; password: string }) {

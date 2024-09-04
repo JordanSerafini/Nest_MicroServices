@@ -2,6 +2,7 @@ import {
   Injectable,
   Inject,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -50,7 +51,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async login(user: any): Promise<{ access_token: string }> {
     this.logger.log(`Logging in user with email: ${user.email}`);
 
     const payload = { email: user.email, sub: user.id };
@@ -69,6 +70,7 @@ export class AuthService {
     this.logger.log(`Registering new user with email: ${email}`);
     let result;
     const hashedPassword = await bcrypt.hash(password, 10);
+
     try {
       const query = `
         INSERT INTO "Utilisateurs" (email, password)
@@ -86,5 +88,19 @@ export class AuthService {
 
     this.logger.log(`User with email: ${email} registered successfully`);
     return result.rows[0];
+  }
+
+  validateToken(token: string): any {
+    try {
+      this.logger.log(`Validating token`);
+      const decoded = this.jwtService.verify(token, {
+        secret: 'zdf4e4fs6e4fesz4v1svds+df784+e+9zef4654fe4potydkyj',
+      });
+      this.logger.log(`Token validated successfully`);
+      return decoded;
+    } catch (error) {
+      this.logger.error('Token validation failed', error.stack);
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }
