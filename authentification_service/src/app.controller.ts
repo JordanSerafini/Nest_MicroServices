@@ -6,7 +6,6 @@ import { MessagePattern } from '@nestjs/microservices';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // Pour les requêtes classiqeus
   @Post('login')
   async login(@Body() loginDto: { email: string; password: string }) {
     return this.handleLogin(loginDto);
@@ -22,7 +21,7 @@ export class AuthController {
   async validate(@Body() token: { token: string }) {
     return this.authService.validateToken(token.token);
   }
-  // Pour les commandes microservices
+
   @MessagePattern({ cmd: 'login' })
   async handleLogin(loginDto: { email: string; password: string }) {
     const user = await this.authService.validateUser(
