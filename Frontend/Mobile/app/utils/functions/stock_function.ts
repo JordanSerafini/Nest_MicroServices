@@ -1,7 +1,6 @@
 import { url } from "../url";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Fonction pour récupérer le token depuis AsyncStorage
 const getToken = async () => {
   return await AsyncStorage.getItem('userToken');
 };

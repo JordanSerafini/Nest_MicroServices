@@ -6,6 +6,6 @@ export const setup = async () => {
     await getCustomersPaginated("", 25, 0);
     await getItemPaginated("", 25, 0);
   } catch (error) {
-    console.error('Error fetching customers:', error);
+    console.error('Error setup:', error);
   }
 };
