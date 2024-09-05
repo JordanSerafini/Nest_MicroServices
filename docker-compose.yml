@@ -18,6 +18,10 @@ services:
       - "3002:3002"
     networks:
       - nestjs_network
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
     volumes:
       - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
 
@@ -46,6 +50,13 @@ services:
       - authentification_service
     volumes:
       - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - nestjs_network
 
 
 networks:

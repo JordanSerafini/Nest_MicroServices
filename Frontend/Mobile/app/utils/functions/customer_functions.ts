@@ -1,6 +1,7 @@
 import { Customer } from "../../@types/customer.type";
 import { url } from "../url";
 import { postLogs } from "./logs_function";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getAllCustomers = async () => {
     try {
@@ -55,12 +56,27 @@ export const getCustomerByName = async (name: string) => {
 
 export const getCustomersPaginated = async (searchQuery: string, limit: number, offset: number) => {
     try {
-        const response = await fetch(`${url.api_gateway}/clients/paginated?searchQuery=${searchQuery}&limit=${limit}&offset=${offset}`);
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) {
+            const error = new Error('Token not found');
+            await postLogs(error);
+            throw error;
+        }
+
+        const response = await fetch(`${url.api_gateway}/customers/paginate?searchQuery=${searchQuery}&limit=${limit}&offset=${offset}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
         if (!response.ok) {
             const error = new Error('Network response was not ok');
             await postLogs(error);
             throw error;
         }
+
         const data = await response.json();
         return data;
     } catch (error: any) {

@@ -51,7 +51,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any): Promise<{ access_token: string }> {
+  async login(user: any): Promise<{ access_token: string; user: any }> {
     this.logger.log(`Logging in user with email: ${user.email}`);
 
     const payload = { email: user.email, sub: user.id };
@@ -61,8 +61,10 @@ export class AuthService {
     });
 
     this.logger.log(`User with email: ${user.email} logged in successfully`);
+
     return {
       access_token: accessToken,
+      user: user,
     };
   }
 
