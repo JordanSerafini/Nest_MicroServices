@@ -47,8 +47,6 @@ function StockDocumentList() {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  console.log(BeDocument);
-
   useEffect(() => {
     setPage(0);
     setBeDocument([]);
@@ -69,31 +67,34 @@ function StockDocumentList() {
   ) => {
     if (loading) return;
     setLoading(true);
-
+  
+    // Appelle l'API pour récupérer les données paginées
     const data = await getStockDocPaginated(limit, page * limit, searchQuery);
-    const BeDoc = data.StockDoc.filter(
-      (line: { NumberPrefix: string }) => line.NumberPrefix == "BE"
+  
+    // Utilise la clé correcte 'stocks' pour accéder aux données
+    const BeDoc = data.stocks.filter(
+      (line: { NumberPrefix: string }) => line.NumberPrefix === "BE"
     );
     setBeDocument((prev) => [...prev, ...BeDoc]);
-
-    const BsDoc = data.StockDoc.filter(
-      
-      (line: { NumberPrefix: string }) => line.NumberPrefix == "BS"
+  
+    const BsDoc = data.stocks.filter(
+      (line: { NumberPrefix: string }) => line.NumberPrefix === "BS"
     );
     setBsDocument((prev) => [...prev, ...BsDoc]);
-
-    const BlDoc = data.StockDoc.filter(
-      (line: { NumberPrefix: string }) => line.NumberPrefix == "BL"
+  
+    const BlDoc = data.stocks.filter(
+      (line: { NumberPrefix: string }) => line.NumberPrefix === "BL"
     );
     setBlDocument((prev) => [...prev, ...BlDoc]);
-
-    const InventoryDoc = data.StockDoc.filter(
+  
+    const InventoryDoc = data.stocks.filter(
       (line: { NumberPrefix: string }) => line.NumberPrefix === "INV"
     );
     setInventoryDocument((prev) => [...prev, ...InventoryDoc]);
-
+  
     setLoading(false);
   };
+  
 
   const handleShow = (documentType: string) => {
     const customAnimation = {
