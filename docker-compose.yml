@@ -36,6 +36,21 @@ services:
     volumes:
       - ./Backend/authentification_service/logs:/var/log/Logs_AuthService
 
+  stock_service:
+    build:
+      context: ./Backend/stock_service
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3004"
+    networks:
+      - nestjs_network
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./Backend/stock_service/logs:/var/log/Logs_StockService
+
   api_gateway:
     build:
       context: ./Backend/api_gateway
@@ -48,6 +63,7 @@ services:
       - customer_service
       - item_service
       - authentification_service
+      - stock_service
     volumes:
       - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
 

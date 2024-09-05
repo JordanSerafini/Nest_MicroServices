@@ -4,6 +4,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CustomersController } from './controllers/customers/customers.controller';
 import { ItemsController } from './controllers/items/items.controller';
 import { AuthController } from './controllers/auth/auth.controller';
+import { StockController } from './controllers/stock/stock.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
@@ -37,9 +38,22 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
           port: 3003,
         },
       },
+      {
+        name: 'STOCK_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'stock_service',
+          port: 3004,
+        },
+      },
     ]),
   ],
-  controllers: [CustomersController, ItemsController, AuthController],
+  controllers: [
+    CustomersController,
+    ItemsController,
+    AuthController,
+    StockController,
+  ],
   providers: [JwtAuthGuard],
 })
 export class AppModule {}
