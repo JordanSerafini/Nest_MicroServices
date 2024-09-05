@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "sli_mobile",
+    "slug": "sli_mobile",
+    "platforms": ["ios", "android", "web"],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./app/assets/sli.jpg",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./app/assets/sli.jpg",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": ["READ_CALENDAR", "WRITE_CALENDAR"]
+    },
+    "web": {
+      "favicon": "./app/assets/sli.jpg",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": ["./app/assets/fonts/Poppins-Black.ttf", "./app/assets/fonts/NotoSerifKhitanSmallScript-Regular.ttf"]
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "The app needs to access your calendar."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ]
+    ],
+    "scheme": "sli-mobile-scheme"
+  }
+}

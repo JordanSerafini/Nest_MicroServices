@@ -1,0 +1,68 @@
+import { render, screen, act, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom'; // Ensure that jest-dom extensions are loaded
+import Toast from './Toast'; // Ensure the path is correct
+import gsap from 'gsap';
+
+// Mock GSAP to not execute real animations but simulate a promise return
+jest.mock('gsap', () => ({
+  gsap: {
+    to: jest.fn().mockImplementation(() => Promise.resolve())
+  },
+  to: jest.fn().mockImplementation(() => Promise.resolve())
+}));
+
+describe('Toast Component', () => {
+  beforeEach(() => {
+    // Reset all mocks before each test
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('shows the toast with the correct message', () => {
+    render(<Toast message="Test message" />);
+    expect(screen.getByText('Test message')).toBeInTheDocument();
+  });
+
+  it('hides the toast after the default duration', async () => {
+    render(<Toast message="Another test message" />);
+
+    expect(screen.getByText('Another test message')).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(3000); // Advance time by 3 seconds
+    });
+
+    // Use waitFor to ensure that the assertions are verified after the state updates have occurred
+    await waitFor(() => {
+      expect(screen.queryByText('Another test message')).not.toBeInTheDocument();
+    });
+  });
+
+  it('applies correct animation on show and hide', async () => {
+    render(<Toast message="Test message" />);
+    // Wait for the animations to initialize and verify
+    await waitFor(() => {
+      expect(gsap.to).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+        autoAlpha: 1,
+        y: 0
+      }));
+    });
+
+    act(() => {
+      jest.advanceTimersByTime(3000); // Simulate closure after 3 seconds
+    });
+
+    await waitFor(() => {
+      expect(gsap.to).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+        autoAlpha: 0,
+        y: -100
+      }));
+    });
+  });
+
+  // Add additional tests for different 'position' props if necessary
+});
+

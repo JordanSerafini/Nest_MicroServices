@@ -1,40 +1,40 @@
 services:
   item_service:
     build:
-      context: ./item_service
+      context: ./Backend/item_service
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
     networks:
       - nestjs_network
     volumes:
-      - ./item_service/logs:/var/log/Logs_ItemService
+      - ./Backend/item_service/logs:/var/log/Logs_ItemService
 
   customer_service:
     build:
-      context: ./customer_service
+      context: ./Backend/customer_service
       dockerfile: Dockerfile
     ports:
       - "3002:3002"
     networks:
       - nestjs_network
     volumes:
-      - ./customer_service/logs:/var/log/Logs_CustomerService
+      - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
 
   authentification_service:
     build:
-      context: ./authentification_service
+      context: ./Backend/authentification_service
       dockerfile: Dockerfile
     ports:
       - "3003:3003"
     networks:
       - nestjs_network
     volumes:
-      - ./authentification_service/logs:/var/log/Logs_AuthService
+      - ./Backend/authentification_service/logs:/var/log/Logs_AuthService
 
   api_gateway:
     build:
-      context: ./api_gateway
+      context: ./Backend/api_gateway
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -45,7 +45,7 @@ services:
       - item_service
       - authentification_service
     volumes:
-      - ./api_gateway/logs:/var/log/Logs_ApiGateway
+      - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
 
 
 networks:

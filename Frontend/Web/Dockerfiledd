@@ -1,0 +1,20 @@
+# Utilisation de l'image Node.js comme base
+FROM node:latest
+
+# Création du répertoire de travail dans le conteneur
+WORKDIR /src
+
+# Copie du fichier package.json et package-lock.json (s'ils existent) dans le répertoire de travail
+COPY package*.json ./
+
+# Installation des dépendances
+RUN npm install
+
+# Copie de tous les fichiers de l'application dans le répertoire de travail du conteneur
+COPY . .
+
+# Exposition du port sur lequel l'application écoute
+EXPOSE 5173
+
+# Commande pour démarrer l'application
+CMD ["npm", "run", "vite"]
