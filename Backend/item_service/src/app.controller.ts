@@ -21,6 +21,20 @@ export class ItemController {
     return this.itemService.findAll(email);
   }
 
+  @MessagePattern({ cmd: 'paginate_items' })
+  paginate(
+    @Payload()
+    {
+      email,
+      paginationParams,
+    }: {
+      email: string;
+      paginationParams: { limit: number; offset: number; searchQuery: string };
+    },
+  ) {
+    return this.itemService.paginate(paginationParams, email);
+  }
+
   @MessagePattern({ cmd: 'find_one_item' })
   findOne(@Payload() { id, email }: { id: string | number; email: string }) {
     if (!id) {

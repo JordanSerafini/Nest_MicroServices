@@ -21,7 +21,7 @@ export const getItem = async () => {
 
 export const getItemPaginated = async (searchQuery: string, limit: number, offset: number) => {
     try {
-        const response = await fetch(`${url.api_gateway}/items/paginated?limit=${limit}&offset=${offset}&searchQuery=${searchQuery}`);
+        const response = await fetch(`${url.api_gateway}/items/paginate?limit=${limit}&offset=${offset}&searchQuery=${searchQuery}`);
         if (!response.ok) {
             const error = new Error('Network response was not ok');
             await postLogs(error);

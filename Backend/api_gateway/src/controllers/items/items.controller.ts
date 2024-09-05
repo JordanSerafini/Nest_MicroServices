@@ -9,6 +9,7 @@ import {
   Inject,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateItemDto } from '../../dto/create-item.dto';
@@ -40,6 +41,28 @@ export class ItemsController {
     const email = req.user.email;
     this.logger.log(`Fetching all items for user: ${email}`);
     return this.itemServiceClient.send({ cmd: 'find_all_items' }, { email });
+  }
+
+  @Get('paginate')
+  paginate(
+    @Request() req,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string,
+    @Query('searchQuery') searchQuery: string,
+  ) {
+    const email = req.user.email;
+    this.logger.log(`Fetching paginated items for user: ${email}`);
+
+    const paginationParams = {
+      limit: limit ? parseInt(limit, 10) : 10,
+      offset: offset ? parseInt(offset, 10) : 0,
+      searchQuery: searchQuery ? searchQuery : '',
+    };
+
+    return this.itemServiceClient.send(
+      { cmd: 'paginate_items' },
+      { email, paginationParams },
+    );
   }
 
   @Get(':id')

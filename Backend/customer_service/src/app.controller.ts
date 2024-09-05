@@ -30,7 +30,7 @@ export class CustomerController {
   @MessagePattern({ cmd: 'find_one_customer' })
   findOne(
     @Payload()
-    { id, email }: { id: string; email: string },
+    { id, email }: { id: number; email: string },
   ) {
     const parsedId = Number(id);
     if (isNaN(parsedId)) {

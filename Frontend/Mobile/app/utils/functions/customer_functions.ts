@@ -22,20 +22,35 @@ export const getAllCustomers = async () => {
 
 export const getCustomerById = async (id: number) => {
     try {
-        const response = await fetch(`${url.api_gateway}/clients/${id}`);
-        if (!response.ok) {
-            const error = new Error('Network response was not ok');
-            await postLogs(error);
-            throw error;
-        }
-        const data = await response.json();
-        return data;
-    } catch (error: any) {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        const error = new Error('Token not found');
         await postLogs(error);
-        console.error('Error fetching customer by ID:', error);
         throw error;
+      }
+  
+      const response = await fetch(`${url.api_gateway}/customers/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        const error = new Error('Network response was not ok');
+        await postLogs(error);
+        throw error;
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      await postLogs(error);
+      console.error('Error fetching customer by ID:', error);
+      throw error;
     }
-};
+  };
 
 export const getCustomerByName = async (name: string) => {
     try {
@@ -54,6 +69,7 @@ export const getCustomerByName = async (name: string) => {
     }
 };
 
+//* New version ok
 export const getCustomersPaginated = async (searchQuery: string, limit: number, offset: number) => {
     try {
         const token = await AsyncStorage.getItem('userToken');
@@ -96,10 +112,8 @@ export const createCustomer = async (customer: any): Promise<any> => {
             body: JSON.stringify(customer),
         });
 
-        // Check if the HTTP response status code is successful
         if (!response.ok) {
             const error = new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-            // Log error to server before throwing to handle it further up the call stack
             await postLogs({
                 level: 'error',
                 message: `Failed to add customer: ${response.status} ${response.statusText}`,
@@ -109,11 +123,9 @@ export const createCustomer = async (customer: any): Promise<any> => {
             throw error;
         }
 
-        // Check and log the response text before parsing
         const responseText = await response.text();
         console.log('Response Text:', responseText);
 
-        // Attempt to parse the response text as JSON
         let data;
         try {
             data = JSON.parse(responseText);
@@ -130,7 +142,6 @@ export const createCustomer = async (customer: any): Promise<any> => {
         return data;
 
     } catch (error: any) {
-        // Log the error locally and also send it to server-side logging
         console.error('Error adding customer:', error);
         await postLogs({
             level: 'error',

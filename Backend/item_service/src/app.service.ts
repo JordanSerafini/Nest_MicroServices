@@ -203,6 +203,62 @@ export class ItemService {
       throw error;
     }
   }
+
+  async paginate(
+    {
+      limit,
+      offset,
+      searchQuery,
+    }: { limit: number; offset: number; searchQuery: string },
+    email: string,
+  ): Promise<{ totalItems: number; totalPages: number; items: Item[] }> {
+    this.logger.log(
+      `Fetching paginated items with limit: ${limit}, offset: ${offset}, searchQuery: "${searchQuery}", User: ${email}`,
+    );
+
+    try {
+      let query = `SELECT * FROM "Item"`;
+      let countQuery = `SELECT COUNT(*) FROM "Item"`;
+      const queryParams: (string | number)[] = [];
+      const countParams: (string | number)[] = [];
+
+      if (searchQuery) {
+        query += ` WHERE "Caption" ILIKE $1`;
+        countQuery += ` WHERE "Caption" ILIKE $1`;
+        queryParams.push(`%${searchQuery}%`);
+        countParams.push(`%${searchQuery}%`);
+      }
+
+      queryParams.push(limit);
+      queryParams.push(offset);
+
+      // Tri et pagination
+      query += ` ORDER BY "Caption" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+      countQuery += `;`;
+
+      const [itemResult, totalResult] = await Promise.all([
+        this.pool.query(query, queryParams),
+        this.pool.query(countQuery, countParams),
+      ]);
+
+      const totalItems = parseInt(totalResult.rows[0].count, 10);
+      const totalPages = Math.ceil(totalItems / limit);
+
+      this.logger.log(
+        `Found ${itemResult.rows.length} items for user: ${email}, total items: ${totalItems}, total pages: ${totalPages}`,
+      );
+
+      return {
+        totalItems,
+        totalPages,
+        items: itemResult.rows as Item[],
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch paginated items for user: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
 }
-
-

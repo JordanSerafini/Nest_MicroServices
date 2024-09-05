@@ -50,14 +50,14 @@ const LoginScreen: React.FC = () => {
       }
 
       const start = new Date().getTime(); 
-      await setup();
       const end = new Date().getTime(); 
       const duration = end - start; 
       console.log(`Setup took ${duration} milliseconds`);
-
+      
       await AsyncStorage.setItem("userToken", token);
       await AsyncStorage.setItem("user", JSON.stringify(user));
-
+      
+      await setup();
       router.push("/home");
     } catch (error: any) {
       //await postLogs(error);
