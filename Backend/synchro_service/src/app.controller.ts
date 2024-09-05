@@ -5,8 +5,20 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('customer-counts')
+  async getCustomerCounts() {
+    try {
+      const counts = await this.appService.getCustomerCounts();
+      return {
+        message: 'Customer counts retrieved successfully',
+        mssqlCount: counts.mssqlCount,
+        pgCount: counts.pgCount,
+      };
+    } catch (error) {
+      return {
+        message: 'Error retrieving customer counts',
+        error: error.message,
+      };
+    }
   }
 }

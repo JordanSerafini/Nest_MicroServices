@@ -51,6 +51,17 @@ services:
     volumes:
       - ./Backend/stock_service/logs:/var/log/Logs_StockService
 
+  synchronisation_service:
+    build:
+      context: ./Backend/synchronisation_service
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/synchronisation_service/logs:/var/log/Logs_SynchronisationService
+
   api_gateway:
     build:
       context: ./Backend/api_gateway

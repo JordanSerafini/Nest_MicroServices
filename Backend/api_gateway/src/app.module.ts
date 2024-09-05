@@ -46,6 +46,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
           port: 3004,
         },
       },
+      {
+        name: 'SYNCHRO_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'synchro_service',
+          port: 3005,
+        },
+      },
     ]),
   ],
   controllers: [
