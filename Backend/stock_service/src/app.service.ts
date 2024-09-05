@@ -9,12 +9,16 @@ import { CreateStockDocumentDto } from './dto/create-stock.dto';
 import { Pool } from 'pg';
 import { StockDocument } from './entities/stock.entity';
 import { CustomLogger } from './logging/custom-logger.service';
+import { RedisClientType } from 'redis';
 
 @Injectable()
 export class StockService {
   private readonly logger = new CustomLogger('StockService');
 
-  constructor(@Inject('PG_CONNECTION') private readonly pool: Pool) {}
+  constructor(
+    @Inject('PG_CONNECTION') private readonly pool: Pool,
+    @Inject('REDIS_CLIENT') private readonly redisClient: RedisClientType,
+  ) {}
 
   private toSnakeCase(str: string): string {
     return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
@@ -100,6 +104,18 @@ export class StockService {
       `Fetching paginated stocks with limit: ${limit}, offset: ${offset}, searchQuery: ${searchQuery}, User: ${email}`,
     );
 
+    // Construction de la clé du cache
+    const cacheKey = `stocks_paginated_${limit}_${offset}_${searchQuery || ''}`;
+
+    // Tentative de récupération depuis le cache Redis
+    const cachedData = await this.redisClient.get(cacheKey);
+    if (cachedData) {
+      this.logger.log('Cache hit for key: ' + cacheKey);
+      return JSON.parse(cachedData);
+    }
+
+    this.logger.log('Cache miss for key: ' + cacheKey);
+
     try {
       let query = `SELECT * FROM "StockDocument"`;
       let countQuery = `SELECT COUNT(*) FROM "StockDocument"`;
@@ -129,15 +145,16 @@ export class StockService {
       const totalStocks = parseInt(totalResult.rows[0].count, 10);
       const totalPages = Math.ceil(totalStocks / limit);
 
-      this.logger.log(
-        `Found ${stockResult.rows.length} stocks for user: ${email}, total stocks: ${totalStocks}, total pages: ${totalPages}`,
-      );
-
-      return {
+      const response = {
         totalStocks,
         totalPages,
         stocks: stockResult.rows as StockDocument[],
       };
+
+      // Mise en cache des résultats
+      await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
+
+      return response;
     } catch (error) {
       this.logger.error(
         `Failed to fetch paginated stocks for user: ${email}, Error: ${error.message}`,
