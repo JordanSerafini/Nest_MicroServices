@@ -9,12 +9,16 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { Pool } from 'pg';
 import { Customer } from './entities/customer.entity';
 import { CustomLogger } from './logging/custom-logger.service';
+import { RedisClientType } from 'redis';
 
 @Injectable()
 export class CustomerService {
   private readonly logger = new CustomLogger('CustomerService');
 
-  constructor(@Inject('PG_CONNECTION') private readonly pool: Pool) {}
+  constructor(
+    @Inject('PG_CONNECTION') private readonly pool: Pool,
+    @Inject('REDIS_CLIENT') private readonly redisClient: RedisClientType,
+  ) {}
 
   private toSnakeCase(str: string): string {
     return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
@@ -196,6 +200,61 @@ export class CustomerService {
         error.stack || '',
       );
       throw error;
+    }
+  }
+
+  async paginate(
+    email: string,
+    limit: number,
+    offset: number,
+    searchQuery: string,
+  ) {
+    const cacheKey = `customers_paginated_${limit}_${offset}_${searchQuery}`;
+
+    const cachedData = await this.redisClient.get(cacheKey);
+    if (cachedData) {
+      console.log('Cache hit');
+      return JSON.parse(cachedData);
+    } else {
+      console.log('Cache miss');
+
+      let query = `SELECT * FROM "Customer"`;
+      let countQuery = `SELECT COUNT(*) FROM "Customer"`;
+      const queryParams: (string | number)[] = [];
+      const countParams: (string | number)[] = [];
+
+      if (searchQuery) {
+        query += ` WHERE "Name" ILIKE $1`;
+        countQuery += ` WHERE "Name" ILIKE $1`;
+        queryParams.push(`%${searchQuery}%`);
+        countParams.push(`%${searchQuery}%`);
+      }
+
+      queryParams.push(limit);
+      queryParams.push(offset);
+
+      query += ` ORDER BY "Name" ASC LIMIT $${
+        queryParams.length - 1
+      } OFFSET $${queryParams.length}`;
+      countQuery += `;`;
+
+      const [customerResult, totalResult] = await Promise.all([
+        this.pool.query(query, queryParams),
+        this.pool.query(countQuery, countParams),
+      ]);
+
+      const totalCustomer = parseInt(totalResult.rows[0].count, 10);
+      const totalPages = Math.ceil(totalCustomer / limit);
+
+      const response = {
+        totalCustomer,
+        totalPages,
+        customers: customerResult.rows,
+      };
+
+      await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
+
+      return response;
     }
   }
 }

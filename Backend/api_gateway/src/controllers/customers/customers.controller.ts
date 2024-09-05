@@ -9,6 +9,7 @@ import {
   Inject,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateCustomerDto } from '../../dto/create-customer.dto';
@@ -43,6 +44,29 @@ export class CustomersController {
     return this.customerServiceClient.send(
       { cmd: 'find_all_customers' },
       { email },
+    );
+  }
+
+  @Get('paginate')
+  paginate(
+    @Request() req,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string,
+    @Query('searchQuery') searchQuery: string,
+  ) {
+    const email = req.user.email;
+    this.logger.log(`Fetching paginated customers for user: ${email}`);
+
+    const paginationParams = {
+      email,
+      limit: parseInt(limit, 10) || 25,
+      offset: parseInt(offset, 10) || 0,
+      searchQuery: searchQuery || '',
+    };
+
+    return this.customerServiceClient.send(
+      { cmd: 'paginate_customers' },
+      paginationParams,
     );
   }
 

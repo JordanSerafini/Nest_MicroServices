@@ -62,4 +62,22 @@ export class CustomerController {
   ) {
     return this.customerService.remove(+id, email);
   }
+
+  @MessagePattern({ cmd: 'paginate_customers' })
+  paginate(
+    @Payload()
+    {
+      email,
+      limit,
+      offset,
+      searchQuery,
+    }: {
+      email: string;
+      limit: number;
+      offset: number;
+      searchQuery: string;
+    },
+  ) {
+    return this.customerService.paginate(email, limit, offset, searchQuery);
+  }
 }
