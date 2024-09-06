@@ -1,8 +1,8 @@
 import { Module, Global } from '@nestjs/common';
-import sql from 'mssql';
+import * as sql from 'mssql';
 
 const config: sql.config = {
-  server: 'SRVEBP-2022\\SRVEBP',
+  server: 'SRVEBP-2022\\SRVEBP', //'192.168.20.12\\SRVEBP',
   database: 'Solution Logique_0895452f-b7c1-4c00-a316-c6a6d0ea4bf4',
   authentication: {
     type: 'default',
@@ -24,6 +24,7 @@ const config: sql.config = {
       provide: 'MSSQL_CONNECTION',
       useFactory: async () => {
         try {
+          console.log('Attempting to connect to MSSQL database...');
           const pool = await sql.connect(config);
           console.log('MSSQL database connected successfully.');
           return pool;

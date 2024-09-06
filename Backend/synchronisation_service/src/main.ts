@@ -1,6 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Transport } from '@nestjs/microservices';
+
+async function bootstrap() {
+  // Création d'une application HTTP classique
+  const app = await NestFactory.create(AppModule);
+
+  // Définir le port pour écouter les requêtes HTTP
+  const port = 3005;
+
+  // Démarrer l'application sur le port spécifié
+  await app.listen(port);
+  console.log(`Application is listening on http://localhost:${port}`);
+}
+
+bootstrap();
+
+/*
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(AppModule, {
@@ -11,6 +26,7 @@ async function bootstrap() {
     },
   });
   app.listen();
-  console.log('Stock service is listening on port 3005');
+  console.log('Synchro service is listening on port 3005');
 }
-bootstrap();
+
+*/
