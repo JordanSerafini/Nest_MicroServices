@@ -33,10 +33,10 @@ const IndexScreen: React.FC = () => {
   const [showAddClientModal, setShowAddClientModal] = useState(false);
 
   const customAnimation = {
-    duration: 500,
+    duration: 200,
     update: {
-      type: LayoutAnimation.Types.easeInEaseOut,
-      property: LayoutAnimation.Properties.opacity,
+      type: LayoutAnimation.Types.spring,
+      springDamping: 0.7,
     },
     create: {
       type: LayoutAnimation.Types.easeInEaseOut,
@@ -47,10 +47,12 @@ const IndexScreen: React.FC = () => {
       property: LayoutAnimation.Properties.opacity,
     },
   };
-
+  
+  // Appliquer cette animation lors des ouvertures et fermetures
   useEffect(() => {
     LayoutAnimation.configureNext(customAnimation);
   }, [showAddClientModal, showEditClientModal]);
+  
 
   const theme = {
     ...DefaultTheme,
