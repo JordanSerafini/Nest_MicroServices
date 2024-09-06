@@ -130,7 +130,7 @@ export class AppService {
 
     // Étape 3 : Construire dynamiquement la requête d'insertion
     const columns = Object.keys(itemsToInsert[0]); // Extraire dynamiquement les colonnes
-    const columnNames = columns.map((col) => `"${col}"`).join(', '); // Utiliser les guillemets pour toutes les colonnes
+    const columnNames = columns.map((col) => `"${col}"`).join(', ');
     const placeholders = columns.map((_, index) => `$${index + 1}`).join(', ');
 
     const pgQuery = `INSERT INTO "Item" (${columnNames}) VALUES (${placeholders})`;
@@ -150,7 +150,7 @@ export class AppService {
           id: row.Id,
           name: row.Name,
           caption: row.Caption,
-        }); // Respectez la casse des colonnes MSSQL
+        });
       } catch (error) {
         // Vérifiez si l'erreur est liée à une colonne manquante et ignorez cet enregistrement
         if (error.message.includes('does not exist')) {
@@ -160,7 +160,7 @@ export class AppService {
           skippedItems.push(`Item ID: ${row.Id}, Name: ${row.Name}`);
         } else {
           console.error('Unexpected error during insertion:', error);
-          throw error; // Si ce n'est pas une erreur de colonne manquante, on relance l'erreur
+          throw error;
         }
       }
     }
