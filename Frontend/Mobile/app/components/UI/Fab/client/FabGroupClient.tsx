@@ -19,7 +19,7 @@ const FabPerso: React.FC<FabPersoProps> = ({
 
   const onStateChange = ({ open }: { open: boolean }) => setState({ open });
   const { open } = state;
-
+console.log(showAddClientModal)
   return (
     <Portal>
       <FAB.Group

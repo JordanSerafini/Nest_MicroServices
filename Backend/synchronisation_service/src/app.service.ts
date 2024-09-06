@@ -107,20 +107,20 @@ export class AppService {
     skippedItems: string[];
   }> {
     // Étape 1 : Récupérer tous les items existants dans PostgreSQL
-    const pgExistingQuery = 'SELECT "Id" FROM "Item"'; // Utiliser la casse correcte pour la colonne "Id" dans PostgreSQL
+    const pgExistingQuery = 'SELECT "Id" FROM "Item"';
     const pgExistingResult = await this.pgPool.query(pgExistingQuery);
 
     // Extraire les IDs existants dans PostgreSQL
-    const pgExistingIds = pgExistingResult.rows.map((row) => row.Id); // Respecter la casse pour "Id"
+    const pgExistingIds = pgExistingResult.rows.map((row) => row.Id);
 
     // Étape 2 : Récupérer tous les items et colonnes depuis MSSQL
-    const mssqlQuery = 'SELECT * FROM Item'; // Récupérer toutes les colonnes de la table Item dans MSSQL
+    const mssqlQuery = 'SELECT * FROM Item';
     const mssqlRequest = this.mssqlPool.request();
     const mssqlResult = await mssqlRequest.query(mssqlQuery);
 
     // Filtrer les items MSSQL qui n'existent pas dans PostgreSQL
     const itemsToInsert = mssqlResult.recordset.filter(
-      (row) => !pgExistingIds.includes(row.Id), // Assurez-vous que l'identifiant MSSQL correspond à celui de PostgreSQL
+      (row) => !pgExistingIds.includes(row.Id),
     );
 
     // Si aucun item ne doit être inséré, retourner une réponse vide
@@ -129,7 +129,7 @@ export class AppService {
     }
 
     // Étape 3 : Construire dynamiquement la requête d'insertion
-    const columns = Object.keys(itemsToInsert[0]); // Extraire dynamiquement les colonnes
+    const columns = Object.keys(itemsToInsert[0]);
     const columnNames = columns.map((col) => `"${col}"`).join(', ');
     const placeholders = columns.map((_, index) => `$${index + 1}`).join(', ');
 
