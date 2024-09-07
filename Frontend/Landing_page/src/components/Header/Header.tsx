@@ -17,7 +17,7 @@ function Header() {
       setLastScrollY(window.scrollY);
     }
   };
-
+// scroll
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.addEventListener("scroll", handleScroll);
