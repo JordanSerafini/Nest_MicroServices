@@ -6,7 +6,6 @@
 #include <thread>
 #include <ws2tcpip.h>
 
-
 #pragma comment(lib, "Ws2_32.lib")
 
 #define ID_BUTTON_DOCKER 1
@@ -14,20 +13,13 @@
 #define ID_BUTTON_STOP_DOCKER 3
 #define ID_BUTTON_STOP_SYNCHRO 4
 
+#define ID_DOCKER_STATUS 1001
+#define ID_SYNCHRO_STATUS 1002
+
 HWND hDockerStatus, hSynchroStatus;
 HWND hButtonDocker, hButtonSynchro, hButtonStopDocker, hButtonStopSynchro;
 PROCESS_INFORMATION dockerProcessInfo = {0};
 PROCESS_INFORMATION synchroProcessInfo = {0};
-
-// Variables pour gérer la couleur de fond
-COLORREF dockerBgColor = RGB(220, 53, 69);  // Rouge doux (Inactif)
-COLORREF synchroBgColor = RGB(220, 53, 69); // Rouge doux (Inactif)
-
-// Pinceaux (brushes) pour les labels
-HBRUSH hDockerBrush;
-HBRUSH hSynchroBrush;
-
-
 
 // Fonction pour vérifier si un port est ouvert sur localhost
 bool IsPortOpen(const std::string &hostname, int port)
@@ -63,24 +55,38 @@ bool IsPortOpen(const std::string &hostname, int port)
     return result == 0;
 }
 
-// Mettre à jour le texte d'un label et la couleur de fond
-void UpdateStatus(HWND hwnd, const std::wstring &text, COLORREF &bgColor, bool running, HBRUSH &hBrush)
+// Mettre à jour le texte d'un label
+void UpdateStatus(HWND hwnd, const std::wstring &text)
 {
     SetWindowTextW(hwnd, text.c_str());
-    bgColor = running ? RGB(40, 167, 69) : RGB(220, 53, 69); // Vert clair si en cours d'exécution, rouge doux sinon
-    DeleteObject(hBrush);                                    // Supprimer l'ancien pinceau
-    hBrush = CreateSolidBrush(bgColor);                      // Créer un nouveau pinceau avec la nouvelle couleur
-    InvalidateRect(hwnd, NULL, TRUE);                        // Redessiner la fenêtre
+    InvalidateRect(hwnd, NULL, TRUE); // Redessiner la fenêtre
+}
+
+// Fonction pour dessiner une pastille (cercle) à côté du label
+void DrawCircle(HDC hdc, int x, int y, int radius, COLORREF color)
+{
+    HBRUSH hBrush = CreateSolidBrush(color);
+    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+
+    HPEN hPen = CreatePen(PS_SOLID, 1, color);
+    HPEN oldPen = (HPEN)SelectObject(hdc, hPen);
+
+    Ellipse(hdc, x - radius, y - radius, x + radius, y + radius);
+
+    SelectObject(hdc, oldBrush);
+    DeleteObject(hBrush);
+    SelectObject(hdc, oldPen);
+    DeleteObject(hPen);
 }
 
 // Fonction pour attendre que le port soit ouvert avant de signaler l'état "En cours d'exécution"
-void WaitForServiceReady(int port, HWND statusLabel, COLORREF &bgColor, HBRUSH &hBrush)
+void WaitForServiceReady(int port, HWND statusLabel)
 {
     while (!IsPortOpen("127.0.0.1", port))
     {
         std::this_thread::sleep_for(std::chrono::seconds(1)); // Attendre 1 seconde avant de réessayer
     }
-    UpdateStatus(statusLabel, L"En cours d'exécution", bgColor, true, hBrush); // Mettre à jour l'interface une fois le service prêt
+    UpdateStatus(statusLabel, L"En cours d'exécution"); // Mettre à jour l'interface une fois le service prêt
 }
 
 // Fonction pour repositionner les éléments lors du redimensionnement
@@ -95,7 +101,7 @@ void ResizeControls(HWND hwnd, int width, int height)
     // 2. Tailles des boutons et labels
     int buttonWidth = 150;
     int buttonHeight = 50;
-    int labelWidth = 150; // Ajustement de la largeur du label pour éviter qu'il ne devienne trop large
+    int labelWidth = 200;
     int labelHeight = 30;
     int xOffset = 50;
     int yOffset = 50;
@@ -113,16 +119,14 @@ void ResizeControls(HWND hwnd, int width, int height)
     SetWindowPos(hButtonDocker, NULL, xOffset, yOffset, buttonWidth, buttonHeight, SWP_NOZORDER);
     SetWindowPos(hButtonStopDocker, NULL, xStopOffset, yOffset, buttonWidth, buttonHeight, SWP_NOZORDER);
     SetWindowPos(hDockerStatus, NULL, xLabelOffset, yOffset + 10, labelWidth, labelHeight, SWP_NOZORDER);
-    InvalidateRect(hDockerStatus, NULL, TRUE); // Forcer le redessin
 
     SetWindowPos(hButtonSynchro, NULL, xOffset, yOffset + ySpacing + buttonHeight, buttonWidth, buttonHeight, SWP_NOZORDER);
     SetWindowPos(hButtonStopSynchro, NULL, xStopOffset, yOffset + ySpacing + buttonHeight, buttonWidth, buttonHeight, SWP_NOZORDER);
     SetWindowPos(hSynchroStatus, NULL, xLabelOffset, yOffset + ySpacing + buttonHeight + 10, labelWidth, labelHeight, SWP_NOZORDER);
-    InvalidateRect(hSynchroStatus, NULL, TRUE); // Forcer le redessin
 }
 
 // Fonction pour arrêter un processus en utilisant taskkill
-void StopProcessWithTaskkill(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF &bgColor, HBRUSH &hBrush)
+void StopProcessWithTaskkill(PROCESS_INFORMATION &pi, HWND statusLabel)
 {
     if (pi.hProcess)
     {
@@ -131,7 +135,7 @@ void StopProcessWithTaskkill(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF
         system(std::string(taskkillCommand.begin(), taskkillCommand.end()).c_str());
 
         // Mettre à jour l'état en "Inactif"
-        UpdateStatus(statusLabel, L"Inactif", bgColor, false, hBrush);
+        UpdateStatus(statusLabel, L"Inactif");
 
         // Fermer les handles du processus
         CloseHandle(pi.hProcess);
@@ -143,11 +147,8 @@ void StopProcessWithTaskkill(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF
 // Fonction pour exécuter une commande système (docker-compose down)
 void RunDockerComposeDown()
 {
-    STARTUPINFOW si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi = { 0 };
 
     // Commande docker-compose down
     std::wstring command = L"cmd.exe /c docker-compose down";
@@ -172,7 +173,7 @@ void RunDockerComposeDown()
 }
 
 // Fonction pour arrêter Docker avec docker-compose down
-void StopDockerProcess(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF &bgColor, HBRUSH &hBrush)
+void StopDockerProcess(PROCESS_INFORMATION &pi, HWND statusLabel)
 {
     if (pi.hProcess)
     {
@@ -180,7 +181,7 @@ void StopDockerProcess(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF &bgCo
         RunDockerComposeDown();
 
         // Mettre à jour l'état en "Inactif"
-        UpdateStatus(statusLabel, L"Inactif", bgColor, false, hBrush);
+        UpdateStatus(statusLabel, L"Inactif");
 
         // Fermer les handles du processus
         CloseHandle(pi.hProcess);
@@ -189,36 +190,33 @@ void StopDockerProcess(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF &bgCo
     }
 }
 
-// Fonction pour lancer un processus .exe dans un thread séparé avec `CREATE_NO_WINDOW` pour éviter l'ouverture d'un terminal
-void LaunchProcessInThread(const std::wstring &exePath, HWND statusLabel, PROCESS_INFORMATION &pi, COLORREF &bgColor, HBRUSH &hBrush, int port)
+// Fonction pour lancer un processus .exe dans un thread séparé
+void LaunchProcessInThread(const std::wstring &exePath, HWND statusLabel, PROCESS_INFORMATION &pi, int port)
 {
-    std::thread([exePath, statusLabel, &pi, &bgColor, &hBrush, port]()
+    std::thread([exePath, statusLabel, &pi, port]()
                 {
         STARTUPINFOW si = { sizeof(STARTUPINFOW) };
 
-        // Option CREATE_NO_WINDOW pour éviter l'ouverture d'une fenêtre de terminal
-       DWORD flags = 0;
-
         // Mettre à jour l'UI avec le statut "En cours de lancement"
-        UpdateStatus(statusLabel, L"En cours de lancement...", bgColor, true, hBrush);
+        UpdateStatus(statusLabel, L"En cours de lancement...");
 
-        if (CreateProcessW(NULL, (LPWSTR)exePath.c_str(), NULL, NULL, FALSE, flags, NULL, NULL, &si, &pi)) {
+        if (CreateProcessW(NULL, (LPWSTR)exePath.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
             // Attendre que le service soit prêt (port ouvert)
-            WaitForServiceReady(port, statusLabel, bgColor, hBrush);
+            WaitForServiceReady(port, statusLabel);
 
             // Attendre que le processus se termine
             WaitForSingleObject(pi.hProcess, INFINITE);
 
             // Quand le processus se termine, mettre à jour le statut
-            UpdateStatus(statusLabel, L"Inactif", bgColor, false, hBrush);
+            UpdateStatus(statusLabel, L"Inactif");
 
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
         } else {
             // En cas d'échec, afficher une erreur
-            UpdateStatus(statusLabel, L"Erreur lors du lancement", bgColor, false, hBrush);
+            UpdateStatus(statusLabel, L"Erreur lors du lancement");
         } })
-        .detach(); // Détacher le thread pour éviter de bloquer le thread principal
+    .detach(); // Détacher le thread pour éviter de bloquer le thread principal
 }
 
 // Gérer les couleurs des labels avec WM_CTLCOLORSTATIC
@@ -240,67 +238,101 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         int xStopOffset = xLabelOffset + labelWidth + 20;
 
         // Créer les boutons et labels
-        hButtonDocker = CreateWindowW(L"BUTTON", L"Lancer Docker", WS_VISIBLE | WS_CHILD, xOffset, yOffset, buttonWidth, buttonHeight, hwnd, (HMENU)ID_BUTTON_DOCKER, NULL, NULL);
-        hButtonStopDocker = CreateWindowW(L"BUTTON", L"Arrêter Docker", WS_VISIBLE | WS_CHILD, xStopOffset, yOffset, buttonWidth, buttonHeight, hwnd, (HMENU)ID_BUTTON_STOP_DOCKER, NULL, NULL);
-        hDockerStatus = CreateWindowW(L"STATIC", L"Inactif", WS_VISIBLE | WS_CHILD, xLabelOffset, yOffset + 10, labelWidth, labelHeight, hwnd, NULL, NULL, NULL);
+        hButtonDocker = CreateWindowW(L"BUTTON", L"Lancer Docker", WS_VISIBLE | WS_CHILD,
+                                      xOffset, yOffset, buttonWidth, buttonHeight,
+                                      hwnd, (HMENU)ID_BUTTON_DOCKER, NULL, NULL);
 
-        hButtonSynchro = CreateWindowW(L"BUTTON", L"Lancer Synchro", WS_VISIBLE | WS_CHILD, xOffset, yOffset + ySpacing, buttonWidth, buttonHeight, hwnd, (HMENU)ID_BUTTON_SYNCHRO, NULL, NULL);
-        hButtonStopSynchro = CreateWindowW(L"BUTTON", L"Arrêter Synchro", WS_VISIBLE | WS_CHILD, xStopOffset, yOffset + ySpacing, buttonWidth, buttonHeight, hwnd, (HMENU)ID_BUTTON_STOP_SYNCHRO, NULL, NULL);
-        hSynchroStatus = CreateWindowW(L"STATIC", L"Inactif", WS_VISIBLE | WS_CHILD, xLabelOffset, yOffset + ySpacing + 10, labelWidth, labelHeight, hwnd, NULL, NULL, NULL);
+        hButtonStopDocker = CreateWindowW(L"BUTTON", L"Arrêter Docker", WS_VISIBLE | WS_CHILD,
+                                          xStopOffset, yOffset, buttonWidth, buttonHeight,
+                                          hwnd, (HMENU)ID_BUTTON_STOP_DOCKER, NULL, NULL);
 
-        // Créer des pinceaux initiaux (rouge pour inactif)
-        hDockerBrush = CreateSolidBrush(dockerBgColor);
-        hSynchroBrush = CreateSolidBrush(synchroBgColor);
+        hDockerStatus = CreateWindowW(L"STATIC", L"Inactif", WS_VISIBLE | WS_CHILD | SS_OWNERDRAW,
+                                      xLabelOffset, yOffset + 10, labelWidth, labelHeight,
+                                      hwnd, (HMENU)ID_DOCKER_STATUS, NULL, NULL);
+
+        hButtonSynchro = CreateWindowW(L"BUTTON", L"Lancer Synchro", WS_VISIBLE | WS_CHILD,
+                                       xOffset, yOffset + ySpacing, buttonWidth, buttonHeight,
+                                       hwnd, (HMENU)ID_BUTTON_SYNCHRO, NULL, NULL);
+
+        hButtonStopSynchro = CreateWindowW(L"BUTTON", L"Arrêter Synchro", WS_VISIBLE | WS_CHILD,
+                                           xStopOffset, yOffset + ySpacing, buttonWidth, buttonHeight,
+                                           hwnd, (HMENU)ID_BUTTON_STOP_SYNCHRO, NULL, NULL);
+
+        hSynchroStatus = CreateWindowW(L"STATIC", L"Inactif", WS_VISIBLE | WS_CHILD | SS_OWNERDRAW,
+                                       xLabelOffset, yOffset + ySpacing + 10, labelWidth, labelHeight,
+                                       hwnd, (HMENU)ID_SYNCHRO_STATUS, NULL, NULL);
 
         break;
     }
     case WM_CTLCOLORSTATIC:
     {
         HDC hdcStatic = (HDC)wParam;
-        HWND hStatic = (HWND)lParam;
-
-        // Changer la couleur de fond pour le label Docker
-        if (hStatic == hDockerStatus)
+        SetBkMode(hdcStatic, TRANSPARENT);
+        return (LRESULT)GetStockObject(NULL_BRUSH); // Fond transparent
+    }
+    case WM_DRAWITEM:
+    {
+        LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT)lParam;
+        if (lpDrawItem->hwndItem == hDockerStatus || lpDrawItem->hwndItem == hSynchroStatus)
         {
-            SetBkMode(hdcStatic, TRANSPARENT);
-            SetTextColor(hdcStatic, RGB(0, 0, 0)); // Couleur du texte en noir
-            return (LRESULT)hDockerBrush;
-        }
+            // Remplir le fond avec la couleur de la fenêtre pour éviter la superposition
+            FillRect(lpDrawItem->hDC, &lpDrawItem->rcItem, (HBRUSH)(COLOR_WINDOW + 1));
 
-        // Changer la couleur de fond pour le label Synchro
-        if (hStatic == hSynchroStatus)
-        {
-            SetBkMode(hdcStatic, TRANSPARENT);
-            SetTextColor(hdcStatic, RGB(0, 0, 0)); // Couleur du texte en noir
-            return (LRESULT)hSynchroBrush;
-        }
+            // Récupérer le texte
+            wchar_t text[256];
+            GetWindowTextW(lpDrawItem->hwndItem, text, 256);
 
+            // Définir la couleur du texte
+            SetTextColor(lpDrawItem->hDC, RGB(0, 0, 0));
+            SetBkMode(lpDrawItem->hDC, TRANSPARENT);
+
+            // Dessiner le texte
+            RECT rect = lpDrawItem->rcItem;
+            DrawTextW(lpDrawItem->hDC, text, -1, &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+
+            // Déterminer la couleur de la pastille
+            bool isRunning = false;
+            if (lpDrawItem->hwndItem == hDockerStatus)
+                isRunning = (dockerProcessInfo.hProcess != NULL);
+            else if (lpDrawItem->hwndItem == hSynchroStatus)
+                isRunning = (synchroProcessInfo.hProcess != NULL);
+
+            COLORREF color = isRunning ? RGB(40, 167, 69) : RGB(220, 53, 69); // Vert ou Rouge
+
+            // Dessiner la pastille à côté du texte
+            int circleRadius = 10;
+            int circleX = rect.right - circleRadius - 5; // Ajuster la position horizontale
+            int circleY = (rect.top + rect.bottom) / 2;
+
+            DrawCircle(lpDrawItem->hDC, circleX, circleY, circleRadius, color);
+
+            return TRUE;
+        }
         break;
     }
-
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
         if (wmId == ID_BUTTON_DOCKER)
         {
-            LaunchProcessInThread(L"C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\docker_launcher.exe", hDockerStatus, dockerProcessInfo, dockerBgColor, hDockerBrush, 3000);
+            LaunchProcessInThread(L"C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\docker_launcher.exe",
+                                  hDockerStatus, dockerProcessInfo, 3000);
         }
         else if (wmId == ID_BUTTON_SYNCHRO)
         {
-            LaunchProcessInThread(L"C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\synchro_launcher.exe", hSynchroStatus, synchroProcessInfo, synchroBgColor, hSynchroBrush, 3005);
+            LaunchProcessInThread(L"C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\synchro_launcher.exe",
+                                  hSynchroStatus, synchroProcessInfo, 3005);
         }
         else if (wmId == ID_BUTTON_STOP_DOCKER)
         {
-            StopDockerProcess(dockerProcessInfo, hDockerStatus, dockerBgColor, hDockerBrush);
+            StopDockerProcess(dockerProcessInfo, hDockerStatus);
         }
-
         else if (wmId == ID_BUTTON_STOP_SYNCHRO)
         {
-            StopProcessWithTaskkill(synchroProcessInfo, hSynchroStatus, synchroBgColor, hSynchroBrush);
+            StopProcessWithTaskkill(synchroProcessInfo, hSynchroStatus);
         }
         break;
     }
-
     case WM_SIZE:
     {
         // Gestion du redimensionnement de la fenêtre
@@ -309,7 +341,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         ResizeControls(hwnd, width, height);
         break;
     }
-
     case WM_DESTROY:
     {
         PostQuitMessage(0);
@@ -320,7 +351,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return 0;
 }
-
 
 // Fonction principale
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
@@ -333,7 +363,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wc.lpszClassName = CLASS_NAME;
 
     // Charger l'icône directement depuis un fichier .ico
-    wc.hIcon = (HICON)LoadImageW(NULL, L"C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\software.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    wc.hIcon = (HICON)LoadImageW(NULL, L"C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\pat.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
     RegisterClassW(&wc);
 
