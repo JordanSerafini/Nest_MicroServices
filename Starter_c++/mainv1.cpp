@@ -18,8 +18,8 @@ PROCESS_INFORMATION dockerProcessInfo = {0};
 PROCESS_INFORMATION synchroProcessInfo = {0};
 
 // Variables pour gérer la couleur de fond
-COLORREF dockerBgColor = RGB(220, 53, 69);  // Rouge doux (Inactif)
-COLORREF synchroBgColor = RGB(220, 53, 69); // Rouge doux (Inactif)
+COLORREF dockerBgColor = RGB(255, 0, 0);  // Rouge par défaut (Inactif)
+COLORREF synchroBgColor = RGB(255, 0, 0); // Rouge par défaut (Inactif)
 
 // Pinceaux (brushes) pour les labels
 HBRUSH hDockerBrush;
@@ -63,10 +63,10 @@ bool IsPortOpen(const std::string &hostname, int port)
 void UpdateStatus(HWND hwnd, const std::wstring &text, COLORREF &bgColor, bool running, HBRUSH &hBrush)
 {
     SetWindowTextW(hwnd, text.c_str());
-    bgColor = running ? RGB(40, 167, 69) : RGB(220, 53, 69); // Vert clair si en cours d'exécution, rouge doux sinon
-    DeleteObject(hBrush);                                    // Supprimer l'ancien pinceau
-    hBrush = CreateSolidBrush(bgColor);                      // Créer un nouveau pinceau avec la nouvelle couleur
-    InvalidateRect(hwnd, NULL, TRUE);                        // Redessiner la fenêtre
+    bgColor = running ? RGB(0, 255, 0) : RGB(255, 0, 0); // Vert si en cours d'exécution, rouge sinon
+    DeleteObject(hBrush);                                // Supprimer l'ancien pinceau
+    hBrush = CreateSolidBrush(bgColor);                  // Créer un nouveau pinceau avec la nouvelle couleur
+    InvalidateRect(hwnd, NULL, TRUE);                    // Redessiner la fenêtre
 }
 
 // Fonction pour attendre que le port soit ouvert avant de signaler l'état "En cours d'exécution"
@@ -82,46 +82,29 @@ void WaitForServiceReady(int port, HWND statusLabel, COLORREF &bgColor, HBRUSH &
 // Fonction pour repositionner les éléments lors du redimensionnement
 void ResizeControls(HWND hwnd, int width, int height)
 {
-    // 1. Fixer des valeurs minimales pour la fenêtre
-    if (width < 400)
-        width = 400; // Largeur minimale de la fenêtre
-    if (height < 200)
-        height = 200; // Hauteur minimale de la fenêtre
-
-    // 2. Tailles des boutons et labels
     int buttonWidth = 150;
     int buttonHeight = 50;
-    int labelWidth = 150; // Ajustement de la largeur du label pour éviter qu'il ne devienne trop large
+    int labelWidth = 200;
     int labelHeight = 30;
     int xOffset = 50;
     int yOffset = 50;
-
-    // 3. Ajuster l'espacement vertical selon la taille de la fenêtre
-    int ySpacing = (height - yOffset * 2 - buttonHeight * 2) / 2;
-    if (ySpacing < 20)
-        ySpacing = 20; // Espacement minimal
-
-    // 4. Calcul des positions
-    int xLabelOffset = xOffset + buttonWidth + 20; // Espace entre les boutons et les labels
+    int ySpacing = 100;
+    int xLabelOffset = xOffset + buttonWidth + 20; // Garder un espace entre les boutons et les labels
     int xStopOffset = xLabelOffset + labelWidth + 20;
 
-    // 5. Ajuster les positions et redimensionner les contrôles
+    // Ajuster les positions des boutons et labels en fonction des nouvelles dimensions
     SetWindowPos(hButtonDocker, NULL, xOffset, yOffset, buttonWidth, buttonHeight, SWP_NOZORDER);
     SetWindowPos(hButtonStopDocker, NULL, xStopOffset, yOffset, buttonWidth, buttonHeight, SWP_NOZORDER);
     SetWindowPos(hDockerStatus, NULL, xLabelOffset, yOffset + 10, labelWidth, labelHeight, SWP_NOZORDER);
-    InvalidateRect(hDockerStatus, NULL, TRUE); // Forcer le redessin
 
-    SetWindowPos(hButtonSynchro, NULL, xOffset, yOffset + ySpacing + buttonHeight, buttonWidth, buttonHeight, SWP_NOZORDER);
-    SetWindowPos(hButtonStopSynchro, NULL, xStopOffset, yOffset + ySpacing + buttonHeight, buttonWidth, buttonHeight, SWP_NOZORDER);
-    SetWindowPos(hSynchroStatus, NULL, xLabelOffset, yOffset + ySpacing + buttonHeight + 10, labelWidth, labelHeight, SWP_NOZORDER);
-    InvalidateRect(hSynchroStatus, NULL, TRUE); // Forcer le redessin
+    SetWindowPos(hButtonSynchro, NULL, xOffset, yOffset + ySpacing, buttonWidth, buttonHeight, SWP_NOZORDER);
+    SetWindowPos(hButtonStopSynchro, NULL, xStopOffset, yOffset + ySpacing, buttonWidth, buttonHeight, SWP_NOZORDER);
+    SetWindowPos(hSynchroStatus, NULL, xLabelOffset, yOffset + ySpacing + 10, labelWidth, labelHeight, SWP_NOZORDER);
 }
 
 // Fonction pour arrêter un processus en utilisant taskkill
-void StopProcessWithTaskkill(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF &bgColor, HBRUSH &hBrush)
-{
-    if (pi.hProcess)
-    {
+void StopProcessWithTaskkill(PROCESS_INFORMATION &pi, HWND statusLabel, COLORREF &bgColor, HBRUSH &hBrush) {
+    if (pi.hProcess) {
         // Tuer le processus en utilisant taskkill
         std::wstring taskkillCommand = L"taskkill /PID " + std::to_wstring(pi.dwProcessId) + L" /F /T";
         system(std::string(taskkillCommand.begin(), taskkillCommand.end()).c_str());
@@ -193,6 +176,7 @@ void LaunchProcessInThread(const std::wstring &exePath, HWND statusLabel, PROCES
         STARTUPINFOW si = { sizeof(STARTUPINFOW) };
 
         // Option CREATE_NO_WINDOW pour éviter l'ouverture d'une fenêtre de terminal
+       //DWORD flags = CREATE_NO_WINDOW;
        DWORD flags = 0;
 
         // Mettre à jour l'UI avec le statut "En cours de lancement"
@@ -273,7 +257,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         break;
     }
-
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
@@ -294,15 +277,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             StopProcessWithTaskkill(synchroProcessInfo, hSynchroStatus, synchroBgColor, hSynchroBrush);
         }
-        break;
-    }
-
-    case WM_SIZE:
-    {
-        // Gestion du redimensionnement de la fenêtre
-        int width = LOWORD(lParam);
-        int height = HIWORD(lParam);
-        ResizeControls(hwnd, width, height);
         break;
     }
 
@@ -330,7 +304,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     RegisterClassW(&wc);
 
     HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Lanceur de Services", WS_OVERLAPPEDWINDOW,
-                                CW_USEDEFAULT, CW_USEDEFAULT, 800, 400, NULL, NULL, hInstance, NULL);
+                                CW_USEDEFAULT, CW_USEDEFAULT, 700, 300, NULL, NULL, hInstance, NULL);
 
     if (hwnd == NULL)
     {

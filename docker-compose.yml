@@ -78,22 +78,22 @@ services:
     volumes:
       - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
 
-  mobile_service:
-    build:
-      context: ./Frontend/Mobile
-      dockerfile: Dockerfile
-    ports:
-      - "19000:19000"
-      - "19001:19001"
-      - "8081:8081"
-    volumes:
-      - ./Frontend/Mobile:/app
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    networks:
-      - nestjs_network
-    stdin_open: true
-    tty: true
+  # mobile_service:
+  #   build:
+  #     context: ./Frontend/Mobile
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "19000:19000"
+  #     - "19001:19001"
+  #     - "8081:8081"
+  #   volumes:
+  #     - ./Frontend/Mobile:/app
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #   networks:
+  #     - nestjs_network
+  #   stdin_open: true
+  #   tty: true
 
 
 
