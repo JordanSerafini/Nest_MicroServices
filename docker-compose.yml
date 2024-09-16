@@ -89,7 +89,6 @@ services:
     volumes:
       - ./Frontend/Mobile:/app
     environment:
-      - IGNORE_POSTINSTALL=true
       - CHOKIDAR_USEPOLLING=true
     networks:
       - nestjs_network

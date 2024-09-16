@@ -5,7 +5,7 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "postinstall": "if [ \"$IGNORE_POSTINSTALL\" != \"true\" ]; then node ./postInstall.js && node react-native-map-web-fix.js; fi",
+    "postinstall": "node ./postInstall && node react-native-map-web-fix.js",
     "ios": "expo start --ios",
     "web": "expo start --web"
   },
