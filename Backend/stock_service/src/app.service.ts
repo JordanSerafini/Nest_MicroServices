@@ -242,15 +242,15 @@ export class StockService {
   async getAllStockWithDetails(): Promise<any[]> {
     try {
       const query = `
-        SELECT 
+        SELECT
           sd.*,
           sdl.*,
           sh.*
-        FROM 
+        FROM
           "StockDocument" sd
-        LEFT JOIN 
+        LEFT JOIN
           "StockDocumentLine" sdl ON sd."Id" = sdl."DocumentId"
-        LEFT JOIN 
+        LEFT JOIN
           "Storehouse" sh ON sd."StorehouseId" = sh."Id"
       `;
       const result = await this.pool.query(query);
@@ -292,23 +292,27 @@ export class StockService {
   async getStockWithDetailsByDocumentId(DocumentId: string): Promise<any> {
     try {
       const query = `
-        SELECT 
-          sd.*,
-          sdl.*,
-          i.*,
-          sh."Id" AS "StorehouseId",
-          sh."Caption" AS "StorehouseCaption"
-        FROM 
-          "StockDocument" sd
-        LEFT JOIN 
-          "StockDocumentLine" sdl ON sd."Id" = sdl."DocumentId"
-        LEFT JOIN 
-          "Storehouse" sh ON sd."StorehouseId" = sh."Id"
-        LEFT JOIN 
-          "Item" i ON sdl."ItemId" = i."Id"
-        WHERE 
-          sd."Id" = $1
-      `;
+      SELECT * FROM stock_details_id
+      WHERE "StockDocumentId" = $1;
+    `;
+      // const query = `
+      //   SELECT
+      //     sd.*,
+      //     sdl.*,
+      //     i.*,
+      //     sh."Id" AS "StorehouseId",
+      //     sh."Caption" AS "StorehouseCaption"
+      //   FROM
+      //     "StockDocument" sd
+      //   LEFT JOIN
+      //     "StockDocumentLine" sdl ON sd."Id" = sdl."DocumentId"
+      //   LEFT JOIN
+      //     "Storehouse" sh ON sd."StorehouseId" = sh."Id"
+      //   LEFT JOIN
+      //     "Item" i ON sdl."ItemId" = i."Id"
+      //   WHERE
+      //     sd."Id" = $1
+      // `;
 
       const result = await this.pool.query(query, [DocumentId]);
 
