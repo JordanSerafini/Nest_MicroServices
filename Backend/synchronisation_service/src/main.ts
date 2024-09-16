@@ -5,6 +5,8 @@ async function bootstrap() {
   // Création d'une application HTTP classique
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
+
   // Définir le port pour écouter les requêtes HTTP
   const port = 3005;
 

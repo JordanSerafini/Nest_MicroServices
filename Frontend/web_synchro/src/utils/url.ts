@@ -1,3 +1,3 @@
-const url = "localhost:3005";
+const url = "http://localhost:3005";
 
 export default url;
