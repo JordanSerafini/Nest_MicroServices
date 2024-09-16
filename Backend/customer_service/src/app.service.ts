@@ -21,7 +21,9 @@ export class CustomerService {
   ) {}
 
   private toSnakeCase(str: string): string {
-    return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+    return str
+      .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+      .replace(/^_/, '');
   }
 
   async create(
@@ -36,9 +38,10 @@ export class CustomerService {
     const placeholders: string[] = [];
     const values: any[] = [];
 
+    // Parcourir les champs du DTO sans conversion automatique
     Object.entries(createCustomerDto).forEach(([key, value], index) => {
       if (value !== undefined && value !== null) {
-        fields.push(this.toSnakeCase(key));
+        fields.push(`"${key}"`);
         placeholders.push(`$${index + 1}`);
         values.push(value);
       }
@@ -52,11 +55,15 @@ export class CustomerService {
       throw new Error('No data provided to create a customer.');
     }
 
+    // Log des noms de colonnes et de la requête pour déboguer
+    this.logger.log(`Fields: ${fields.join(', ')}`);
     const query = `
       INSERT INTO "Customer" (${fields.join(', ')})
       VALUES (${placeholders.join(', ')})
       RETURNING *;
     `;
+    this.logger.log(`Query: ${query}`);
+    this.logger.log(`Values: ${JSON.stringify(values)}`);
 
     try {
       const result = await this.pool.query(query, values);
@@ -65,11 +72,10 @@ export class CustomerService {
       );
       return result.rows[0] as Customer;
     } catch (error) {
-      this.logger.error(
-        `Error creating customer, User: ${email}`,
-        error.stack || '',
-      );
-      throw error;
+      // this.logger.error(
+      //   `Error creating customer, User: ${email}, Error: ${error.message}`,
+      // );
+      throw new Error(`Failed to create customer: ${error.message}`);
     }
   }
 
