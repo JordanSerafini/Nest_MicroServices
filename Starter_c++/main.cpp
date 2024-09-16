@@ -1,9 +1,11 @@
 #include <winsock2.h>
 #include <windows.h>
+#include "resource.h"
 #include <string>
 #include <iostream>
 #include <thread>
 #include <ws2tcpip.h>
+
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -24,6 +26,8 @@ COLORREF synchroBgColor = RGB(220, 53, 69); // Rouge doux (Inactif)
 // Pinceaux (brushes) pour les labels
 HBRUSH hDockerBrush;
 HBRUSH hSynchroBrush;
+
+
 
 // Fonction pour vérifier si un port est ouvert sur localhost
 bool IsPortOpen(const std::string &hostname, int port)
@@ -317,6 +321,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+
 // Fonction principale
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
@@ -326,6 +331,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
+
+    // Charger l'icône directement depuis un fichier .ico
+    wc.hIcon = (HICON)LoadImageW(NULL, L"C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\software.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
     RegisterClassW(&wc);
 

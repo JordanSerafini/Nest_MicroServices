@@ -1,0 +1,3 @@
+#include "resource.h"
+
+IDI_ICON1 ICON "C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Starter_c++\\software.ico"
