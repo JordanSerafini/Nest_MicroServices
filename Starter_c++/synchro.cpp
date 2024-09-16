@@ -5,7 +5,7 @@
 int synchronisation() {
     std::cout << "Lancement du service de synchronisation..." << std::endl;
 
-    // Commande Docker Compose pour démarrer les conteneurs
+    // Commande Docker Compose pour démarrer le service
     const char* command = "cd C:\\Users\\j.serafini\\Desktop\\Jordan\\Code\\nest_microServices\\Backend\\synchronisation_service && npm run start:dev";
 
     // Exécuter la commande
