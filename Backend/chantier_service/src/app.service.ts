@@ -120,7 +120,7 @@ export class ChantierService {
     }
   }
 
-  async getConstructionSites(
+  async paginate(
     {
       limit,
       offset,
