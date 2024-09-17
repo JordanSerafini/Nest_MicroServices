@@ -5,6 +5,7 @@ import { CustomersController } from './controllers/customers/customers.controlle
 import { ItemsController } from './controllers/items/items.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 import { StockController } from './controllers/stock/stock.controller';
+import { ChantierController } from './controllers/chantier/chantier.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
@@ -61,6 +62,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     ItemsController,
     AuthController,
     StockController,
+    ChantierController,
   ],
   providers: [JwtAuthGuard],
 })
