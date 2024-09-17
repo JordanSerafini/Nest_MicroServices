@@ -41,12 +41,12 @@ async function bootstrap() {
     },
   });
 
-  // Connexion au microservice synchro_service
+  // Connexion au microservice chantier_service
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {
       host: '127.0.0.1',
-      port: 3005,
+      port: 3006,
     },
   });
 

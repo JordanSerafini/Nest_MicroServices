@@ -1,0 +1,44 @@
+@startuml Chantier
+
+entity "Chantier" as chantier {
+    nom : string
+    adresse : string
+    code_postal : string
+    ville : string
+    date_debut : date
+    date_fin : date
+    etat : string
+    description : string
+    client_id : int
+    devis_id : int
+}
+
+entity "Personnel" as personnel {
+    prenom : string
+    nom : string
+    poste : string
+}
+
+entity "Materiel" as materiel {
+    nom : string
+    description : string
+}
+
+entity "Chantier_materiel" as chantier_materiel {
+    chantier_id : int
+    materiel_id : int
+    quantite : int
+}
+
+entity "Chantier_Personnel" as chantier_personnel {
+    chantier_id : int
+    personnel_id : int
+}
+
+chantier -- chantier_materiel : "1,n"
+materiel -- chantier_materiel : "1,n"
+
+chantier -- chantier_personnel : "1,n"
+personnel -- chantier_personnel : "1,n"
+
+@enduml

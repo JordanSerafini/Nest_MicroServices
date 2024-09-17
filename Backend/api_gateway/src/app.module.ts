@@ -47,11 +47,11 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         },
       },
       {
-        name: 'SYNCHRO_SERVICE',
+        name: 'CHANTIER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'synchro_service',
-          port: 3005,
+          host: 'chantier_service',
+          port: 3006,
         },
       },
     ]),
