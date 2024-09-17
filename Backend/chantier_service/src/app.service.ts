@@ -20,6 +20,163 @@ export class ChantierService {
     return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
   }
 
+  async findAll(email: string): Promise<any[]> {
+    this.logger.log(`Fetching all chantiers, User: ${email}`);
+    try {
+      const query = `
+        SELECT 
+          chantier.*, 
+          row_to_json(customer.*) AS customer
+        FROM "Chantier" chantier
+        JOIN "Customer" customer ON chantier."CustomerId" = customer.id
+      `;
+      const result = await this.pool.query(query);
+
+      if (result.rows.length === 0) {
+        this.logger.warn(`No chantiers found for User: ${email}`);
+        return [];
+      }
+
+      // Restructure the results to include customer as a nested object
+      const chantiers = result.rows.map((row) => ({
+        ...row,
+        customer: row.customer, // Inclut l'objet Customer
+      }));
+
+      this.logger.log(
+        `Found ${result.rows.length} chantiers for User: ${email}`,
+      );
+      return chantiers;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch all chantiers, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async findOne(id: string | number, email: string): Promise<any> {
+    const parsedId = Number(id);
+    if (isNaN(parsedId)) {
+      const errorMessage = `Invalid ID received: ${id}, User: ${email}`;
+      this.logger.error(errorMessage, 'BadRequestException');
+      throw new BadRequestException(errorMessage);
+    }
+
+    this.logger.log(`Fetching chantier with ID: ${parsedId}, User: ${email}`);
+
+    try {
+      // Jointure pour obtenir toutes les colonnes de Chantier et Customer
+      const query = `
+        SELECT 
+          chantier.*, 
+          row_to_json(customer.*) AS customer -- Utilise row_to_json pour inclure tout l'objet customer
+        FROM "Chantier" chantier
+        JOIN "Customer" customer ON chantier."CustomerId" = customer.id
+        WHERE chantier.id = $1
+      `;
+      const values = [parsedId];
+      const result = await this.pool.query(query, values);
+
+      if (result.rows.length === 0) {
+        const notFoundMessage = `Chantier with ID: ${parsedId} not found, User: ${email}`;
+        this.logger.warn(notFoundMessage);
+        throw new NotFoundException(notFoundMessage);
+      }
+
+      // Restructure the result to include customer as a nested object
+      const chantier = {
+        ...result.rows[0], // Toutes les colonnes de Chantier
+        customer: result.rows[0].customer, // Customer en tant qu'objet JSON
+      };
+
+      this.logger.log(
+        `Chantier with ID: ${parsedId} found, including full customer details, User: ${email}`,
+      );
+
+      return chantier;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch chantier with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async paginate(
+    {
+      limit,
+      offset,
+      searchQuery,
+    }: { limit: number; offset: number; searchQuery: string },
+    email: string,
+  ): Promise<{
+    totalChantiers: number;
+    totalPages: number;
+    chantiers: any[];
+  }> {
+    this.logger.log(
+      `Fetching paginated chantiers with limit: ${limit}, offset: ${offset}, searchQuery: "${searchQuery}", User: ${email}`,
+    );
+
+    try {
+      let query = `
+        SELECT chantier.*, row_to_json(customer.*) AS customer
+        FROM "Chantier" chantier
+        JOIN "Customer" customer ON chantier."CustomerId" = customer.id
+      `;
+      let countQuery = `SELECT COUNT(*) FROM "Chantier"`;
+      const queryParams: (string | number)[] = [];
+      const countParams: (string | number)[] = [];
+
+      if (searchQuery) {
+        query += ` WHERE chantier."Name" ILIKE $1`;
+        countQuery += ` WHERE "Name" ILIKE $1`;
+        queryParams.push(`%${searchQuery}%`);
+        countParams.push(`%${searchQuery}%`);
+      }
+
+      queryParams.push(limit);
+      queryParams.push(offset);
+
+      // Tri et pagination
+      query += ` ORDER BY "Name" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+      countQuery += `;`;
+
+      const [chantierResult, totalResult] = await Promise.all([
+        this.pool.query(query, queryParams),
+        this.pool.query(countQuery, countParams),
+      ]);
+
+      const totalChantiers = parseInt(totalResult.rows[0].count, 10);
+      const totalPages = Math.ceil(totalChantiers / limit);
+
+      // Restructure the results to include customer as a nested object
+      const chantiers = chantierResult.rows.map((row) => ({
+        ...row,
+        customer: row.customer, // Inclut l'objet Customer
+      }));
+
+      this.logger.log(
+        `Found ${chantierResult.rows.length} chantiers for user: ${email}, total chantiers: ${totalChantiers}, total pages: ${totalPages}`,
+      );
+
+      return {
+        totalChantiers,
+        totalPages,
+        chantiers,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch paginated chantiers for user: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
   async create(
     createChantierDto: CreateChantierDto,
     email: string,
@@ -63,52 +220,6 @@ export class ChantierService {
     } catch (error) {
       this.logger.error(
         `Failed to create chantier, User: ${email}, Error: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
-  }
-
-  async findAll(email: string): Promise<Chantier[]> {
-    this.logger.log(`Fetching all chantiers, User: ${email}`);
-    try {
-      const result = await this.pool.query('SELECT * FROM "Chantier"');
-      this.logger.log(`Found ${result.rows.length} chantiers, User: ${email}`);
-      return result.rows as Chantier[];
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch all chantiers, User: ${email}, Error: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
-  }
-
-  async findOne(id: string | number, email: string): Promise<Chantier> {
-    const parsedId = Number(id);
-    if (isNaN(parsedId)) {
-      const errorMessage = `Invalid ID received: ${id}, User: ${email}`;
-      this.logger.error(errorMessage, 'BadRequestException');
-      throw new BadRequestException(errorMessage);
-    }
-
-    this.logger.log(`Fetching chantier with ID: ${parsedId}, User: ${email}`);
-    try {
-      const query = `SELECT * FROM "Chantier" WHERE id = $1`;
-      const values = [parsedId];
-      const result = await this.pool.query(query, values);
-
-      if (result.rows.length === 0) {
-        const notFoundMessage = `Chantier with ID: ${parsedId} not found, User: ${email}`;
-        this.logger.warn(notFoundMessage);
-        throw new NotFoundException(notFoundMessage);
-      }
-
-      this.logger.log(`Chantier with ID: ${parsedId} found, User: ${email}`);
-      return result.rows[0] as Chantier;
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch chantier with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
         error.stack,
       );
       throw error;
@@ -205,68 +316,6 @@ export class ChantierService {
     } catch (error) {
       this.logger.error(
         `Failed to delete chantier with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
-  }
-
-  async paginate(
-    {
-      limit,
-      offset,
-      searchQuery,
-    }: { limit: number; offset: number; searchQuery: string },
-    email: string,
-  ): Promise<{
-    totalChantiers: number;
-    totalPages: number;
-    chantiers: Chantier[];
-  }> {
-    this.logger.log(
-      `Fetching paginated chantiers with limit: ${limit}, offset: ${offset}, searchQuery: "${searchQuery}", User: ${email}`,
-    );
-
-    try {
-      let query = `SELECT * FROM "Chantier"`;
-      let countQuery = `SELECT COUNT(*) FROM "Chantier"`;
-      const queryParams: (string | number)[] = [];
-      const countParams: (string | number)[] = [];
-
-      if (searchQuery) {
-        query += ` WHERE "Name" ILIKE $1`;
-        countQuery += ` WHERE "Name" ILIKE $1`;
-        queryParams.push(`%${searchQuery}%`);
-        countParams.push(`%${searchQuery}%`);
-      }
-
-      queryParams.push(limit);
-      queryParams.push(offset);
-
-      // Tri et pagination
-      query += ` ORDER BY "Name" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
-      countQuery += `;`;
-
-      const [chantierResult, totalResult] = await Promise.all([
-        this.pool.query(query, queryParams),
-        this.pool.query(countQuery, countParams),
-      ]);
-
-      const totalChantiers = parseInt(totalResult.rows[0].count, 10);
-      const totalPages = Math.ceil(totalChantiers / limit);
-
-      this.logger.log(
-        `Found ${chantierResult.rows.length} chantiers for user: ${email}, total chantiers: ${totalChantiers}, total pages: ${totalPages}`,
-      );
-
-      return {
-        totalChantiers,
-        totalPages,
-        chantiers: chantierResult.rows as Chantier[],
-      };
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch paginated chantiers for user: ${email}, Error: ${error.message}`,
         error.stack,
       );
       throw error;

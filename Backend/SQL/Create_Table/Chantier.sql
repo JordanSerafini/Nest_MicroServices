@@ -1,48 +1,53 @@
 CREATE TABLE "Chantier" (
     Id SERIAL PRIMARY KEY,
-    Nom VARCHAR(255) NOT NULL,
-    Adresse VARCHAR(255),
-    CodePostal VARCHAR(20),
-    Ville VARCHAR(100),
-    DateDebut DATE,
-    DateFin DATE,
-    Etat VARCHAR(50),
+    Name VARCHAR(255) NOT NULL,
+    Address VARCHAR(255),
+    PostalCode VARCHAR(20),
+    City VARCHAR(100),
+    StartDate DATE,
+    EndDate DATE,
+    Status VARCHAR(50),
     Description TEXT,
-     CONSTRAINT fk_customer
-      FOREIGN KEY (CustomerId)
-      REFERENCES "Customer"(Id)
-      ON DELETE CASCADE,
-    CONSTRAINT fk_devis
-      FOREIGN KEY (DevisId)
-      REFERENCES "Devis"(Id)
-      ON DELETE SET NULL 
-); 
+    CustomerId INT,
+    QuoteId INT,
+    CONSTRAINT fk_customer FOREIGN KEY (CustomerId) REFERENCES "Customer" (Id) ON DELETE CASCADE,
+    -- CONSTRAINT fk_quote
+    --   FOREIGN KEY (QuoteId)
+    --   REFERENCES "Quote"(Id)
+    --   ON DELETE SET NULL
+);
+
 CREATE TABLE "Personnel" (
     Id SERIAL PRIMARY KEY,
-    Prenom VARCHAR(100) NOT NULL,
-    Nom VARCHAR(100) NOT NULL,
-    Poste VARCHAR(100)
+    FirstName VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
+    Position VARCHAR(100)
 );
 
 CREATE TABLE "Materiel" (
     Id SERIAL PRIMARY KEY,
-    Nom VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) NOT NULL,
     Description TEXT
 );
 
 CREATE TABLE "ChantierMateriel" (
-    ChantierId INT NOT NULL,
-    MaterielId INT NOT NULL,
-    Quantite INT NOT NULL,
-    PRIMARY KEY (ChantierId, MaterielId),
-    FOREIGN KEY (ChantierId) REFERENCES "Chantier"(Id) ON DELETE CASCADE,
-    FOREIGN KEY (MaterielId) REFERENCES "Materiel"(Id) ON DELETE CASCADE
+    ConstructionSiteId INT NOT NULL,
+    MaterialId INT NOT NULL,
+    Quantity INT NOT NULL,
+    PRIMARY KEY (
+        ConstructionSiteId,
+        MaterialId
+    ),
+    FOREIGN KEY (ConstructionSiteId) REFERENCES "Chantier" (Id) ON DELETE CASCADE,
+    FOREIGN KEY (MaterialId) REFERENCES "Materiel" (Id) ON DELETE CASCADE
 );
 
 CREATE TABLE "ChantierPersonnel" (
-    ChantierId INT NOT NULL,
+    ConstructionSiteId INT NOT NULL,
     PersonnelId INT NOT NULL,
-    PRIMARY KEY (ChantierId, PersonnelId),
-    FOREIGN KEY (ChantierId) REFERENCES "Chantier"(Id) ON DELETE CASCADE,
+    PRIMARY KEY (ConstructionSiteId, PersonnelId),
+    FOREIGN KEY (ConstructionSiteId) REFERENCES "Chantier"(Id) ON DELETE CASCADE,
     FOREIGN KEY (PersonnelId) REFERENCES "Personnel"(Id) ON DELETE CASCADE
+
+
 );
