@@ -141,19 +141,6 @@ export class ChantierService {
         SELECT 
           cs.*, 
           row_to_json(customer) AS customer,
-          -- Documents liés à chaque chantier
-          (
-            SELECT json_agg(
-              json_build_object(
-                'Id', document."Id",
-                'Title', document."Title",
-                'CreatedAt', document."CreatedAt"
-              )
-            )
-            FROM "ConstructionSiteDocument" csd
-            JOIN "Document" document ON csd."DocumentId" = document."Id"
-            WHERE csd."ConstructionSiteId" = cs."Id"
-          ) AS documents,
           -- Lignes des documents liés à chaque chantier
           (
             SELECT json_agg(
@@ -199,7 +186,6 @@ export class ChantierService {
       const chantiers = chantierResult.rows.map((row) => ({
         ...row,
         customer: row.customer,
-        documents: row.documents || [],
         documentLines: row.documentLines || [],
       }));
 
