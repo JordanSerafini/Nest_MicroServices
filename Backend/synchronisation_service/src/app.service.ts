@@ -7,6 +7,8 @@ export class AppService {
   constructor(
     @Inject('PG_CONNECTION') private readonly pgPool: Pool,
     @Inject('MSSQL_CONNECTION') private readonly mssqlPool: ConnectionPool,
+    @Inject('BARRACHIN_CONNECTION')
+    private readonly barrachinPool: ConnectionPool,
   ) {}
 
   async getCustomerCounts(): Promise<{ mssqlCount: number; pgCount: number }> {
@@ -167,5 +169,23 @@ export class AppService {
 
     // Retourner les items insérés et ceux ignorés
     return { insertedItems, skippedItems };
+  }
+
+  async getInfoFromBarrachin(): Promise<{ info?: any[]; error?: string }> {
+    try {
+      const query = 'SELECT TOP 10 * FROM "ConstructionSite"';
+      const request = this.barrachinPool.request();
+      const result = await request.query(query);
+
+      if (result.recordset.length === 0) {
+        throw new Error('No records found in ConstructionSite');
+      }
+
+      const info = result.recordset; // Ici, info est un tableau d'objets
+
+      return { info };
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 }

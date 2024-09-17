@@ -72,4 +72,20 @@ export class AppController {
       };
     }
   }
+
+  //* --------------------------------------------------------------------------------------------------------------------------------------
+  @Get('info')
+  async getInfo() {
+    const result = await this.appService.getInfoFromBarrachin();
+    if (result.error) {
+      return {
+        message: 'Error retrieving information',
+        error: result.error,
+      };
+    }
+    return {
+      message: 'Information retrieved successfully',
+      info: result.info,
+    };
+  }
 }
