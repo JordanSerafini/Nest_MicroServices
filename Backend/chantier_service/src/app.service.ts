@@ -120,7 +120,7 @@ export class ChantierService {
     }
   }
 
-  async paginate(
+  async getConstructionSites(
     {
       limit,
       offset,
@@ -133,7 +133,7 @@ export class ChantierService {
     chantiers: any[];
   }> {
     this.logger.log(
-      `Fetching paginated chantiers with limit: ${limit}, offset: ${offset}, searchQuery: "${searchQuery}", User: ${email}`,
+      `Fetching paginated ConstructionSites with limit: ${limit}, offset: ${offset}, searchQuery: "${searchQuery}", User: ${email}`,
     );
 
     try {
@@ -141,19 +141,7 @@ export class ChantierService {
         SELECT 
           cs.*, 
           row_to_json(customer) AS customer,
-          -- Lignes des documents liés à chaque chantier
-          (
-            SELECT json_agg(
-              json_build_object(
-                'Id', line."Id",
-                'DocumentId', line."DocumentId",
-                'Description', line."Description",
-                'Quantity', line."Quantity"
-              )
-            )
-            FROM "ConstructionSiteDocumentLine" csdl
-            WHERE csdl."ConstructionSiteId" = cs."Id"
-          ) AS documentLines
+          -- Ajoute ici d'autres jointures si nécessaire, par exemple pour les documents ou lignes
         FROM "ConstructionSite" cs
         JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
       `;
@@ -163,8 +151,8 @@ export class ChantierService {
       const countParams: (string | number)[] = [];
 
       if (searchQuery) {
-        query += ` WHERE cs."Name" ILIKE $1`;
-        countQuery += ` WHERE cs."Name" ILIKE $1`;
+        query += ` WHERE cs."Caption" ILIKE $1`;
+        countQuery += ` WHERE cs."Caption" ILIKE $1`;
         queryParams.push(`%${searchQuery}%`);
         countParams.push(`%${searchQuery}%`);
       }
@@ -172,7 +160,7 @@ export class ChantierService {
       // Pagination
       queryParams.push(limit);
       queryParams.push(offset);
-      query += ` ORDER BY cs."Name" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+      query += ` ORDER BY cs."Caption" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
       countQuery += `;`;
 
       const [chantierResult, totalResult] = await Promise.all([
@@ -186,7 +174,7 @@ export class ChantierService {
       const chantiers = chantierResult.rows.map((row) => ({
         ...row,
         customer: row.customer,
-        documentLines: row.documentLines || [],
+        // Ajoute ici d'autres propriétés si nécessaire
       }));
 
       this.logger.log(
@@ -200,7 +188,7 @@ export class ChantierService {
       };
     } catch (error) {
       this.logger.error(
-        `Failed to fetch paginated chantiers for user: ${email}, Error: ${error.message}`,
+        `Failed to fetch paginated ConstructionSites for user: ${email}, Error: ${error.message}`,
         error.stack,
       );
       throw error;
