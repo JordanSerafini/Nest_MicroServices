@@ -24,6 +24,9 @@ services:
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
+      - ./Backend/customer_service/src/validated/:/app/validated/
+      - ./Backend/customer_service/src/error/:/app/error/
+
 
   authentification_service:
     build:

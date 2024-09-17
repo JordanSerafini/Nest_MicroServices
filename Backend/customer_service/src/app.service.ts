@@ -10,6 +10,8 @@ import { Pool } from 'pg';
 import { Customer } from './entities/customer.entity';
 import { CustomLogger } from './logging/custom-logger.service';
 import { RedisClientType } from 'redis';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class CustomerService {
@@ -24,6 +26,63 @@ export class CustomerService {
     return str
       .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
       .replace(/^_/, '');
+  }
+
+  private writeCustomerToCSV(customer: any, type: 'error' | 'validated') {
+    console.log('ecriture du csv');
+
+    const baseDir = process.cwd(); // Répertoire de travail courant
+    const dir = path.join(baseDir, type); // 'error' ou 'validated'
+    const fileName =
+      type === 'error' ? 'error_customer.csv' : 'validated_customer.csv';
+    const filePath = path.join(dir, fileName);
+
+    console.log(`Base directory: ${baseDir}`);
+    console.log(`Chemin complet du fichier CSV : ${filePath}`);
+
+    try {
+      // Créer le répertoire s'il n'existe pas
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      const columns = Object.keys(customer).join(';');
+
+      const values = Object.values(customer)
+        .map((value) => {
+          let outputValue = '';
+          if (typeof value === 'string') {
+            outputValue = value.replace(/"/g, '""');
+          } else if (value === null || value === undefined) {
+            outputValue = '';
+          } else {
+            outputValue = JSON.stringify(value).replace(/"/g, '""');
+          }
+          return `"${outputValue}"`;
+        })
+        .join(';');
+
+      const dataLine = `${values}\n`;
+
+      if (!fs.existsSync(filePath)) {
+        const header = `${columns}\n`;
+        fs.writeFileSync(filePath, header + dataLine, 'utf8');
+      } else {
+        const existingData = fs.readFileSync(filePath, 'utf8');
+        const existingColumns = existingData.split('\n')[0];
+        if (existingColumns === columns) {
+          fs.appendFileSync(filePath, dataLine, 'utf8');
+        } else {
+          console.error(
+            "Column mismatch: The structure of the customer object does not match the existing file's columns.",
+          );
+        }
+      }
+    } catch (err) {
+      console.error(
+        `Erreur lors de l'écriture du fichier CSV : ${err.message}`,
+      );
+    }
   }
 
   async create(
@@ -70,11 +129,23 @@ export class CustomerService {
       this.logger.log(
         `Customer created with ID: ${result.rows[0].id}, User: ${email}`,
       );
+
+      this.writeCustomerToCSV(result.rows[0] as Customer, 'validated');
+
       return result.rows[0] as Customer;
     } catch (error) {
-      // this.logger.error(
-      //   `Error creating customer, User: ${email}, Error: ${error.message}`,
-      // );
+      this.logger.error(
+        `Error creating customer`,
+        `User: ${email}, Error: ${error.message}`,
+      );
+
+      const errorData = {
+        ...createCustomerDto,
+        error: error.message,
+        userEmail: email,
+      };
+      this.writeCustomerToCSV(errorData, 'error');
+
       throw new Error(`Failed to create customer: ${error.message}`);
     }
   }

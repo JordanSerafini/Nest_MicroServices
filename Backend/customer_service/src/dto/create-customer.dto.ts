@@ -8,6 +8,8 @@ import {
 } from 'class-validator';
 
 export class CreateCustomerDto {
+  id: string | number;
+
   @IsOptional()
   @IsBoolean()
   DisallowOrderAssort: boolean | null;
