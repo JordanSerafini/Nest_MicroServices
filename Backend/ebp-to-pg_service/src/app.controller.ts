@@ -83,7 +83,7 @@ export class TablesController {
     }
   }
 
-  @Post('sync')
+  @Get('sync')
   async syncData() {
     try {
       await this.appService.insertDataFromMSSQLToPGSQL();
