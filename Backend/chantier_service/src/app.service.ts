@@ -4,10 +4,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateChantierDto } from './dto/create-chantier.dto';
+import { CreateConstructionSiteDto } from './dto/create-chantier.dto';
 import { UpdateChantierDto } from './dto/update-chantier.dto';
 import { Pool } from 'pg';
-import { Chantier } from './entities/chantier.entity';
+import { ConstructionSite } from './entities/chantier.entity';
 import { CustomLogger } from './logging/chantier-logger.service';
 
 @Injectable()
@@ -225,9 +225,9 @@ export class ChantierService {
   }
 
   async create(
-    createChantierDto: CreateChantierDto,
+    createChantierDto: CreateConstructionSiteDto,
     email: string,
-  ): Promise<Chantier> {
+  ): Promise<ConstructionSite> {
     this.logger.log(
       `Creating a new chantier with data: ${JSON.stringify(createChantierDto)}, User: ${email}`,
     );
@@ -263,7 +263,7 @@ export class ChantierService {
       this.logger.log(
         `Chantier created with ID: ${result.rows[0].id}, User: ${email}`,
       );
-      return result.rows[0] as Chantier;
+      return result.rows[0] as ConstructionSite;
     } catch (error) {
       this.logger.error(
         `Failed to create chantier, User: ${email}, Error: ${error.message}`,
@@ -277,7 +277,7 @@ export class ChantierService {
     id: string | number,
     updateChantierDto: UpdateChantierDto,
     email: string,
-  ): Promise<Chantier> {
+  ): Promise<ConstructionSite> {
     const parsedId = Number(id);
     if (isNaN(parsedId)) {
       this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
@@ -326,7 +326,7 @@ export class ChantierService {
       }
 
       this.logger.log(`Chantier with ID: ${parsedId} updated, User: ${email}`);
-      return result.rows[0] as Chantier;
+      return result.rows[0] as ConstructionSite;
     } catch (error) {
       this.logger.error(
         `Failed to update chantier with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
@@ -336,7 +336,7 @@ export class ChantierService {
     }
   }
 
-  async remove(id: string | number, email: string): Promise<Chantier> {
+  async remove(id: string | number, email: string): Promise<ConstructionSite> {
     const parsedId = Number(id);
     if (isNaN(parsedId)) {
       this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
@@ -359,7 +359,7 @@ export class ChantierService {
       }
 
       this.logger.log(`Chantier with ID: ${parsedId} deleted, User: ${email}`);
-      return result.rows[0] as Chantier;
+      return result.rows[0] as ConstructionSite;
     } catch (error) {
       this.logger.error(
         `Failed to delete chantier with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
