@@ -27,6 +27,29 @@ export class CustomerController {
     return this.customerService.findAll(email);
   }
 
+  @MessagePattern({ cmd: 'map' })
+  cluster(
+    @Payload()
+    {
+      email,
+      lat,
+      lon,
+      rayon,
+    }: {
+      email: string;
+      lat: number;
+      lon: number;
+      rayon: number;
+    },
+  ) {
+    return this.customerService.getCustomersWithinRadius(
+      email,
+      lat,
+      lon,
+      rayon,
+    );
+  }
+
   @MessagePattern({ cmd: 'find_one_customer' })
   findOne(
     @Payload()

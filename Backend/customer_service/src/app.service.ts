@@ -29,7 +29,7 @@ export class CustomerService {
   }
 
   private writeCustomerToCSV(customer: any, type: 'error' | 'validated') {
-    console.log('ecriture du csv');
+    //console.log('ecriture du csv');
 
     const baseDir = process.cwd(); // Répertoire de travail courant
     const dir = path.join(baseDir, type); // 'error' ou 'validated'
@@ -37,8 +37,8 @@ export class CustomerService {
       type === 'error' ? 'error_customer.csv' : 'validated_customer.csv';
     const filePath = path.join(dir, fileName);
 
-    console.log(`Base directory: ${baseDir}`);
-    console.log(`Chemin complet du fichier CSV : ${filePath}`);
+    //console.log(`Base directory: ${baseDir}`);
+    //console.log(`Chemin complet du fichier CSV : ${filePath}`);
 
     try {
       // Créer le répertoire s'il n'existe pas
@@ -332,6 +332,44 @@ export class CustomerService {
       await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
 
       return response;
+    }
+  }
+
+  async getCustomersWithinRadius(
+    email: string,
+    latCentral: number,
+    lonCentral: number,
+    rayonM: number,
+  ): Promise<Customer[]> {
+    this.logger.log(
+      `Fetching customers within radius ${rayonM} meters from (${latCentral}, ${lonCentral}), User: ${email}`,
+    );
+
+    const query = `
+      SELECT *
+      FROM (
+        SELECT *,
+          (6371000 * acos(
+            cos(radians($1)) * cos(radians("Lat")) * cos(radians("Lon") - radians($2))
+            + sin(radians($1)) * sin(radians("Lat"))
+          )) AS distance
+        FROM "Customer"
+      ) AS subquery
+      WHERE distance < $3;
+    `;
+    const values = [latCentral, lonCentral, rayonM];
+
+    try {
+      const result = await this.pool.query(query, values);
+      return result.rows as Customer[];
+    } catch (error) {
+      this.logger.error(
+        `Error fetching customers within radius`,
+        `User: ${email}, Error: ${error.message}`,
+      );
+      throw new Error(
+        `Failed to fetch customers within radius: ${error.message}`,
+      );
     }
   }
 }

@@ -10,6 +10,7 @@ import {
   UseGuards,
   Request,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateCustomerDto } from '../../dto/create-customer.dto';
@@ -68,6 +69,48 @@ export class CustomersController {
       { cmd: 'paginate_customers' },
       paginationParams,
     );
+  }
+
+  @Get('map')
+  async getCustomersWithinRadius(
+    @Query('lat') lat: string,
+    @Query('lon') lon: string,
+    @Query('rayon') rayon: string,
+    @Request() req,
+  ) {
+    const email = req.user.email;
+
+    // Validation des paramètres
+    const latCentral = parseFloat(lat);
+    const lonCentral = parseFloat(lon);
+    const rayonM = parseFloat(rayon);
+
+    if (isNaN(latCentral) || isNaN(lonCentral) || isNaN(rayonM)) {
+      throw new BadRequestException('Invalid parameters');
+    }
+
+    // Préparer le payload pour le service client
+    const payload = {
+      email,
+      lat: latCentral,
+      lon: lonCentral,
+      rayon: rayonM,
+    };
+
+    try {
+      // Envoyer un message au service client via le client proxy
+      const customers = await this.customerServiceClient
+        .send({ cmd: 'map' }, payload)
+        .toPromise();
+
+      return customers;
+    } catch (error) {
+      this.logger.error(
+        `Error fetching customers within radius for user: ${email}`,
+        error.stack || '',
+      );
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Get(':id')

@@ -264,16 +264,36 @@ export const deleteCustomerById = async (id: number) => {
 };
 
 // Fonction pour récupérer un cluster de clients
-export const getCustomersCluster = async (latCentral: number, lonCentral: number, rayonM: number) => {
+export const getCustomersCluster = async (
+  latCentral: number,
+  lonCentral: number,
+  rayonM: number
+) => {
   try {
+    const token = await getToken();
+    if (!token) {
+      const error = new Error('Token not found');
+      await postLogs(error);
+      throw error;
+    }
+
     const response = await fetch(
-      `${url.api_gateway}/customers/cluster?latCentral=${latCentral}&lonCentral=${lonCentral}&rayonM=${rayonM}`
+      `${url.api_gateway}/customers/map?lat=${latCentral}&lon=${lonCentral}&rayon=${rayonM}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      }
     );
+
     if (!response.ok) {
       const error = new Error('Network response was not ok');
       await postLogs(error);
       throw error;
     }
+
     const data = await response.json();
     return data;
   } catch (error: any) {
@@ -282,3 +302,4 @@ export const getCustomersCluster = async (latCentral: number, lonCentral: number
     throw error;
   }
 };
+
