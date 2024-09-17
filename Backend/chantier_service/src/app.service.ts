@@ -141,7 +141,6 @@ export class ChantierService {
         SELECT 
           cs.*, 
           row_to_json(customer) AS customer,
-          -- Ajoute ici d'autres jointures si nécessaire, par exemple pour les documents ou lignes
         FROM "ConstructionSite" cs
         JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
       `;
