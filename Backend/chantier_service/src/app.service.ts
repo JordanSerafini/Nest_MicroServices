@@ -141,54 +141,51 @@ export class ChantierService {
         SELECT 
           cs.*, 
           row_to_json(customer) AS customer,
-          -- Personnel lié à chaque chantier
+          -- Documents liés à chaque chantier
           (
             SELECT json_agg(
               json_build_object(
-                'Id', personnel."Id",
-                'FirstName', personnel."FirstName",
-                'LastName', personnel."LastName",
-                'Position', personnel."Position"
+                'Id', document."Id",
+                'Title', document."Title",
+                'CreatedAt', document."CreatedAt"
               )
             )
-            FROM "ConstructionSitePersonnel" csp
-            JOIN "Personnel" personnel ON csp."PersonnelId" = personnel."Id"
-            WHERE csp."ConstructionSiteId" = cs."Id"
-          ) AS personnel,
-          -- Matériel lié à chaque chantier
+            FROM "ConstructionSiteDocument" csd
+            JOIN "Document" document ON csd."DocumentId" = document."Id"
+            WHERE csd."ConstructionSiteId" = cs."Id"
+          ) AS documents,
+          -- Lignes des documents liés à chaque chantier
           (
             SELECT json_agg(
               json_build_object(
-                'Id', material."Id",
-                'Name', material."Name",
-                'Description', material."Description",
-                'Quantity', csm."Quantity"
+                'Id', line."Id",
+                'DocumentId', line."DocumentId",
+                'Description', line."Description",
+                'Quantity', line."Quantity"
               )
             )
-            FROM "ConstructionSiteMaterial" csm
-            JOIN "Material" material ON csm."MaterialId" = material."Id"
-            WHERE csm."ConstructionSiteId" = cs."Id"
-          ) AS material
+            FROM "ConstructionSiteDocumentLine" csdl
+            WHERE csdl."ConstructionSiteId" = cs."Id"
+          ) AS documentLines
         FROM "ConstructionSite" cs
         JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
       `;
 
-      let countQuery = `SELECT COUNT(*) FROM "ConstructionSite"`;
+      let countQuery = `SELECT COUNT(*) FROM "ConstructionSite" cs`;
       const queryParams: (string | number)[] = [];
       const countParams: (string | number)[] = [];
 
       if (searchQuery) {
         query += ` WHERE cs."Name" ILIKE $1`;
-        countQuery += ` WHERE "Name" ILIKE $1`;
+        countQuery += ` WHERE cs."Name" ILIKE $1`;
         queryParams.push(`%${searchQuery}%`);
         countParams.push(`%${searchQuery}%`);
       }
 
+      // Pagination
       queryParams.push(limit);
       queryParams.push(offset);
-
-      // Tri et pagination
-      query += ` GROUP BY cs."Id", customer.* ORDER BY cs."Name" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+      query += ` ORDER BY cs."Name" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
       countQuery += `;`;
 
       const [chantierResult, totalResult] = await Promise.all([
@@ -202,8 +199,8 @@ export class ChantierService {
       const chantiers = chantierResult.rows.map((row) => ({
         ...row,
         customer: row.customer,
-        personnel: row.personnel || [],
-        material: row.material || [],
+        documents: row.documents || [],
+        documentLines: row.documentLines || [],
       }));
 
       this.logger.log(

@@ -1,7 +1,7 @@
 import { BadRequestException, Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ChantierService } from './app.service';
-import { CreateChantierDto } from './dto/create-chantier.dto';
+import { CreateConstructionSiteDto } from './dto/create-chantier.dto';
 import { UpdateChantierDto } from './dto/update-chantier.dto';
 
 @Controller()
@@ -12,14 +12,14 @@ export class ChantierController {
   create(
     @Payload()
     {
-      createChantierDto,
+      CreateConstructionSiteDto,
       email,
     }: {
-      createChantierDto: CreateChantierDto;
+      CreateConstructionSiteDto: CreateConstructionSiteDto;
       email: string;
     },
   ) {
-    return this.chantierService.create(createChantierDto, email);
+    return this.chantierService.create(CreateConstructionSiteDto, email);
   }
 
   @MessagePattern({ cmd: 'find_all_chantiers' })
