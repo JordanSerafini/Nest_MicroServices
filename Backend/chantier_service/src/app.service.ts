@@ -26,9 +26,16 @@ export class ChantierService {
       const query = `
         SELECT 
           chantier.*, 
-          row_to_json(customer.*) AS customer
+          row_to_json(customer.*) AS customer,
+          json_agg(DISTINCT jsonb_build_object('FirstName', personnel."FirstName", 'LastName', personnel."LastName", 'Position', personnel."Position")) AS personnel,
+          json_agg(DISTINCT jsonb_build_object('Name', materiel."Name", 'Description', materiel."Description", 'Quantity', chantier_materiel."Quantity")) AS materiels
         FROM "Chantier" chantier
         JOIN "Customer" customer ON chantier."CustomerId" = customer.id
+        LEFT JOIN "ChantierPersonnel" chantier_personnel ON chantier."Id" = chantier_personnel."ChantierId"
+        LEFT JOIN "Personnel" personnel ON chantier_personnel."PersonnelId" = personnel."Id"
+        LEFT JOIN "ChantierMateriel" chantier_materiel ON chantier."Id" = chantier_materiel."ChantierId"
+        LEFT JOIN "Materiel" materiel ON chantier_materiel."MaterielId" = materiel."Id"
+        GROUP BY chantier."Id", customer.*
       `;
       const result = await this.pool.query(query);
 
@@ -37,10 +44,11 @@ export class ChantierService {
         return [];
       }
 
-      // Restructure the results to include customer as a nested object
       const chantiers = result.rows.map((row) => ({
         ...row,
-        customer: row.customer, // Inclut l'objet Customer
+        customer: row.customer,
+        personnel: row.personnel || [], // Inclut l'objet Personnel
+        materiels: row.materiels || [], // Inclut l'objet Materiels
       }));
 
       this.logger.log(
@@ -67,14 +75,20 @@ export class ChantierService {
     this.logger.log(`Fetching chantier with ID: ${parsedId}, User: ${email}`);
 
     try {
-      // Jointure pour obtenir toutes les colonnes de Chantier et Customer
       const query = `
         SELECT 
           chantier.*, 
-          row_to_json(customer.*) AS customer -- Utilise row_to_json pour inclure tout l'objet customer
+          row_to_json(customer.*) AS customer,
+          json_agg(DISTINCT jsonb_build_object('FirstName', personnel."FirstName", 'LastName', personnel."LastName", 'Position', personnel."Position")) AS personnel,
+          json_agg(DISTINCT jsonb_build_object('Name', materiel."Name", 'Description', materiel."Description", 'Quantity', chantier_materiel."Quantity")) AS materiels
         FROM "Chantier" chantier
         JOIN "Customer" customer ON chantier."CustomerId" = customer.id
+        LEFT JOIN "ChantierPersonnel" chantier_personnel ON chantier."Id" = chantier_personnel."ChantierId"
+        LEFT JOIN "Personnel" personnel ON chantier_personnel."PersonnelId" = personnel."Id"
+        LEFT JOIN "ChantierMateriel" chantier_materiel ON chantier."Id" = chantier_materiel."ChantierId"
+        LEFT JOIN "Materiel" materiel ON chantier_materiel."MaterielId" = materiel."Id"
         WHERE chantier.id = $1
+        GROUP BY chantier."Id", customer.*
       `;
       const values = [parsedId];
       const result = await this.pool.query(query, values);
@@ -85,10 +99,11 @@ export class ChantierService {
         throw new NotFoundException(notFoundMessage);
       }
 
-      // Restructure the result to include customer as a nested object
       const chantier = {
-        ...result.rows[0], // Toutes les colonnes de Chantier
-        customer: result.rows[0].customer, // Customer en tant qu'objet JSON
+        ...result.rows[0],
+        customer: result.rows[0].customer,
+        personnel: result.rows[0].personnel || [],
+        materiels: result.rows[0].materiels || [],
       };
 
       this.logger.log(
@@ -123,16 +138,47 @@ export class ChantierService {
 
     try {
       let query = `
-        SELECT chantier.*, row_to_json(customer.*) AS customer
-        FROM "Chantier" chantier
-        JOIN "Customer" customer ON chantier."CustomerId" = customer.id
+        SELECT 
+          cs.*, 
+          row_to_json(customer) AS customer,
+          -- Personnel lié à chaque chantier
+          (
+            SELECT json_agg(
+              json_build_object(
+                'Id', personnel."Id",
+                'FirstName', personnel."FirstName",
+                'LastName', personnel."LastName",
+                'Position', personnel."Position"
+              )
+            )
+            FROM "ConstructionSitePersonnel" csp
+            JOIN "Personnel" personnel ON csp."PersonnelId" = personnel."Id"
+            WHERE csp."ConstructionSiteId" = cs."Id"
+          ) AS personnel,
+          -- Matériel lié à chaque chantier
+          (
+            SELECT json_agg(
+              json_build_object(
+                'Id', material."Id",
+                'Name', material."Name",
+                'Description', material."Description",
+                'Quantity', csm."Quantity"
+              )
+            )
+            FROM "ConstructionSiteMaterial" csm
+            JOIN "Material" material ON csm."MaterialId" = material."Id"
+            WHERE csm."ConstructionSiteId" = cs."Id"
+          ) AS material
+        FROM "ConstructionSite" cs
+        JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
       `;
-      let countQuery = `SELECT COUNT(*) FROM "Chantier"`;
+
+      let countQuery = `SELECT COUNT(*) FROM "ConstructionSite"`;
       const queryParams: (string | number)[] = [];
       const countParams: (string | number)[] = [];
 
       if (searchQuery) {
-        query += ` WHERE chantier."Name" ILIKE $1`;
+        query += ` WHERE cs."Name" ILIKE $1`;
         countQuery += ` WHERE "Name" ILIKE $1`;
         queryParams.push(`%${searchQuery}%`);
         countParams.push(`%${searchQuery}%`);
@@ -142,7 +188,7 @@ export class ChantierService {
       queryParams.push(offset);
 
       // Tri et pagination
-      query += ` ORDER BY "Name" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+      query += ` GROUP BY cs."Id", customer.* ORDER BY cs."Name" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
       countQuery += `;`;
 
       const [chantierResult, totalResult] = await Promise.all([
@@ -153,10 +199,11 @@ export class ChantierService {
       const totalChantiers = parseInt(totalResult.rows[0].count, 10);
       const totalPages = Math.ceil(totalChantiers / limit);
 
-      // Restructure the results to include customer as a nested object
       const chantiers = chantierResult.rows.map((row) => ({
         ...row,
-        customer: row.customer, // Inclut l'objet Customer
+        customer: row.customer,
+        personnel: row.personnel || [],
+        material: row.material || [],
       }));
 
       this.logger.log(
