@@ -7,6 +7,14 @@ import { AuthController } from './controllers/auth/auth.controller';
 import { StockController } from './controllers/stock/stock.controller';
 import { ChantierController } from './controllers/chantier/chantier.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ColleagueController } from './controllers/colleague/colleague.controller';
+import { DealController } from './controllers/deal/deal.controller';
+import { IncidentController } from './controllers/incident/incident.controller';
+import { MaintenanceController } from './controllers/maintenance/maintenance.controller';
+import { PurchaseController } from './controllers/purchase/purchase.controller';
+import { SaleController } from './controllers/sale/sale.controller';
+import { ScheduleController } from './controllers/schedule/schedule.controller';
+import { SupplierController } from './controllers/supplier/supplier.controller';
 
 @Module({
   imports: [
@@ -63,6 +71,62 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
           port: 3007,
         },
       },
+      {
+        name: 'DEAL_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'deal_service',
+          port: 3008,
+        },
+      },
+      {
+        name: 'INCIDENT_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'incident_service',
+          port: 3009,
+        },
+      },
+      {
+        name: 'MAINTENANCE_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'maintenance_service',
+          port: 3010,
+        },
+      },
+      {
+        name: 'PURCHASE_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'purchase_service',
+          port: 3011,
+        },
+      },
+      {
+        name: 'SALE_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'sale_service',
+          port: 3012,
+        },
+      },
+      {
+        name: 'SCHEDULE_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'schedule_service',
+          port: 3013,
+        },
+      },
+      {
+        name: 'SUPPLIER_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'supplier_service',
+          port: 3014,
+        },
+      },
     ]),
   ],
   controllers: [
@@ -71,6 +135,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     AuthController,
     StockController,
     ChantierController,
+    ColleagueController,
+    DealController,
+    IncidentController,
+    MaintenanceController,
+    PurchaseController,
+    SaleController,
+    ScheduleController,
+    SupplierController,
   ],
   providers: [JwtAuthGuard],
 })

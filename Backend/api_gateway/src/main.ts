@@ -59,6 +59,69 @@ async function bootstrap() {
     },
   });
 
+  // Connexion au microservice deal_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3008,
+    },
+  });
+
+  // Connexion au microservice incident_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3009,
+    },
+  });
+
+  // Connexion au microservice maintenance_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3010,
+    },
+  });
+
+  // Connexion au microservice purchase_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3011,
+    },
+  });
+
+  // Connexion au microservice sale_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3012,
+    },
+  });
+
+  // Connexion au microservice schedule_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3013,
+    },
+  });
+
+  // Connexion au microservice supplier_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3014,
+    },
+  });
+
   await app.startAllMicroservices();
   await app.listen(3000);
 }
