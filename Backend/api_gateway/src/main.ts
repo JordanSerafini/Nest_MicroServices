@@ -50,6 +50,15 @@ async function bootstrap() {
     },
   });
 
+  // Connexion au microservice colleague_service
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 3007,
+    },
+  });
+
   await app.startAllMicroservices();
   await app.listen(3000);
 }

@@ -55,6 +55,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
           port: 3006,
         },
       },
+      {
+        name: 'COLLEAGUE_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'colleague_service',
+          port: 3007,
+        },
+      },
     ]),
   ],
   controllers: [
