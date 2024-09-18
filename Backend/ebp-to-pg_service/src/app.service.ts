@@ -107,6 +107,11 @@ export class AppService {
       return 'NULL';
     }
 
+    // Vérifiez si la valeur est de type Buffer pour varbinary
+    if (dataType === 'varbinary' && Buffer.isBuffer(value)) {
+      return `decode('${value.toString('hex')}', 'hex')`;
+    }
+
     if (typeof value === 'string') {
       value = value.replace(/'/g, "''");
     }
@@ -183,9 +188,13 @@ export class AppService {
       const insertQueries = result.recordset.map((rowData) =>
         this.generateInsertQuery(tableInfo, rowData),
       );
+
+      let countInserted = 0; // Compteur pour le nombre d'insertion
+
       for (const insertQuery of insertQueries) {
         try {
           await this.pgPool.query(insertQuery);
+          countInserted++; // Incrémente le compteur à chaque insertion réussie
         } catch (error) {
           console.error(
             `Erreur pendant l'insertion dans la table "${tableInfo.tableName}":`,
@@ -194,7 +203,11 @@ export class AppService {
           console.log(`Requête incorrecte: ${insertQuery}`);
         }
       }
-      console.log(`Données insérées dans la table: "${tableInfo.tableName}".`);
+
+      // Affiche le nombre de données insérées
+      console.log(
+        `Données insérées dans la table: "${tableInfo.tableName}". Nombre d'insertion: ${countInserted}.`,
+      );
     }
   }
 
@@ -219,7 +232,18 @@ export class AppService {
     try {
       const startTime = Date.now();
       const tables = await this.getTables();
-      const allowedTables = ['Staff'];
+      const allowedTables = [
+        'Incident',
+        'IncidentAssociatedFiles',
+        'IncidentCustomerProduct',
+        'IncidentTemplate',
+        'IncidentTemplateExtraCost',
+        'Item',
+        'StockDocument',
+        'StockDocumentLine',
+        'Address',
+        'DealStockDocumentLine',
+      ];
       //const allowedTables = ["Customer", "Item", "StockDocument", "StockDocumentLine", "Address", "Supplier","SupplierItem", "SaleDocumentLine", "Storehouse", "ScheduleEvent", , "ScheduleEventType","MaintenanceContract", "MaintenanceContractAssociatedFiles", "MaintenanceContractFamily", "MaintenanceContractPurchaseDocument" ];
 
       console.log("Début du processus d'insertion des données...");
@@ -236,7 +260,7 @@ export class AppService {
         let result;
 
         try {
-          result = await this.mssqlPool.query(selectQuery);
+          result = await this.barrachinPool.query(selectQuery);
           console.log(
             `Récupération de données pour la table: ${tableInfo.tableName}`,
             result.recordset,
@@ -345,7 +369,7 @@ export class AppService {
           );`;
           const existence = await this.pgPool.query(checkExistenceQuery);
           if (existence.rows[0].exists) {
-            const query = `TRUNCATE TABLE "${table}" RESTART IDENTITY;`;
+            const query = `TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE;`;
             await this.pgPool.query(query);
             console.log(`Table ${table} vidée avec succès.`);
           } else {
