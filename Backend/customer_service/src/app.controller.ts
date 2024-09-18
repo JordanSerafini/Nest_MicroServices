@@ -8,6 +8,11 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
+  @MessagePattern({ cmd: 'geocode_customer' })
+  geocode(@Payload() req: any, res: any) {
+    return this.customerService.updateAllCustomerCoordinates(req, res);
+  }
+
   @MessagePattern({ cmd: 'create_customer' })
   create(
     @Payload()

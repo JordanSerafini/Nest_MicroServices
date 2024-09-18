@@ -26,6 +26,7 @@ services:
       - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
       - ./Backend/customer_service/src/validated/:/app/validated/
       - ./Backend/customer_service/src/error/:/app/error/
+      - ./Backend/customer_service/src/address:/app/address
 
 
   authentification_service:

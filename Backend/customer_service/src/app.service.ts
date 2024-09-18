@@ -12,6 +12,7 @@ import { CustomLogger } from './logging/custom-logger.service';
 import { RedisClientType } from 'redis';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Response } from 'express';
 
 @Injectable()
 export class CustomerService {
@@ -31,8 +32,8 @@ export class CustomerService {
   private writeCustomerToCSV(customer: any, type: 'error' | 'validated') {
     //console.log('ecriture du csv');
 
-    const baseDir = process.cwd(); // Répertoire de travail courant
-    const dir = path.join(baseDir, type); // 'error' ou 'validated'
+    const baseDir = process.cwd();
+    const dir = path.join(baseDir, type);
     const fileName =
       type === 'error' ? 'error_customer.csv' : 'validated_customer.csv';
     const filePath = path.join(dir, fileName);
@@ -372,4 +373,132 @@ export class CustomerService {
       );
     }
   }
+
+  //*-------------------------- Coordinate
+  async updateAllCustomerCoordinates(req: Request, res: Response) {
+    const failedAddresses = [];
+
+    try {
+      const query = `SELECT * FROM "Customer";`;
+      const result = await this.pool.query(query);
+      const customers = result.rows;
+
+      for (const customer of customers) {
+        const {
+          Id,
+          MainInvoicingAddress_Address1,
+          MainInvoicingAddress_Address2,
+          MainInvoicingAddress_Address3,
+          MainInvoicingAddress_ZipCode,
+          MainInvoicingAddress_City,
+          MainInvoicingAddress_State,
+          Name,
+        } = customer;
+        const addressComponents = [
+          MainInvoicingAddress_Address1,
+          MainInvoicingAddress_Address2,
+          MainInvoicingAddress_Address3,
+          MainInvoicingAddress_ZipCode,
+          MainInvoicingAddress_City,
+          MainInvoicingAddress_State,
+        ].filter(Boolean);
+        const fullAddress = addressComponents.join(', ');
+
+        if (fullAddress) {
+          const success = await this.geocodeAndSave(Id, fullAddress);
+          if (!success) {
+            failedAddresses.push({ Id, Name, Address: fullAddress });
+          }
+        } else {
+          console.log(`Incomplete address for customer ${Name}`);
+          failedAddresses.push({ Id, Name, Address: 'Incomplete address' });
+        }
+      }
+
+      this.writeFailedAddresses(failedAddresses);
+      res.send(
+        'Coordinates update process completed for all applicable customers.',
+      );
+    } catch (error) {
+      console.error('Error while updating customer coordinates', error);
+      res.status(500).send('Error while updating customer coordinates.');
+    }
+  }
+
+  private async geocodeAndSave(customerId: string | number, address: string) {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
+        {
+          method: 'GET',
+        },
+      );
+
+      // Vérifiez la réponse HTTP
+      if (!response.ok) {
+        console.error(
+          `HTTP Error fetching geocode for address "${address}": ${response.statusText}`,
+        );
+        return false;
+      }
+
+      const geocodeResponse = await response.json();
+
+      // Vérification des données dans la réponse
+      if (
+        geocodeResponse.length > 0 &&
+        geocodeResponse[0].lat &&
+        geocodeResponse[0].lon
+      ) {
+        const Lat = parseFloat(geocodeResponse[0].lat);
+        const Lon = parseFloat(geocodeResponse[0].lon);
+
+        if (!isNaN(Lat) && !isNaN(Lon)) {
+          await this.pool.query(
+            'UPDATE "Customer" SET "Lon" = $1, "Lat" = $2 WHERE "Id" = $3',
+            [Lon, Lat, customerId],
+          );
+          console.log(
+            `Coordinates successfully updated for customer ID ${customerId}: Lon=${Lon}, Lat=${Lat}`,
+          );
+          return true;
+        } else {
+          console.error(
+            `Received invalid coordinates (NaN) for customer ID ${customerId}: ${address}`,
+          );
+          return false;
+        }
+      } else {
+        console.error(
+          `No valid coordinates found for address: "${address}". Geocode response: ${JSON.stringify(geocodeResponse)}`,
+        );
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error during geocoding address: "${address}"`, error);
+      return false;
+    }
+  }
+
+  private writeFailedAddresses(failedAddresses: FailedAddress[]) {
+    const filePath = path.join(__dirname, './address/failedAddresses.csv');
+    const header = 'Customer ID,Customer Name,Address\n';
+    const data = failedAddresses
+      .map((a) => `${a.Id},"${a.Name}","${a.Address}"`)
+      .join('\n');
+
+    // Vérifiez si le fichier existe déjà
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, header + data, 'utf8');
+    } else {
+      fs.appendFileSync(filePath, data + '\n', 'utf8');
+    }
+    console.log('Failed addresses have been written to failedAddresses.csv');
+  }
+}
+
+interface FailedAddress {
+  Id: number | string;
+  Name: string;
+  Address: string;
 }

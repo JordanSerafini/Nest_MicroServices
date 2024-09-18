@@ -48,6 +48,16 @@ export class CustomersController {
     );
   }
 
+  @Get('geocode')
+  geocodeCustomers(@Request() req) {
+    const email = req.user.email;
+    this.logger.log(`Geocoding all customers for user: ${email}`);
+    return this.customerServiceClient.send(
+      { cmd: 'geocode_customer' },
+      { email },
+    );
+  }
+
   @Get('paginate')
   paginate(
     @Request() req,
