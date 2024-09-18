@@ -26,7 +26,7 @@ export class ChantierService {
       const query = `
         SELECT 
           ConstructionSite.*, 
-          row_to_json(customer.*) AS customer,
+          row_to_json(customer.*) AS customer
         FROM "ConstructionSite" ConstructionSite
         JOIN "Customer" customer ON ConstructionSite."CustomerId" = customer.id
         GROUP BY ConstructionSite."Id", customer.*
@@ -41,8 +41,8 @@ export class ChantierService {
       const chantiers = result.rows.map((row) => ({
         ...row,
         customer: row.customer,
-        personnel: row.personnel || [], // Inclut l'objet Personnel
-        materiels: row.materiels || [], // Inclut l'objet Materiels
+        personnel: row.personnel || [],
+        materiels: row.materiels || [],
       }));
 
       this.logger.log(
@@ -58,31 +58,23 @@ export class ChantierService {
     }
   }
 
-  async findOne(id: string | number, email: string): Promise<any> {
-    const parsedId = Number(id);
-    if (isNaN(parsedId)) {
-      const errorMessage = `Invalid ID received: ${id}, User: ${email}`;
-      this.logger.error(errorMessage, 'BadRequestException');
-      throw new BadRequestException(errorMessage);
-    }
-
-    this.logger.log(`Fetching chantier with ID: ${parsedId}, User: ${email}`);
+  async findOne(id: number, email: string): Promise<any> {
+    this.logger.log(`Fetching chantier with ID: ${id}, User: ${email}`);
 
     try {
       const query = `
-        SELECT 
-          ConstructionSite.*, 
-          row_to_json(customer.*) AS customer,
-        FROM "ConstructionSite" ConstructionSite
-        JOIN "Customer" customer ON ConstructionSite."CustomerId" = customer.id
-        WHERE ConstructionSite.id = $1
-        GROUP BY ConstructionSite."Id", customer.*
-      `;
-      const values = [parsedId];
+          SELECT 
+            cs.*, 
+            row_to_json(customer) AS customer
+              FROM "ConstructionSite" cs
+              JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
+          WHERE cs."id" = $1
+        `;
+      const values = [id];
       const result = await this.pool.query(query, values);
 
       if (result.rows.length === 0) {
-        const notFoundMessage = `Chantier with ID: ${parsedId} not found, User: ${email}`;
+        const notFoundMessage = `Chantier with ID: ${id} not found, User: ${email}`;
         this.logger.warn(notFoundMessage);
         throw new NotFoundException(notFoundMessage);
       }
@@ -90,18 +82,16 @@ export class ChantierService {
       const chantier = {
         ...result.rows[0],
         customer: result.rows[0].customer,
-        personnel: result.rows[0].personnel || [],
-        materiels: result.rows[0].materiels || [],
       };
 
       this.logger.log(
-        `Chantier with ID: ${parsedId} found, including full customer details, User: ${email}`,
+        `Chantier with ID: ${id} found, including full customer details, User: ${email}`,
       );
 
       return chantier;
     } catch (error) {
       this.logger.error(
-        `Failed to fetch chantier with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
+        `Failed to fetch chantier with ID: ${id}, User: ${email}, Error: ${error.message}`,
         error.stack,
       );
       throw error;
@@ -128,9 +118,10 @@ export class ChantierService {
       let query = `
         SELECT 
           cs.*, 
-          row_to_json(customer) AS customer,
-        FROM "ConstructionSite" cs
-        JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
+          row_to_json(customer) AS customer
+            FROM "ConstructionSite" cs
+            JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
+
       `;
 
       let countQuery = `SELECT COUNT(*) FROM "ConstructionSite" cs`;
@@ -161,7 +152,6 @@ export class ChantierService {
       const chantiers = chantierResult.rows.map((row) => ({
         ...row,
         customer: row.customer,
-        // Ajoute ici d'autres propriétés si nécessaire
       }));
 
       this.logger.log(
