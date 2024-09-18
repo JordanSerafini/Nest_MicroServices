@@ -79,8 +79,9 @@ const ConsulterChantier: React.FC = () => {
       <Text>Liste des Chantiers</Text>
       <ScrollView>
         {chantiers.map((chantier) => (
-          <TouchableOpacity key={chantier.id} className="border p-2">
-            <Text>{chantier.Caption}</Text>
+          <TouchableOpacity key={chantier.id} className="p-4 border-b border-gray-200 h-20 justify-between">
+            <Text className="font-bold italic">{chantier.Caption}</Text>
+            <View className="flex-row w-full justify-between">
             <View className="flex-row gap-1">
               <Icon name="person" size={20} color='#1e40af'/>
               <Text>{chantier.customer?.Name}</Text>
@@ -89,7 +90,7 @@ const ConsulterChantier: React.FC = () => {
               <Icon name="schedule" size={20} color='#166534'/>
               <Text>du {formatDate(chantier.StartDate)}</Text>
               <Text>au {formatDate(chantier.EndDate)}</Text>
-
+            </View>
             </View>
           </TouchableOpacity>
         ))}
