@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ConstructionSite } from "../../@types/chantier.type";
 import { getChantiersPaginated } from "../../utils/functions/chantier_functions";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { router } from "expo-router";
 
 const ConsulterChantier: React.FC = () => {
   const [chantiers, setChantiers] = useState<ConstructionSite[]>([]);
@@ -80,16 +81,26 @@ const ConsulterChantier: React.FC = () => {
     return `${day}/${month}`;
   }
 
+  const handleChantierPress = (chantier: ConstructionSite) => {
+    if (chantier.id) {
+      router.push({
+        pathname: "/chantier/chantierDetail",
+        params: { id: chantier.id, name: chantier.CustomerId },
+      });
+    }
+  };
+
     const renderItem = ({ item: chantier }: { item: ConstructionSite }) => (
     <TouchableOpacity
       key={chantier.id}
-      className="p-4 border-b border-gray-200 h-24 justify-between overflow-hidden"
+      className="p-4 border-b border-gray-200 h-20 justify-between overflow-hidden"
+      onPress={() => handleChantierPress(chantier)}
     >
       <Text className="italic text-sm">{chantier.Caption}</Text>
-      <View className="flex-row w-full justify-between items-center pl-4">
+      <View className="flex-row w-full h-full justify-between items-center pl-4">
         <View className="flex-row gap-1 h-full items-center">
           <Icon name="person" size={20} color="#1e40af" />
-          <Text className="text-xs w-5/10">{chantier.customer?.Name}</Text>
+          <Text className="text-xs w-5/10 max-h-8">{chantier.customer?.Name}</Text>
         </View>
         <View className="flex-row gap-1 items-center w-5/10">
           <Icon name="schedule" size={20} color="#166534" />
