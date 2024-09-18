@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ConstructionSite } from "../../@types/chantier.type";
@@ -79,6 +80,26 @@ const ConsulterChantier: React.FC = () => {
     return `${day}/${month}`;
   }
 
+    const renderItem = ({ item: chantier }: { item: ConstructionSite }) => (
+    <TouchableOpacity
+      key={chantier.id}
+      className="p-4 border-b border-gray-200 h-24 justify-between overflow-hidden"
+    >
+      <Text className="italic text-sm">{chantier.Caption}</Text>
+      <View className="flex-row w-full justify-between items-center pl-4">
+        <View className="flex-row gap-1 h-full items-center">
+          <Icon name="person" size={20} color="#1e40af" />
+          <Text className="text-xs w-5/10">{chantier.customer?.Name}</Text>
+        </View>
+        <View className="flex-row gap-1 items-center w-5/10">
+          <Icon name="schedule" size={20} color="#166534" />
+          <Text className="text-xs">du {formatDate(chantier.StartDate)}</Text>
+          <Text className="text-xs">au {formatDate(chantier.EndDate)}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView className="h-full w-screen items-center">
       <View className="h-10 w-9.5/10 items-center bg-gray-200 mb-2">
@@ -89,27 +110,14 @@ const ConsulterChantier: React.FC = () => {
           placeholder="Search"
         />
       </View>
-      <ScrollView className="w-full h-full">
-        {chantiers.map((chantier) => (
-          <TouchableOpacity
-            key={chantier.id}
-            className="p-4 border-b border-gray-200 h-24 justify-between overflow-hidden"
-          >
-            <Text className="italic text-sm">{chantier.Caption}</Text>
-            <View className="flex-row w-10/10  justify-between items-center pl-4">
-              <View className="flex-row gap-1 h-full items-center">
-                <Icon name="person" size={20} color="#1e40af" />
-                <Text className="text-xs w-5/10 ">{chantier.customer?.Name}</Text>
-              </View>
-              <View className="flex-row gap-1 items-center w-5/10">
-                <Icon name="schedule" size={20} color="#166534" />
-                <Text className="text-xs">du {formatDate(chantier.StartDate)}</Text>
-                <Text className="text-xs">au {formatDate(chantier.EndDate)}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <View className="w-full h-full">
+      <FlatList
+        data={chantiers}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
+      </View>
     </SafeAreaView>
   );
 };
