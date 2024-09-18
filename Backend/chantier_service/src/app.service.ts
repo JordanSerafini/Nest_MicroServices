@@ -385,4 +385,35 @@ export class ChantierService {
       throw error;
     }
   }
+
+  async getDealDocument(DealId: string, email: string): Promise<any> {
+    this.logger.log(
+      `Fetching deal document with ID:  ${DealId}, User: ${email}`,
+    );
+
+    try {
+      const query = `
+        SELECT * FROM "Deal" WHERE "Id" = $1
+      `;
+      const values = [DealId];
+      const result = await this.pool.query(query, values);
+
+      if (result.rows.length === 0) {
+        this.logger.warn(`Deal document with ID: : ${DealId}, User: ${email}`);
+        throw new NotFoundException(`Deal document with ID: : ${DealId}`);
+      }
+
+      this.logger.log(
+        `Found deal document with ID:  ${DealId}, User: ${email}`,
+      );
+
+      return result.rows;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch deal document with ID:  ${DealId}, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
 }

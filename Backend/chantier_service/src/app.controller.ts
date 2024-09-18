@@ -90,4 +90,9 @@ export class ChantierController {
   getDocumentLine(@Payload() { id, email }: { id: string; email: string }) {
     return this.chantierService.getConstructionSiteDocumentLine(id, email);
   }
+
+  @MessagePattern({ cmd: 'get_chantierdeal_byid' })
+  getDealById(@Payload() { id, email }: { id: string; email: string }) {
+    return this.chantierService.getDealDocument(id, email);
+  }
 }

@@ -28,7 +28,6 @@ services:
       - ./Backend/customer_service/src/error/:/app/error/
       - ./Backend/customer_service/src/address:/app/address
 
-
   authentification_service:
     build:
       context: ./Backend/authentification_service
@@ -66,6 +65,93 @@ services:
     volumes:
       - ./Backend/chantier_service/logs:/var/log/Logs_ChantierService
 
+  colleague_service:
+    build:
+      context: ./Backend/colleague_service
+      dockerfile: Dockerfile
+    ports:
+      - "3007:3007"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/colleague_service/logs:/var/log/Logs_ColleagueService
+
+  deal_service:
+    build:
+      context: ./Backend/deal_service
+      dockerfile: Dockerfile
+    ports:
+      - "3008:3008"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/deal_service/logs:/var/log/Logs_DealService
+
+  incident_service:
+    build:
+      context: ./Backend/incident_service
+      dockerfile: Dockerfile
+    ports:
+      - "3009:3009"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/incident_service/logs:/var/log/Logs_IncidentService
+    
+  maintenance_service:
+    build:
+      context: ./Backend/maintenance_service
+      dockerfile: Dockerfile
+    ports:
+      - "3010:3010"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/maintenance_service/logs:/var/log/Logs_MaintenanceService
+
+  purchase_service:
+    build:
+      context: ./Backend/purchase_service
+      dockerfile: Dockerfile
+    ports:
+      - "3011:3011"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/purchase_service/logs:/var/log/Logs_PurchaseService
+
+  sale_service:
+    build:
+      context: ./Backend/sale_service
+      dockerfile: Dockerfile
+    ports:
+      - "3012:3012"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/sale_service/logs:/var/log/Logs_SaleService
+
+  schedule_service:
+    build:
+      context: ./Backend/schedule_service
+      dockerfile: Dockerfile
+    ports:
+      - "3013:3013"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/schedule_service/logs:/var/log/Logs_ScheduleService
+
+  supplier_service:
+    build:
+      context: ./Backend/supplier_service
+      dockerfile: Dockerfile
+    ports:
+      - "3014:3014"
+    networks:
+      - nestjs_network
+    volumes:
+      - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
 
   api_gateway:
     build:
@@ -80,6 +166,15 @@ services:
       - item_service
       - authentification_service
       - stock_service
+      - chantier_service
+      - colleague_service
+      - deal_service
+      - incident_service
+      - maintenance_service
+      - purchase_service
+      - sale_service
+      - schedule_service
+      - supplier_service
     volumes:
       - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
 

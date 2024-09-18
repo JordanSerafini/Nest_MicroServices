@@ -69,6 +69,7 @@ export class ChantierController {
     );
   }
 
+  //* ------------------- CHANTIER DOC ------------------- *//
   @Get('documment/:id')
   getChantierDoc(@Request() req, @Param('id') id: string) {
     const email = req.user.email;
@@ -89,6 +90,16 @@ export class ChantierController {
     );
   }
 
+  @Get('deal/:id')
+  getChantierDeal(@Request() req, @Param('id') id: string) {
+    const email = req.user.email;
+    this.logger.log(`Fetching chantierdeal for user: ${email}`);
+    return this.chantierServiceClient.send(
+      { cmd: 'get_chantierdeal_byid' },
+      { email, id },
+    );
+  }
+  //*--------------------------------------------------------*//
   @Get(':id')
   findOneChantier(@Param('id') id: number | string, @Request() req) {
     const email = req.user.email;
