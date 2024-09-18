@@ -25,17 +25,11 @@ export class ChantierService {
     try {
       const query = `
         SELECT 
-          chantier.*, 
+          ConstructionSite.*, 
           row_to_json(customer.*) AS customer,
-          json_agg(DISTINCT jsonb_build_object('FirstName', personnel."FirstName", 'LastName', personnel."LastName", 'Position', personnel."Position")) AS personnel,
-          json_agg(DISTINCT jsonb_build_object('Name', materiel."Name", 'Description', materiel."Description", 'Quantity', chantier_materiel."Quantity")) AS materiels
-        FROM "Chantier" chantier
-        JOIN "Customer" customer ON chantier."CustomerId" = customer.id
-        LEFT JOIN "ChantierPersonnel" chantier_personnel ON chantier."Id" = chantier_personnel."ChantierId"
-        LEFT JOIN "Personnel" personnel ON chantier_personnel."PersonnelId" = personnel."Id"
-        LEFT JOIN "ChantierMateriel" chantier_materiel ON chantier."Id" = chantier_materiel."ChantierId"
-        LEFT JOIN "Materiel" materiel ON chantier_materiel."MaterielId" = materiel."Id"
-        GROUP BY chantier."Id", customer.*
+        FROM "ConstructionSite" ConstructionSite
+        JOIN "Customer" customer ON ConstructionSite."CustomerId" = customer.id
+        GROUP BY ConstructionSite."Id", customer.*
       `;
       const result = await this.pool.query(query);
 
@@ -77,18 +71,12 @@ export class ChantierService {
     try {
       const query = `
         SELECT 
-          chantier.*, 
+          ConstructionSite.*, 
           row_to_json(customer.*) AS customer,
-          json_agg(DISTINCT jsonb_build_object('FirstName', personnel."FirstName", 'LastName', personnel."LastName", 'Position', personnel."Position")) AS personnel,
-          json_agg(DISTINCT jsonb_build_object('Name', materiel."Name", 'Description', materiel."Description", 'Quantity', chantier_materiel."Quantity")) AS materiels
-        FROM "Chantier" chantier
-        JOIN "Customer" customer ON chantier."CustomerId" = customer.id
-        LEFT JOIN "ChantierPersonnel" chantier_personnel ON chantier."Id" = chantier_personnel."ChantierId"
-        LEFT JOIN "Personnel" personnel ON chantier_personnel."PersonnelId" = personnel."Id"
-        LEFT JOIN "ChantierMateriel" chantier_materiel ON chantier."Id" = chantier_materiel."ChantierId"
-        LEFT JOIN "Materiel" materiel ON chantier_materiel."MaterielId" = materiel."Id"
-        WHERE chantier.id = $1
-        GROUP BY chantier."Id", customer.*
+        FROM "ConstructionSite" ConstructionSite
+        JOIN "Customer" customer ON ConstructionSite."CustomerId" = customer.id
+        WHERE ConstructionSite.id = $1
+        GROUP BY ConstructionSite."Id", customer.*
       `;
       const values = [parsedId];
       const result = await this.pool.query(query, values);
