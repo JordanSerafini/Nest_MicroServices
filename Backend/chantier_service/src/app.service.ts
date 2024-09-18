@@ -376,7 +376,7 @@ export class ChantierService {
         `Found document line with ID:  ${chantierDocId}, User: ${email}`,
       );
 
-      return result.rows[0];
+      return result.rows;
     } catch (error) {
       this.logger.error(
         `Failed to fetch document line with ID:  ${chantierDocId}, User: ${email}, Error: ${error.message}`,
