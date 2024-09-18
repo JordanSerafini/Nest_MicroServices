@@ -316,4 +316,73 @@ export class ChantierService {
       throw error;
     }
   }
+
+  //* ----------------------------------------------------- Construction Site Documents
+
+  async getConstructionSiteDocuments(
+    chantierDocId: string,
+    email: string,
+  ): Promise<any[]> {
+    this.logger.log(
+      `Fetching documents for chantier with ID: ${chantierDocId}, User: ${email}`,
+    );
+
+    try {
+      const query = `
+        SELECT * FROM "ConstructionSiteReferenceDocument" WHERE "Id" = $1
+      `;
+      const values = [chantierDocId];
+      const result = await this.pool.query(query, values);
+
+      this.logger.log(
+        `Found ${result.rows.length} documents for chantier with ID: ${chantierDocId}, User: ${email}`,
+      );
+
+      return result.rows;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch documents for chantier with ID: ${chantierDocId}, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async getConstructionSiteDocumentLine(
+    chantierDocId: number | string,
+    email: string,
+  ): Promise<any> {
+    this.logger.log(
+      `Fetching document line with ID:  ${chantierDocId}, User: ${email}`,
+    );
+
+    try {
+      const query = `
+        SELECT * FROM "ConstructionSiteReferenceDocumentLine" WHERE "DocumentId" = $1
+      `;
+      const values = [chantierDocId];
+      const result = await this.pool.query(query, values);
+
+      if (result.rows.length === 0) {
+        this.logger.warn(
+          `Document line with ID: : ${chantierDocId}, User: ${email}`,
+        );
+        throw new NotFoundException(
+          `Document line with ID: : ${chantierDocId}`,
+        );
+      }
+
+      this.logger.log(
+        `Found document line with ID:  ${chantierDocId}, User: ${email}`,
+      );
+
+      return result.rows[0];
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch document line with ID:  ${chantierDocId}, User: ${email}, Error: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
 }

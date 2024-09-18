@@ -69,6 +69,26 @@ export class ChantierController {
     );
   }
 
+  @Get('documment/:id')
+  getChantierDoc(@Request() req, @Param('id') id: string) {
+    const email = req.user.email;
+    this.logger.log(`Fetching chantierdoc for user: ${email}`);
+    return this.chantierServiceClient.send(
+      { cmd: 'get_chantierdoc_byid' },
+      { email, id },
+    );
+  }
+
+  @Get('documment_line/:id')
+  getChantierDocLine(@Request() req, @Param('id') id: string) {
+    const email = req.user.email;
+    this.logger.log(`Fetching chantierdoc_line for user: ${email}`);
+    return this.chantierServiceClient.send(
+      { cmd: 'get_chantierdoc_line' },
+      { email, id },
+    );
+  }
+
   @Get(':id')
   findOneChantier(@Param('id') id: number | string, @Request() req) {
     const email = req.user.email;

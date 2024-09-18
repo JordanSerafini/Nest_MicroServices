@@ -78,4 +78,16 @@ export class ChantierController {
   remove(@Payload() { id, email }: { id: string; email: string }) {
     return this.chantierService.remove(+id, email);
   }
+
+  //* ----------------------------------Construction Site Documents
+
+  @MessagePattern({ cmd: 'get_chantierdoc_byid' })
+  getDocumentById(@Payload() { id, email }: { id: string; email: string }) {
+    return this.chantierService.getConstructionSiteDocuments(id, email);
+  }
+
+  @MessagePattern({ cmd: 'get_chantierdoc_line' })
+  getDocumentLine(@Payload() { id, email }: { id: string; email: string }) {
+    return this.chantierService.getConstructionSiteDocumentLine(id, email);
+  }
 }
