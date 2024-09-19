@@ -3,7 +3,7 @@ import { AuthService } from './app.service';
 import { AuthController } from './app.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { PoolModule } from 'pool.module';
+import { PoolModule } from '../pool.module';
 import { CustomLogger } from './logging/custom-logger.service';
 
 @Module({

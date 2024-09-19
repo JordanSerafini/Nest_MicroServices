@@ -1,19 +1,34 @@
 services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - nestjs_network
+
   item_service:
-    build:
-      context: ./Backend/item_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/item_service:/app
+      - ./Backend/item_service/logs:/var/log/Logs_ItemService
+      # - /app/node_modules
     ports:
       - "3001:3001"
     networks:
       - nestjs_network
-    volumes:
-      - ./Backend/item_service/logs:/var/log/Logs_ItemService
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   customer_service:
-    build:
-      context: ./Backend/customer_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/customer_service:/app
+      - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
+      - ./Backend/customer_service/src/validated:/app/validated
+      - ./Backend/customer_service/src/error:/app/error
+      - ./Backend/customer_service/src/address:/app/address
+      # - /app/node_modules
     ports:
       - "3002:3002"
     networks:
@@ -23,29 +38,30 @@ services:
       - item_service
     environment:
       - REDIS_URL=redis://redis:6379
-    volumes:
-      - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
-      - ./Backend/customer_service/src/validated/:/app/validated/
-      - ./Backend/customer_service/src/error/:/app/error/
-      - ./Backend/customer_service/src/address:/app/address
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   authentification_service:
-    build:
-      context: ./Backend/authentification_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/authentification_service:/app
+      - ./Backend/authentification_service/logs:/var/log/Logs_AuthService
+      # - /app/node_modules
     ports:
       - "3003:3003"
-    depends_on:
-      - customer_service
     networks:
       - nestjs_network
-    volumes:
-      - ./Backend/authentification_service/logs:/var/log/Logs_AuthService
+    depends_on:
+      - customer_service
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   stock_service:
-    build:
-      context: ./Backend/stock_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/stock_service:/app
+      - ./Backend/stock_service/logs:/var/log/Logs_StockService
+      # - /app/node_modules
     ports:
       - "3004:3004"
     networks:
@@ -55,130 +71,151 @@ services:
       - authentification_service
     environment:
       - REDIS_URL=redis://redis:6379
-    volumes:
-      - ./Backend/stock_service/logs:/var/log/Logs_StockService
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   chantier_service:
-    build:
-      context: ./Backend/chantier_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/chantier_service:/app
+      - ./Backend/chantier_service/logs:/var/log/Logs_ChantierService
+      # - /app/node_modules
     ports:
       - "3006:3006"
+    networks:
+      - nestjs_network
     depends_on:
       - stock_service
-    networks:
-      - nestjs_network
-    volumes:
-      - ./Backend/chantier_service/logs:/var/log/Logs_ChantierService
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   colleague_service:
-    build:
-      context: ./Backend/colleague_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/colleague_service:/app
+      - ./Backend/colleague_service/logs:/var/log/Logs_ColleagueService
+      # - /app/node_modules
     ports:
       - "3007:3007"
-    depends_on:
-      - chantier_service
     networks:
       - nestjs_network
-    volumes:
-      - ./Backend/colleague_service/logs:/var/log/Logs_ColleagueService
+    depends_on:
+      - chantier_service
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   deal_service:
-    build:
-      context: ./Backend/deal_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/deal_service:/app
+      - ./Backend/deal_service/logs:/var/log/Logs_DealService
+      # - /app/node_modules
     ports:
       - "3008:3008"
     networks:
       - nestjs_network
     depends_on:
       - colleague_service
-    volumes:
-      - ./Backend/deal_service/logs:/var/log/Logs_DealService
+      - redis
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   incident_service:
-    build:
-      context: ./Backend/incident_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/incident_service:/app
+      - ./Backend/incident_service/logs:/var/log/Logs_IncidentService
+      # - /app/node_modules
     ports:
       - "3009:3009"
     networks:
       - nestjs_network
     depends_on:
       - deal_service
-    volumes:
-      - ./Backend/incident_service/logs:/var/log/Logs_IncidentService
-    
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+
   maintenance_service:
-    build:
-      context: ./Backend/maintenance_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/maintenance_service:/app
+      - ./Backend/maintenance_service/logs:/var/log/Logs_MaintenanceService
+      # - /app/node_modules
     ports:
       - "3010:3010"
     networks:
       - nestjs_network
     depends_on:
-      - incident_service_service
-    volumes:
-      - ./Backend/maintenance_service/logs:/var/log/Logs_MaintenanceService
+      - incident_service
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   purchase_service:
-    build:
-      context: ./Backend/purchase_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/purchase_service:/app
+      - ./Backend/purchase_service/logs:/var/log/Logs_PurchaseService
+      # - /app/node_modules
     ports:
       - "3011:3011"
     networks:
       - nestjs_network
     depends_on:
-      - maintenance_service_service
-    volumes:
-      - ./Backend/purchase_service/logs:/var/log/Logs_PurchaseService
+      - maintenance_service
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   sale_service:
-    build:
-      context: ./Backend/sale_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/sale_service:/app
+      - ./Backend/sale_service/logs:/var/log/Logs_SaleService
+      # - /app/node_modules
     ports:
       - "3012:3012"
     networks:
       - nestjs_network
     depends_on:
-      - purchase_service_service
-    volumes:
-      - ./Backend/sale_service/logs:/var/log/Logs_SaleService
+      - purchase_service
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   schedule_service:
-    build:
-      context: ./Backend/schedule_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/schedule_service:/app
+      - ./Backend/schedule_service/logs:/var/log/Logs_ScheduleService
+      # - /app/node_modules
     ports:
       - "3013:3013"
     networks:
       - nestjs_network
     depends_on:
       - sale_service
-    volumes:
-      - ./Backend/schedule_service/logs:/var/log/Logs_ScheduleService
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   supplier_service:
-    build:
-      context: ./Backend/supplier_service
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/supplier_service:/app
+      - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
+      # - /app/node_modules
     ports:
       - "3014:3014"
     networks:
       - nestjs_network
     depends_on:
       - schedule_service
-    volumes:
-      - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
 
   api_gateway:
-    build:
-      context: ./Backend/api_gateway
-      dockerfile: Dockerfile
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./Backend/api_gateway:/app
+      - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
+      # - /app/node_modules
     ports:
       - "3000:3000"
     networks:
@@ -197,8 +234,13 @@ services:
       - sale_service
       - schedule_service
       - supplier_service
-    volumes:
-      - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+
+networks:
+  nestjs_network:
+    driver: bridge
+
+
 
   # mobile_service:
   #   build:
@@ -216,16 +258,3 @@ services:
   #     - nestjs_network
   #   stdin_open: true
   #   tty: true
-
-
-
-  redis:
-    image: "redis:alpine"
-    ports:
-      - "6379:6379"
-    networks:
-      - nestjs_network
-
-networks:
-  nestjs_network:
-    driver: bridge

@@ -288,7 +288,6 @@ export class CustomerService {
     searchQuery: string,
   ) {
     const cacheKey = `customers_paginated_${limit}_${offset}_${searchQuery}`;
-
     const cachedData = await this.redisClient.get(cacheKey);
     if (cachedData) {
       console.log('Cache hit');

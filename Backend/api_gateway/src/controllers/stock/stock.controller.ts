@@ -3,17 +3,17 @@ import {
   Get,
   Param,
   Query,
-  Post,
-  Body,
+  // Post,
+  // Body,
   BadRequestException,
   Request,
   Inject,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateStockDocumentDto } from 'src/dto/create-stock.dto';
-import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
-import { CustomLogger } from 'src/logging/custom-logger.service';
+//import { CreateStockDocumentDto } from 'src/dto/create-stock.dto';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
+import { CustomLogger } from '../../logging/custom-logger.service';
 
 @Controller('stocks')
 @UseGuards(JwtAuthGuard)
@@ -24,19 +24,19 @@ export class StockController {
     @Inject('STOCK_SERVICE') private readonly stockServiceClient: ClientProxy,
   ) {}
 
-  // Créer un document de stock
-  @Post('create')
-  async createStockDocument(
-    @Body() createStockDocumentDto: CreateStockDocumentDto,
-    @Request() req,
-  ) {
-    const email = req.user.email;
+  // // Créer un document de stock
+  // @Post('create')
+  // async createStockDocument(
+  //   @Body() createStockDocumentDto: CreateStockDocumentDto,
+  //   @Request() req,
+  // ) {
+  //   const email = req.user.email;
 
-    return this.stockServiceClient.send(
-      { cmd: 'create_stock' },
-      { createStockDto: createStockDocumentDto, email },
-    );
-  }
+  //   return this.stockServiceClient.send(
+  //     { cmd: 'create_stock' },
+  //     { createStockDto: createStockDocumentDto, email },
+  //   );
+  // }
 
   // Récupérer tous les documents de stock
   @Get('all')

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DealController } from './app.controller';
 import { DealService } from './app.service';
-import { PoolModule } from 'pool.module';
+import { PoolModule } from '../pool.module';
 import { CustomLogger } from './logging/custom-logger.service';
 import { createClient } from 'redis';
 
