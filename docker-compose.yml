@@ -171,7 +171,7 @@ services:
     networks:
       - nestjs_network
     depends_on:
-      - schedule_service_service
+      - schedule_service
     volumes:
       - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
 
