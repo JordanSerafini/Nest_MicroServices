@@ -7,10 +7,10 @@ async function bootstrap() {
     transport: Transport.TCP,
     options: {
       host: '0.0.0.0',
-      port: 3008,
+      port: 3015,
     },
   });
   app.listen();
-  console.log('Customer service is listening on port 3008');
+  console.log('Deal service is listening on port 3015');
 }
 bootstrap();

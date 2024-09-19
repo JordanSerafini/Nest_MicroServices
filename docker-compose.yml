@@ -17,7 +17,9 @@ services:
       - "3001:3001"
     networks:
       - nestjs_network
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   customer_service:
     image: node:22-alpine
@@ -38,7 +40,8 @@ services:
       - item_service
     environment:
       - REDIS_URL=redis://redis:6379
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+      - CHOKIDAR_USEPOLLING=true
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   authentification_service:
     image: node:22-alpine
@@ -53,7 +56,9 @@ services:
       - nestjs_network
     depends_on:
       - customer_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   stock_service:
     image: node:22-alpine
@@ -71,7 +76,8 @@ services:
       - authentification_service
     environment:
       - REDIS_URL=redis://redis:6379
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+      - CHOKIDAR_USEPOLLING=true
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   chantier_service:
     image: node:22-alpine
@@ -84,9 +90,11 @@ services:
       - "3006:3006"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - stock_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   colleague_service:
     image: node:22-alpine
@@ -99,9 +107,11 @@ services:
       - "3007:3007"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - chantier_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   deal_service:
     image: node:22-alpine
@@ -111,13 +121,15 @@ services:
       - ./Backend/deal_service/logs:/var/log/Logs_DealService
       # - /app/node_modules
     ports:
-      - "3008:3008"
+      - "3015:3015"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - colleague_service
       - redis
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   incident_service:
     image: node:22-alpine
@@ -128,11 +140,13 @@ services:
       # - /app/node_modules
     ports:
       - "3009:3009"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     networks:
       - nestjs_network
     depends_on:
       - deal_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   maintenance_service:
     image: node:22-alpine
@@ -143,11 +157,13 @@ services:
       # - /app/node_modules
     ports:
       - "3010:3010"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     networks:
       - nestjs_network
     depends_on:
       - incident_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   purchase_service:
     image: node:22-alpine
@@ -160,9 +176,11 @@ services:
       - "3011:3011"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - maintenance_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   sale_service:
     image: node:22-alpine
@@ -175,9 +193,11 @@ services:
       - "3012:3012"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - purchase_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   schedule_service:
     image: node:22-alpine
@@ -190,9 +210,11 @@ services:
       - "3013:3013"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - sale_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   supplier_service:
     image: node:22-alpine
@@ -205,9 +227,11 @@ services:
       - "3014:3014"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - schedule_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   api_gateway:
     image: node:22-alpine
@@ -220,6 +244,8 @@ services:
       - "3000:3000"
     networks:
       - nestjs_network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - customer_service
       - item_service
@@ -234,7 +260,7 @@ services:
       - sale_service
       - schedule_service
       - supplier_service
-    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" --polling src/main.ts'"
+    command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
 networks:
   nestjs_network:

@@ -76,7 +76,7 @@ import { SupplierController } from './controllers/supplier/supplier.controller';
         transport: Transport.TCP,
         options: {
           host: 'deal_service',
-          port: 3008,
+          port: 3015,
         },
       },
       {
