@@ -20,6 +20,7 @@ services:
       - nestjs_network
     depends_on:
       - redis
+      - item_service
     environment:
       - REDIS_URL=redis://redis:6379
     volumes:
@@ -34,6 +35,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3003:3003"
+    depends_on:
+      - customer_service
     networks:
       - nestjs_network
     volumes:
@@ -49,6 +52,7 @@ services:
       - nestjs_network
     depends_on:
       - redis
+      - authentification_service
     environment:
       - REDIS_URL=redis://redis:6379
     volumes:
@@ -60,6 +64,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3006:3006"
+    depends_on:
+      - stock_service
     networks:
       - nestjs_network
     volumes:
@@ -71,6 +77,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3007:3007"
+    depends_on:
+      - chantier_service
     networks:
       - nestjs_network
     volumes:
@@ -84,6 +92,8 @@ services:
       - "3008:3008"
     networks:
       - nestjs_network
+    depends_on:
+      - colleague_service
     volumes:
       - ./Backend/deal_service/logs:/var/log/Logs_DealService
 
@@ -95,6 +105,8 @@ services:
       - "3009:3009"
     networks:
       - nestjs_network
+    depends_on:
+      - deal_service
     volumes:
       - ./Backend/incident_service/logs:/var/log/Logs_IncidentService
     
@@ -106,6 +118,8 @@ services:
       - "3010:3010"
     networks:
       - nestjs_network
+    depends_on:
+      - incident_service_service
     volumes:
       - ./Backend/maintenance_service/logs:/var/log/Logs_MaintenanceService
 
@@ -117,6 +131,8 @@ services:
       - "3011:3011"
     networks:
       - nestjs_network
+    depends_on:
+      - maintenance_service_service
     volumes:
       - ./Backend/purchase_service/logs:/var/log/Logs_PurchaseService
 
@@ -128,6 +144,8 @@ services:
       - "3012:3012"
     networks:
       - nestjs_network
+    depends_on:
+      - purchase_service_service
     volumes:
       - ./Backend/sale_service/logs:/var/log/Logs_SaleService
 
@@ -139,6 +157,8 @@ services:
       - "3013:3013"
     networks:
       - nestjs_network
+    depends_on:
+      - sale_service
     volumes:
       - ./Backend/schedule_service/logs:/var/log/Logs_ScheduleService
 
@@ -150,6 +170,8 @@ services:
       - "3014:3014"
     networks:
       - nestjs_network
+    depends_on:
+      - schedule_service_service
     volumes:
       - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
 
