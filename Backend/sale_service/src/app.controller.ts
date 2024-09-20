@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller } from '@nestjs/common';
+import { SaleService } from './app.service';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class SaleController {
+  constructor(private readonly SaleService: SaleService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @MessagePattern({ cmd: 'find_one_SaleDocument' })
+  findOne(@Payload() { Id, email }: { Id: string; email: string }) {
+    return this.SaleService.findOne(Id, email);
   }
 }

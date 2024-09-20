@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { SaleController } from './app.controller';
+import { SaleService } from './app.service';
+import { CustomLogger } from './logging/custom-logger.service';
+import { PoolModule } from '../pool.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [PoolModule],
+  controllers: [SaleController],
+  providers: [SaleService, { provide: 'Logger', useClass: CustomLogger }],
 })
 export class SaleModule {}
