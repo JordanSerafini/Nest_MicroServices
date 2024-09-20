@@ -172,7 +172,12 @@ export class CustomerService {
       throw new BadRequestException('Invalid ID');
     }
 
-    const query = `SELECT * FROM "Customer" WHERE id = $1`;
+    let query;
+    if (typeof id == 'string') {
+      query = `SELECT * FROM "Customer" WHERE "Id" = $1`;
+    } else if (typeof id == 'number') {
+      query = `SELECT * FROM "Customer" WHERE id = $1`;
+    }
     const values = [parsedId];
 
     try {

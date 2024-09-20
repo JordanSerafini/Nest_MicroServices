@@ -174,7 +174,7 @@ export class StockService {
       throw new BadRequestException('Invalid ID');
     }
 
-    const query = `SELECT * FROM "StockDocument" WHERE id = $1`;
+    const query = `SELECT * FROM "StockDocument" WHERE "Id" = $1`;
     const values = [parsedId];
 
     try {

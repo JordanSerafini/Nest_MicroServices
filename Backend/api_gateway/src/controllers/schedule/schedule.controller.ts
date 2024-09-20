@@ -20,7 +20,8 @@ export class ScheduleController {
     private readonly scheduleServiceClient: ClientProxy,
   ) {}
 
-  @Get()
+  //* ------------------- Dynamic Routes ------------------- *//
+  @Get(':Id')
   findOneItem(@Param('Id') Id: string, @Request() req) {
     const email = req.user.email;
     this.logger.log(`Fetching all items for user: ${email}`);
@@ -28,6 +29,5 @@ export class ScheduleController {
       { cmd: 'find_one_scheduleEvent' },
       { Id, email },
     );
-    return 'Schedule';
   }
 }
