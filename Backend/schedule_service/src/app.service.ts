@@ -36,21 +36,19 @@ export class ScheduleService {
 
       const scheduleEvent = result.rows[0];
 
-      // Récupération des données du client via API
+      // Récupération des données du client
       const customer = await this.fetchData(
         `http://api_gateway:3000/customers/${scheduleEvent.CustomerId}`,
         'customer',
       );
 
-      // Vérifier si le StockDocumentId est valide avant d'appeler l'API
+      // Vérifie si StockDocumentId est présent
       let stockDocument = null;
       if (scheduleEvent.StockDocumentId) {
         stockDocument = await this.fetchData(
           `http://api_gateway:3000/stock/${scheduleEvent.StockDocumentId}`,
           'stock document',
         );
-      } else {
-        this.logger.warn('No StockDocumentId found for this schedule');
       }
 
       return {
@@ -71,7 +69,7 @@ export class ScheduleService {
               NotesClear: stockDocument.NotesClear,
               DealId: stockDocument.DealId,
             }
-          : null, // ou définir un comportement par défaut ici
+          : null, // Si pas de document de stock, renvoyer null
       };
     } catch (error) {
       this.logger.error(
