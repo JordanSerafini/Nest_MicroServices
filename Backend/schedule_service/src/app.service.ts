@@ -54,12 +54,12 @@ export class ScheduleService {
       return {
         ...scheduleEvent,
         customer: {
-          id: customer.id,
-          name: customer.name,
-          cellPhone: customer.cellPhone,
-          phone: customer.phone,
-          firstName: customer.firstName,
-          email: customer.email,
+          Id: customer.Id,
+          Name: customer.MainInvoicingContact_Name,
+          FirstName: customer.MainInvoicingContact_FirstName,
+          CellPhone: customer.MainInvoicingContact_CellPhone,
+          Phone: customer.MainInvoicingContact_Phone,
+          email: customer.MainInvoicingContact_Email,
         },
         stockDocument: stockDocument
           ? {
@@ -69,7 +69,7 @@ export class ScheduleService {
               NotesClear: stockDocument.NotesClear,
               DealId: stockDocument.DealId,
             }
-          : null, // Si pas de document de stock, renvoyer null
+          : null,
       };
     } catch (error) {
       this.logger.error(
