@@ -36,15 +36,22 @@ export class ScheduleService {
 
       const scheduleEvent = result.rows[0];
 
-      // Récupération des données du client et du stock via des appels API
+      // Récupération des données du client via API
       const customer = await this.fetchData(
         `http://api_gateway:3000/customers/${scheduleEvent.CustomerId}`,
         'customer',
       );
-      const stockDocument = await this.fetchData(
-        `http://api_gateway:3000/stock/${scheduleEvent.StockDocumentId}`,
-        'stock document',
-      );
+
+      // Vérifier si le StockDocumentId est valide avant d'appeler l'API
+      let stockDocument = null;
+      if (scheduleEvent.StockDocumentId) {
+        stockDocument = await this.fetchData(
+          `http://api_gateway:3000/stock/${scheduleEvent.StockDocumentId}`,
+          'stock document',
+        );
+      } else {
+        this.logger.warn('No StockDocumentId found for this schedule');
+      }
 
       return {
         ...scheduleEvent,
@@ -56,13 +63,15 @@ export class ScheduleService {
           firstName: customer.firstName,
           email: customer.email,
         },
-        stockDocument: {
-          Id: stockDocument.Id,
-          Date: stockDocument.DocumentDate,
-          Reference: stockDocument.Reference,
-          NotesClear: stockDocument.NotesClear,
-          DealId: stockDocument.DealId,
-        },
+        stockDocument: stockDocument
+          ? {
+              Id: stockDocument.Id,
+              Date: stockDocument.DocumentDate,
+              Reference: stockDocument.Reference,
+              NotesClear: stockDocument.NotesClear,
+              DealId: stockDocument.DealId,
+            }
+          : null, // ou définir un comportement par défaut ici
       };
     } catch (error) {
       this.logger.error(
