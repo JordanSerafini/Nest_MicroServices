@@ -19,18 +19,27 @@ export class JwtAuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
+
+    // Vérification de l'en-tête spécifique pour les services internes
+    const serviceAuthHeader = request.headers['x-service-auth'];
+    if (serviceAuthHeader && serviceAuthHeader === 'trusted-service-key') {
+      this.logger.log('Request from trusted internal service');
+      return true; // Permet l'accès pour les services internes
+    }
+
     const authHeader = request.headers['authorization'];
 
+    // Si aucune autorisation n'est présente et que la requête ne provient pas d'un service interne
     if (!authHeader) {
       this.logger.warn('No authorization header found');
-      return false; //! À changer à `false` après le développement
+      throw new UnauthorizedException('Authorization header is missing');
     }
 
     const [type, token] = authHeader.split(' ');
     this.logger.debug('Extracted token:', token);
 
     if (type !== 'Bearer' || !token) {
-      this.logger.error('Invalid token type or missing token', '');
+      this.logger.error('Invalid token type or missing token', ``);
       throw new UnauthorizedException('Invalid token type or missing token');
     }
 

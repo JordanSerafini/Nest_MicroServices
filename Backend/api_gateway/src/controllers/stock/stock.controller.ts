@@ -69,13 +69,8 @@ export class StockController {
 
   // Récupérer un document de stock par ID
   @Get(':id')
-  async findOneStockDocument(@Param('id') id: number, @Request() req) {
+  async findOneStockDocument(@Param('id') id: number | string, @Request() req) {
     const email = req.user.email;
-
-    // Vérification de l'ID
-    if (!id || isNaN(Number(id))) {
-      throw new BadRequestException(`Invalid ID: ${id}`);
-    }
 
     return this.stockServiceClient.send(
       { cmd: 'find_one_stock' },

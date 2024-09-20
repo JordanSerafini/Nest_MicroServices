@@ -168,29 +168,21 @@ export class StockService {
     id: string | number,
     email: string,
   ): Promise<StockDocument | null> {
-    const parsedId = Number(id);
-    if (isNaN(parsedId)) {
-      this.logger.log(`Invalid ID received: ${id}, ${email}`);
-      throw new BadRequestException('Invalid ID');
-    }
-
     const query = `SELECT * FROM "StockDocument" WHERE "Id" = $1`;
-    const values = [parsedId];
+    const values = [id];
 
     try {
       const result = await this.pool.query(query, values);
       if (result.rows.length > 0) {
-        this.logger.log(`Stock with ID: ${parsedId} found, User: ${email}`);
+        this.logger.log(`Stock with ID: ${id} found, User: ${email}`);
         return result.rows[0] as StockDocument;
       } else {
-        this.logger.warn(
-          `Stock with ID: ${parsedId} not found, User: ${email}`,
-        );
-        throw new NotFoundException(`Stock with id ${parsedId} not found`);
+        this.logger.warn(`Stock with ID: ${id} not found, User: ${email}`);
+        throw new NotFoundException(`Stock with id ${id} not found`);
       }
     } catch (error) {
       this.logger.error(
-        `Failed to fetch stock with ID: ${parsedId}, User: ${email}, Error: ${error.message}`,
+        `Failed to fetch stock with ID: ${id}, User: ${email}, Error: ${error.message}`,
         error.stack,
       );
       throw error;

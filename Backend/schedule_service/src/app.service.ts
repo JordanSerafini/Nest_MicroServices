@@ -36,64 +36,59 @@ export class ScheduleService {
 
       const scheduleEvent = result.rows[0];
 
-      const customerId = scheduleEvent.CustomerId;
-      const customerUrl = `http://localhost:3000/customer/${customerId}`;
+      // Récupération des données du client et du stock via des appels API
+      const customer = await this.fetchData(
+        `http://api_gateway:3000/customers/${scheduleEvent.CustomerId}`,
+        'customer',
+      );
+      const stockDocument = await this.fetchData(
+        `http://api_gateway:3000/stock/${scheduleEvent.StockDocumentId}`,
+        'stock document',
+      );
 
-      try {
-        const customerResponse = await fetch(customerUrl);
-        if (!customerResponse.ok) {
-          throw new Error(
-            `Failed to fetch customer: ${customerResponse.statusText}`,
-          );
-        }
-        const customer = await customerResponse.json();
-
-        const stockDocumentId = scheduleEvent.StockDocumentId;
-        const stockUrl = `http://localhost:3000/stock/${stockDocumentId}`;
-
-        try {
-          const stockResponse = await fetch(stockUrl);
-          if (!stockResponse.ok) {
-            throw new Error(
-              `Failed to fetch stock document: ${stockResponse.statusText}`,
-            );
-          }
-
-          const stockDocument = await stockResponse.json();
-
-          return {
-            ...scheduleEvent,
-            customer: {
-              id: customer.id,
-              name: customer.name,
-              cellPhone: customer.cellPhone,
-              phone: customer.phone,
-              firstName: customer.firstName,
-              email: customer.email,
-            },
-            stockDocument: {
-              id: stockDocument.id,
-              name: stockDocument.name,
-              // Ajouter d'autres champs du stock document ici
-            },
-          };
-        } catch (error) {
-          this.logger.error(
-            `Error fetching stock document with ID: ${stockDocumentId}`,
-            error.message,
-          );
-          throw error;
-        }
-      } catch (error) {
-        this.logger.error(
-          `Error fetching customer with ID: ${customerId}`,
-          error.message,
-        );
-        throw error;
-      }
+      return {
+        ...scheduleEvent,
+        customer: {
+          id: customer.id,
+          name: customer.name,
+          cellPhone: customer.cellPhone,
+          phone: customer.phone,
+          firstName: customer.firstName,
+          email: customer.email,
+        },
+        stockDocument: {
+          Id: stockDocument.Id,
+          Date: stockDocument.DocumentDate,
+          Reference: stockDocument.Reference,
+          NotesClear: stockDocument.NotesClear,
+          DealId: stockDocument.DealId,
+        },
+      };
     } catch (error) {
       this.logger.error(
         `Error finding schedule with ID: ${Id}, User: ${email}`,
+        error.message,
+      );
+      throw error;
+    }
+  }
+
+  private async fetchData(url: string, dataType: string) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'x-service-auth': 'trusted-service-key',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${dataType}: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      this.logger.error(
+        `Error fetching ${dataType} from ${url}`,
         error.message,
       );
       throw error;

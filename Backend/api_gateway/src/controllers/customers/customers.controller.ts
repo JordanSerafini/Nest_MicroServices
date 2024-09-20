@@ -124,7 +124,7 @@ export class CustomersController {
   }
 
   @Get(':id')
-  findOneCustomer(@Param('id') id: number, @Request() req) {
+  findOneCustomer(@Param('id') id: number | string, @Request() req) {
     const email = req.user.email;
     this.logger.log(`Fetching customer with ID ${id} for user: ${email}`);
     return this.customerServiceClient.send(

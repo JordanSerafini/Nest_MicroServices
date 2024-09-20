@@ -166,34 +166,27 @@ export class CustomerService {
   }
 
   async findOne(id: string | number, email: string): Promise<Customer | null> {
-    const parsedId = Number(id);
-    if (isNaN(parsedId)) {
-      this.logger.error(`Invalid ID received: ${id}, '', ${email}`, '');
-      throw new BadRequestException('Invalid ID');
-    }
-
     let query;
     if (typeof id == 'string') {
       query = `SELECT * FROM "Customer" WHERE "Id" = $1`;
     } else if (typeof id == 'number') {
+      id = Number(id);
       query = `SELECT * FROM "Customer" WHERE id = $1`;
     }
-    const values = [parsedId];
+    const values = [id];
 
     try {
       const result = await this.pool.query(query, values);
       if (result.rows.length > 0) {
-        this.logger.log(`Customer with ID: ${parsedId} found, User: ${email}`);
+        this.logger.log(`Customer with ID: ${id} found, User: ${email}`);
         return result.rows[0] as Customer;
       } else {
-        this.logger.warn(
-          `Customer with ID: ${parsedId} not found, User: ${email}`,
-        );
-        throw new NotFoundException(`Customer with id ${parsedId} not found`);
+        this.logger.warn(`Customer with ID: ${id} not found, User: ${email}`);
+        throw new NotFoundException(`Customer with id ${id} not found`);
       }
     } catch (error) {
       this.logger.error(
-        `Error finding customer with ID: ${parsedId}, User: ${email}`,
+        `Error finding customer with ID: ${id}, User: ${email}`,
         error.stack || '',
       );
       throw error;
@@ -293,7 +286,6 @@ export class CustomerService {
     searchQuery: string,
   ) {
     const cacheKey = `customers_paginated_${limit}_${offset}_${searchQuery}`;
-    console.log('LAAAAAAAAAAAAAAAAAAAAAAA');
     const cachedData = await this.redisClient.get(cacheKey);
     if (cachedData) {
       console.log('Cache hit');
