@@ -337,18 +337,18 @@ export class AppService {
   }
 
   //* -------------- Class writer
-  async generateCsvFromTableStructure(tableName: string): Promise<void> {
+  async generateTsFromTableStructure(tableName: string): Promise<void> {
     try {
       const tableStructure = await this.getTableStructure(tableName);
 
       const classContent = this.generateTypeScriptClass(tableStructure);
 
-      const filePath = path.join(__dirname, `${tableName}.csv`);
+      const filePath = path.join(__dirname, `${tableName}.entity.ts`);
 
       fs.writeFileSync(filePath, classContent);
-      console.log(`Le fichier CSV a été généré avec succès : ${filePath}`);
+      console.log(`Le fichier ts a été généré avec succès : ${filePath}`);
     } catch (error) {
-      console.error('Erreur lors de la génération du fichier CSV:', error);
+      console.error('Erreur lors de la génération du fichier ts:', error);
     }
   }
 

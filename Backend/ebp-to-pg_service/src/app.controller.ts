@@ -1,14 +1,7 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Delete,
-  Param,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Response } from 'express';
+import * as fs from 'fs';
 import * as path from 'path';
 
 @Controller('')
@@ -120,24 +113,34 @@ export class TablesController {
     }
   }
 
-  @Get('generate-csv/:tableName')
-  async generateCsv(
-    @Param('tableName') tableName: string,
+  @Post('generate-class')
+  async generateTsFile(
+    @Body() body: { tableName: string },
     @Res() res: Response,
-  ): Promise<void> {
+  ) {
+    const { tableName } = body;
+    if (!tableName) {
+      return res.status(400).json({ error: 'Le nom de la table est requis.' });
+    }
+
     try {
-      await this.appService.generateCsvFromTableStructure(tableName);
+      await this.appService.generateTsFromTableStructure(tableName);
 
       const filePath = path.join(__dirname, `${tableName}.entity.ts`);
-      res.download(filePath, `${tableName}.entity.ts`, (err) => {
-        if (err) {
-          console.error('Erreur lors du téléchargement du fichier:', err);
-          res.status(500).send('Erreur lors du téléchargement du fichier');
-        }
-      });
+
+      if (!fs.existsSync(filePath)) {
+        await this.appService.generateTsFromTableStructure(tableName);
+      }
+
+      return res.download(filePath, `${tableName}.entity.ts`);
     } catch (error) {
-      console.error('Erreur lors de la génération du fichier CSV:', error);
-      res.status(500).send('Erreur lors de la génération du fichier CSV');
+      console.error(
+        `Erreur lors de la génération du fichier TypeScript pour la table '${tableName}':`,
+        error,
+      );
+      return res
+        .status(500)
+        .json({ error: `Impossible de générer le fichier TypeScript.` });
     }
   }
 }
