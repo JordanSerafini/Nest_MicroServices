@@ -1,6 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'pg';
 import { ConnectionPool } from 'mssql';
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface TableInfo {
   tableName: string;
@@ -331,6 +333,64 @@ export class AppService {
       throw new Error(
         `Impossible de récupérer la structure de la table '${tableName}'.`,
       );
+    }
+  }
+
+  //* -------------- Class writer
+  async generateCsvFromTableStructure(tableName: string): Promise<void> {
+    try {
+      const tableStructure = await this.getTableStructure(tableName);
+
+      const classContent = this.generateTypeScriptClass(tableStructure);
+
+      const filePath = path.join(__dirname, `${tableName}.csv`);
+
+      fs.writeFileSync(filePath, classContent);
+      console.log(`Le fichier CSV a été généré avec succès : ${filePath}`);
+    } catch (error) {
+      console.error('Erreur lors de la génération du fichier CSV:', error);
+    }
+  }
+
+  generateTypeScriptClass(tableStructure: any): string {
+    const { tableName, columns } = tableStructure;
+
+    let classContent = `export class ${tableName} {\n`;
+
+    columns.forEach((column) => {
+      const tsType = this.mapSqlTypeToTypeScript(column.type);
+      classContent += `  ${column.name}: ${tsType};\n`;
+    });
+
+    classContent += '}\n';
+
+    return classContent;
+  }
+
+  mapSqlTypeToTypeScript(sqlType: string): string {
+    switch (sqlType) {
+      case 'nvarchar':
+      case 'varchar':
+      case 'nchar':
+      case 'text':
+        return 'string';
+      case 'int':
+      case 'smallint':
+      case 'tinyint':
+      case 'decimal':
+      case 'float':
+        return 'number';
+      case 'bit':
+        return 'boolean';
+      case 'uniqueidentifier':
+        return 'string';
+      case 'datetime':
+      case 'date':
+        return 'Date';
+      case 'varbinary':
+        return 'Buffer';
+      default:
+        return 'any';
     }
   }
 

@@ -1,5 +1,15 @@
-import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Param,
+  Res,
+} from '@nestjs/common';
 import { AppService } from './app.service';
+import { Response } from 'express';
+import * as path from 'path';
 
 @Controller('')
 export class TablesController {
@@ -107,6 +117,29 @@ export class TablesController {
         error,
       );
       throw error;
+    }
+  }
+
+  @Get('generate-csv/:tableName')
+  async generateCsv(
+    @Param('tableName') tableName: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      // Appel du service pour générer le CSV
+      await this.appService.generateCsvFromTableStructure(tableName);
+
+      // Définir le chemin du fichier généré
+      const filePath = path.join(__dirname, `${tableName}.csv`);
+      res.download(filePath, `${tableName}.csv`, (err) => {
+        if (err) {
+          console.error('Erreur lors du téléchargement du fichier:', err);
+          res.status(500).send('Erreur lors du téléchargement du fichier');
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors de la génération du fichier CSV:', error);
+      res.status(500).send('Erreur lors de la génération du fichier CSV');
     }
   }
 }
