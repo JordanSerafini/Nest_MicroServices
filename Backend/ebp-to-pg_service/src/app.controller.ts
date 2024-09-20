@@ -126,12 +126,10 @@ export class TablesController {
     @Res() res: Response,
   ): Promise<void> {
     try {
-      // Appel du service pour générer le CSV
       await this.appService.generateCsvFromTableStructure(tableName);
 
-      // Définir le chemin du fichier généré
-      const filePath = path.join(__dirname, `${tableName}.csv`);
-      res.download(filePath, `${tableName}.csv`, (err) => {
+      const filePath = path.join(__dirname, `${tableName}.entity.ts`);
+      res.download(filePath, `${tableName}.entity.ts`, (err) => {
         if (err) {
           console.error('Erreur lors du téléchargement du fichier:', err);
           res.status(500).send('Erreur lors du téléchargement du fichier');
