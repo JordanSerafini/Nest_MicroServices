@@ -6,6 +6,23 @@ services:
     networks:
       - nestjs_network
 
+  # pool_service:
+  #   image: node:22-alpine
+  #   working_dir: /app
+  #   volumes:
+  #     - ./Backend/pool_service:/app/pool_service
+  #   ports:
+  #     - "5555:5555"
+  #   environment:
+  #     - PG_HOST=host.docker.internal
+  #     - PG_PORT=5432
+  #     - PG_USER=jordans
+  #     - PG_PASSWORD=slitest
+  #     - PG_DATABASE=SLI
+  #   networks:
+  #     - nestjs_network
+  #   command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
+
   item_service:
     image: node:22-alpine
     working_dir: /app
@@ -262,11 +279,10 @@ services:
       - supplier_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
+
 networks:
   nestjs_network:
     driver: bridge
-
-
 
   # mobile_service:
   #   build:
