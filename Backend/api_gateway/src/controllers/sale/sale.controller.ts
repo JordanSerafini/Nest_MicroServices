@@ -52,4 +52,14 @@ export class SaleController {
       { Id, email },
     );
   }
+
+  @Get(':Id/lines')
+  findLines(@Param('Id') Id: string, @Request() req) {
+    const email = req.user.email;
+    this.logger.log(`Fetching all lines for user: ${email}`);
+    return this.saleServiceClient.send(
+      { cmd: 'find_lines_SaleDocument' },
+      { Id, email },
+    );
+  }
 }

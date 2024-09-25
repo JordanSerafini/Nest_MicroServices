@@ -135,6 +135,27 @@ export class SaleService {
     }
   }
 
+  async findLineByDocId(Id: string) {
+    this.logger.log(`Finding sale document lines with DocumentId: ${Id}`);
+
+    const query = `
+      SELECT *
+      FROM "SaleDocumentLine"
+      WHERE "DocumentId" = $1;
+    `;
+
+    try {
+      const result = await this.pool.query(query, [Id]);
+      return result.rows;
+    } catch (error) {
+      this.logger.error(
+        `Error while finding sale document lines with DocumentId: ${Id}`,
+        error.message,
+      );
+      return [];
+    }
+  }
+
   private async fetchData(url: string, dataType: string) {
     try {
       const response = await fetch(url, {
