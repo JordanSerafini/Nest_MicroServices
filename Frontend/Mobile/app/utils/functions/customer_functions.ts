@@ -136,7 +136,7 @@ export const getCustomersPaginated = async (searchQuery: string, limit: number, 
     const data = await response.json();
     return data;
   } catch (error: any) {
-    await postLogs(error);
+    //await postLogs(error);
     console.error('Error fetching paginated customers:', error);
     throw error;
   }

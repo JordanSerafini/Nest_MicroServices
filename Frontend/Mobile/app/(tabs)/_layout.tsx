@@ -29,10 +29,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="planning"
+        name="affaires"
         options={{
-          title: 'Planning',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar" color={color} />,
+          title: 'Affaires',
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="folder-open" color={color} />,
         }}
       />
       <Tabs.Screen
