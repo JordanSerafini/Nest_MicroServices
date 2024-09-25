@@ -250,8 +250,11 @@ services:
       - PG_USER=jordans
       - PG_PASSWORD=slitest
       - PG_DATABASE=SLI
+      - REDIS_URL=redis://redis:6379
+
     depends_on:
       - purchase_service
+      - redis
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   schedule_service:

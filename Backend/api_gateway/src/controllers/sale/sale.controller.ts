@@ -5,6 +5,7 @@ import {
   Param,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { CustomLogger } from '../../logging/custom-logger.service';
@@ -19,6 +20,27 @@ export class SaleController {
     @Inject('SALE_SERVICE')
     private readonly saleServiceClient: ClientProxy,
   ) {}
+
+  //* ------------------- Classic Routes ------------------- *//
+  @Get('paginate')
+  paginate(
+    @Request() req,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string,
+    @Query('searchQuery') searchQuery: string,
+  ) {
+    const email = req.user.email;
+    this.logger.log(`Fetching paginated sale for user: ${email}`);
+
+    const paginationParams = {
+      email,
+      searchQuery: searchQuery || '',
+      limit: parseInt(limit, 10) || 25,
+      offset: parseInt(offset, 10) || 0,
+    };
+
+    return this.saleServiceClient.send({ cmd: 'paginate' }, paginationParams);
+  }
 
   //* ------------------- Dynamic Routes ------------------- *//
   @Get(':Id')

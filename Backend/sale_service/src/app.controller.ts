@@ -10,4 +10,12 @@ export class SaleController {
   findOne(@Payload() { Id, email }: { Id: string; email: string }) {
     return this.SaleService.findOne(Id, email);
   }
+
+  @MessagePattern({ cmd: 'paginate' })
+  paginate(
+    @Payload()
+    { email, page, limit }: { email: string; page: number; limit: number },
+  ) {
+    return this.SaleService.paginate(email, page, limit);
+  }
 }
