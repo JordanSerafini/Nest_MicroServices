@@ -108,7 +108,7 @@ export class SaleService {
           this.pool.query(countQuery, countParams),
         ]);
 
-        console.log('Sale documents:', saleResult.rows);
+        //console.log('Sale documents:', saleResult.rows);
 
         const totalSaleDocuments = parseInt(totalResult.rows[0].count, 10);
         const totalPages =
@@ -122,7 +122,6 @@ export class SaleService {
           saleDocuments: saleResult.rows,
         };
 
-        // Mise en cache du résultat
         await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
 
         return response;
