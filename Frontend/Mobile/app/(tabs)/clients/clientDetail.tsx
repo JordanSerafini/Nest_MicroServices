@@ -11,14 +11,14 @@ const CustomerDetailScreen: React.FC = () => {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
-  const { id, name } = useLocalSearchParams();
+  const { Id, name } = useLocalSearchParams();
   const navigation = useNavigation();
 
   useEffect(() => {
     if (name) {
       navigation.setOptions({ title: `${name}` });
     }
-  
+
     const fetchCustomer = async (customerId: string) => {
       setLoading(true);
       try {
@@ -31,11 +31,11 @@ const CustomerDetailScreen: React.FC = () => {
         setLoading(false);
       }
     };
-  
-    if (customer?.Id) {
-      fetchCustomer(customer.Id);
+
+    if (Id ) {
+      fetchCustomer(Id as string);
     }
-  }, [customer?.Id, name, navigation]);
+  }, [Id, name, navigation]);
   
 
   const amountColor = (amount: number) => {

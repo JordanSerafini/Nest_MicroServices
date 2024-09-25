@@ -65,7 +65,7 @@ const ClientScreen: React.FC = () => {
     if (customer.Id) {
       router.push({
         pathname: "/clients/clientDetail",
-        params: { id: customer.id, name: customer.Name },
+        params: { id: customer.id, Id: customer.Id, name: customer.Name },
       });
     }
   };
