@@ -12,7 +12,7 @@ export class SaleService {
     @Inject('PG_CONNECTION') private readonly pool: Pool,
     @Inject('REDIS_CLIENT') private readonly redisClient: RedisClientType,
   ) {}
-  // Méthode pour trouver un document par ID
+
   async findOne(Id: string, email: string) {
     this.logger.log(`Finding sale with ID: ${Id}, User: ${email}`);
 
@@ -88,17 +88,16 @@ export class SaleService {
       const countParams: (string | number)[] = [];
 
       if (searchQuery) {
-        query += ` WHERE "CustomerId" ILIKE $1 OR "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1 OR "DescriptionClear" ILIKE $1`;
-        countQuery += ` WHERE "CustomerId" ILIKE $1 OR "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1 OR "DescriptionClear" ILIKE $1`;
+        query += ` WHERE "CustomerId" ILIKE $1 OR "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1`;
+        countQuery += ` WHERE "CustomerId" ILIKE $1 OR "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1`;
         queryParams.push(`%${searchQuery}%`);
         countParams.push(`%${searchQuery}%`);
       }
 
+      query += ` ORDER BY CAST(regexp_replace("DocumentNumber", '\\D', '', 'g') AS INTEGER) ASC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+
       queryParams.push(limit);
       queryParams.push(offset);
-
-      query += ` ORDER BY "DocumentNumber" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
-      countQuery += `;`;
 
       try {
         const [saleResult, totalResult] = await Promise.all([
@@ -128,7 +127,6 @@ export class SaleService {
     }
   }
 
-  // Méthode pour récupérer des données via une URL donnée
   private async fetchData(url: string, dataType: string) {
     try {
       const response = await fetch(url, {
