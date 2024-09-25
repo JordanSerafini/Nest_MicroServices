@@ -36,41 +36,39 @@ function SalesList() {
     return (
       <TouchableOpacity
         key={sale.Id}
-        style={{
-          padding: 10,
-          borderBottomWidth: 1,
-          borderColor: 'gray',
-          justifyContent: 'space-between',
-        }}
+        className="p-4 border-b border-gray-200 h-20 justify-between overflow-hidden"
         onPress={() => console.log("Sale pressed", sale.Id)}
       >
-        <Text style={{ fontStyle: 'italic', fontSize: 12 }}>{sale.DocumentNumber}</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Text className="italic text-sm">{sale.DocumentNumber}</Text>
+        <View className="flex-row w-full h-full justify-between items-center pl-4">
+          <View className="flex-row gap-1 h-full items-center">
             <Icon name="person" size={20} color="#1e40af" />
-            <Text style={{ fontSize: 12 }}>{sale.CustomerName}</Text>
+            <Text className="text-xs w-5/10 max-h-8">{sale.CustomerName}</Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
 
+
   return (
-    <SafeAreaView style={{ flex: 1, alignItems: 'center' }}>
-      <View style={{ height: 40, width: '95%', backgroundColor: 'lightgray', marginBottom: 10 }}>
+    <SafeAreaView className="h-full w-screen items-center">
+      <View className="h-10 w-9.5/10 items-center bg-gray-200 mb-2">
         <TextInput
-          style={{ height: '100%', width: '100%', paddingLeft: 10 }}
+          className="h-full w-full px-2"
           value={searchQuery}
           onChangeText={handleSearch}
           placeholder="Search"
         />
       </View>
-      <FlatList
-        data={sales}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.Id.toString()}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      <View className="w-full h-full ">
+        <FlatList
+          data={sales}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.Id ? item.Id.toString() : Math.random().toString()}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      </View>
     </SafeAreaView>
   );
 }
