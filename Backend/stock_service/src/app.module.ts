@@ -1,12 +1,18 @@
 import { Module, Logger } from '@nestjs/common';
 import { StockController } from './app.controller';
 import { StockService } from './app.service';
-import { PoolModule } from './pool.module';
 import { CustomLogger } from './logging/custom-logger.service';
 import { createClient } from 'redis';
+import { PgConnectionModule } from 'pool_package';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [PoolModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    PgConnectionModule,
+  ],
   controllers: [StockController],
   providers: [
     StockService,

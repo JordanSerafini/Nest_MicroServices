@@ -1,12 +1,18 @@
 import { Module } from '@nestjs/common';
 import { DealController } from './app.controller';
 import { DealService } from './app.service';
-import { PoolModule } from '../pool.module';
 import { CustomLogger } from './logging/custom-logger.service';
 import { createClient } from 'redis';
+import { PgConnectionModule } from 'pool_package';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [PoolModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    PgConnectionModule,
+  ],
   controllers: [DealController],
   providers: [
     DealService,

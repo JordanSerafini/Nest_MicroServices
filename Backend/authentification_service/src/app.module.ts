@@ -3,17 +3,21 @@ import { AuthService } from './app.service';
 import { AuthController } from './app.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { PoolModule } from '../pool.module';
 //import { PoolEBPModule as PoolModule } from '../../pool/poolEBP.module';
 import { CustomLogger } from './logging/custom-logger.service';
+import { PgConnectionModule } from 'pool_package';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    PoolModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     JwtModule.register({
       secret: 'zdf4e4fs6e4fesz4v1svds+df784+e+9zef4654fe4potydkyj',
       signOptions: { expiresIn: '60m' },
     }),
+    PgConnectionModule,
   ],
   controllers: [AuthController],
   providers: [
