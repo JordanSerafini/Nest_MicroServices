@@ -1,14 +1,38 @@
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import SalesList from './salesList';
 
 
 export default function AffairePage() {
+  const [content, setContent] = useState<React.ReactNode>(null);
+
+
+  const handleSalesPress = () => {
+    setContent(<SalesList />);
+};
+
 
   return (
-    <View >
-     <Text>Affaire:</Text>
-    </View>
+    <SafeAreaView className='w-screen h-screen justify-start'>
+      {!content ? (
+
+     <View className='gap-10'>
+        <TouchableOpacity onPress={handleSalesPress}>
+          <Text>Liste des ventes</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity>
+          <Text>Liste des affaires</Text>
+        </TouchableOpacity>
+
+     </View>
+      ) : (
+        <SafeAreaView className='w-screen h-screen justify-start'>
+          {content}
+        </SafeAreaView>
+      )}
+    </SafeAreaView>
   );
 }
-
-
