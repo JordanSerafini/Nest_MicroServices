@@ -97,7 +97,7 @@ export class SaleService {
         countParams.push(`%${searchQuery}%`);
       }
 
-      query += ` ORDER BY CAST(regexp_replace("DocumentNumber", '\\D', '', 'g') AS INTEGER) ASC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+      query += ` ORDER BY "NumberPrefix" ASC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
 
       queryParams.push(limitValue);
       queryParams.push(offset);
