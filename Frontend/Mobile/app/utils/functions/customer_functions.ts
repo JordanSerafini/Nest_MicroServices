@@ -45,7 +45,7 @@ export const getAllCustomers = async () => {
 };
 
 // Fonction pour récupérer un client par ID
-export const getCustomerById = async (id: number) => {
+export const getCustomerById = async (id: string) => {
   try {
     const token = await getToken();
     if (!token) {

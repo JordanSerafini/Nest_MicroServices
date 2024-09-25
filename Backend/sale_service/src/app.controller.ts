@@ -29,7 +29,9 @@ export class SaleController {
   }
 
   @MessagePattern({ cmd: 'find_lines_SaleDocument' })
-  findLines(@Payload() { Id, email }: { Id: string; email: string }) {
+
+  findLines(@Payload() { Id }: { Id: string }) {
+
     return this.SaleService.findLineByDocId(Id);
   }
 }

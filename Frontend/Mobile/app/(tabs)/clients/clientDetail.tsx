@@ -18,8 +18,8 @@ const CustomerDetailScreen: React.FC = () => {
     if (name) {
       navigation.setOptions({ title: `${name}` });
     }
-
-    const fetchCustomer = async (customerId: number) => {
+  
+    const fetchCustomer = async (customerId: string) => {
       setLoading(true);
       try {
         const data = await getCustomerById(customerId);
@@ -31,15 +31,12 @@ const CustomerDetailScreen: React.FC = () => {
         setLoading(false);
       }
     };
-
-    const numericId = Number(id);
-    if (!isNaN(numericId)) {
-      fetchCustomer(numericId);
-    } else {
-      setError(new Error("Invalid customer ID"));
-      setLoading(false);
+  
+    if (customer?.Id) {
+      fetchCustomer(customer.Id);
     }
-  }, [id, name, navigation]);
+  }, [customer?.Id, name, navigation]);
+  
 
   const amountColor = (amount: number) => {
     if (amount > 0) {
