@@ -14,8 +14,17 @@ export class SaleController {
   @MessagePattern({ cmd: 'paginate' })
   paginate(
     @Payload()
-    { email, page, limit }: { email: string; page: number; limit: number },
+    {
+      searchQuery,
+      limit,
+      page,
+    }: {
+      email: string;
+      searchQuery: string;
+      limit: number;
+      page: number;
+    },
   ) {
-    return this.SaleService.paginate(email, page, limit);
+    return this.SaleService.paginate(searchQuery, limit, page);
   }
 }

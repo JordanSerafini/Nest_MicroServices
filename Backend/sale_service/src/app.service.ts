@@ -70,10 +70,13 @@ export class SaleService {
     }
   }
 
-  async paginate(searchQuery: string, limit: number, offset: number) {
+  async paginate(searchQuery: string, limit: number, page: number) {
     this.logger.log(`Paginating SaleDocuments with query: ${searchQuery}`);
 
-    const cacheKey = `saleDocuments_paginated_${limit}_${offset}_${searchQuery}`;
+    const limitValue = limit > 0 ? limit : 10;
+    const offset = page * limitValue;
+
+    const cacheKey = `saleDocuments_paginated_${limitValue}_${offset}_${searchQuery}`;
     const cachedData = await this.redisClient.get(cacheKey);
 
     if (cachedData) {
@@ -96,7 +99,7 @@ export class SaleService {
 
       query += ` ORDER BY CAST(regexp_replace("DocumentNumber", '\\D', '', 'g') AS INTEGER) ASC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
 
-      queryParams.push(limit);
+      queryParams.push(limitValue);
       queryParams.push(offset);
 
       try {
@@ -105,8 +108,13 @@ export class SaleService {
           this.pool.query(countQuery, countParams),
         ]);
 
+        console.log('Sale documents:', saleResult.rows);
+
         const totalSaleDocuments = parseInt(totalResult.rows[0].count, 10);
-        const totalPages = Math.ceil(totalSaleDocuments / limit);
+        const totalPages =
+          totalSaleDocuments > 0
+            ? Math.ceil(totalSaleDocuments / limitValue)
+            : 0;
 
         const response = {
           totalSaleDocuments,
@@ -114,6 +122,7 @@ export class SaleService {
           saleDocuments: saleResult.rows,
         };
 
+        // Mise en cache du résultat
         await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
 
         return response;

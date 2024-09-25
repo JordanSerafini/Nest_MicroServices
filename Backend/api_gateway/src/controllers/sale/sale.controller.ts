@@ -25,9 +25,9 @@ export class SaleController {
   @Get('paginate')
   paginate(
     @Request() req,
+    @Query('searchQuery') searchQuery: string,
     @Query('limit') limit: string,
     @Query('offset') offset: string,
-    @Query('searchQuery') searchQuery: string,
   ) {
     const email = req.user.email;
     this.logger.log(`Fetching paginated sale for user: ${email}`);
@@ -36,7 +36,7 @@ export class SaleController {
       email,
       searchQuery: searchQuery || '',
       limit: parseInt(limit, 10) || 25,
-      offset: parseInt(offset, 10) || 0,
+      page: Math.floor(parseInt(offset, 10) / parseInt(limit, 10)) || 0,
     };
 
     return this.saleServiceClient.send({ cmd: 'paginate' }, paginationParams);
