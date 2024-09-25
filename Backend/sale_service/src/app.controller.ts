@@ -27,4 +27,9 @@ export class SaleController {
   ) {
     return this.SaleService.paginate(searchQuery, limit, page);
   }
+
+  @MessagePattern({ cmd: 'find_lines_SaleDocument' })
+  findLines(@Payload() { Id }: { Id: string }) {
+    return this.SaleService.findLineByDocId(Id);
+  }
 }
