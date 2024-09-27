@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, LayoutChangeEvent } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import {
   getSaleById,
@@ -12,12 +12,13 @@ import { SaleDocumentLine } from "../../@types/sales/SaleDocumentLine.type";
 function SaleDetail() {
   const { Id, name, DocumentNumber } = useLocalSearchParams();
   const navigation = useNavigation();
-  
+
   const [sale, setSale] = useState<SaleDocumentWithLines | null>(null);
   const [docLines, setDocLines] = useState<SaleDocumentLine[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  
-  const [scrollableLines, setScrollableLines] = useState<{ [key: string]: boolean }>({}); // État pour savoir si chaque ligne est défilable
+
+  const [expandedLines, setExpandedLines] = useState<{ [key: string]: boolean }>({});
+  const [scrollableLines, setScrollableLines] = useState<{ [key: string]: boolean }>({});
 
   //* --------- fetch Doc and Lines --------- *//
   const fetchDocAndLines = async (DocumentId: string) => {
@@ -46,9 +47,33 @@ function SaleDetail() {
     }
   }, [name, DocumentNumber, navigation]);
 
+  //* Fonction pour basculer l'état d'expansion d'une ligne
+  const toggleLineExpansion = (lineId: string) => {
+    setExpandedLines((prev) => ({
+      ...prev,
+      [lineId]: !prev[lineId], 
+    }));
+  };
+
+  //* Fonction pour déterminer si une ligne doit être défilable (si la hauteur dépasse 64px)
+  const handleLayout = (lineId: string, event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    if (height > 64 && !expandedLines[lineId]) {
+      setScrollableLines((prev) => ({
+        ...prev,
+        [lineId]: true,
+      }));
+    } else {
+      setScrollableLines((prev) => ({
+        ...prev,
+        [lineId]: false,
+      }));
+    }
+  };
+
   //* ------------------- Return ------------------- *//
   return (
-    <View className="h-10/10 w-screen">
+    <ScrollView className="h-10/10 w-screen">
       {loading ? (
         <Text>Loading...</Text>
       ) : sale ? (
@@ -57,8 +82,8 @@ function SaleDetail() {
             <Text>Notes: {sale.NotesClear}</Text>
             <Text>Document Number: {DocumentNumber}</Text>
           </View>
-          <View className="p-2 h-10/10 w-10/10">
-            {/* -------------------------------------------------------- Lines []  ------------------------------------------------------------------ */}
+          <View className="p-2 w-10/10">
+            {/* -------------------------------------------------------- Header des lignes -------------------------------------------------------- */}
             <View className="flex-row">
               <Text className="text-xs font-bold w-8/10 text-center border p-1">
                 Description
@@ -67,11 +92,13 @@ function SaleDetail() {
                 Quantité
               </Text>
             </View>
+
+            {/* -------------------------------------------------------- Liste des lignes -------------------------------------------------------- */}
             {docLines.length > 0 ? (
               docLines.map((line, index) => (
                 <View
                   key={line.Id}
-                  className={`w-full flex-row items-center max-h-16`} // max-h-16 comme hauteur maximale
+                  className={`w-full flex-row items-center`}
                 >
                   <View
                     style={{
@@ -81,35 +108,31 @@ function SaleDetail() {
                       borderRightWidth: 1,
                       borderTopWidth: index !== 0 ? 1 : 0,
                       borderBottomWidth: index === docLines.length - 1 ? 1 : 0,
-                      position: "relative",
                     }}
                   >
-                    <ScrollView
+                    <TouchableOpacity
+                      onPress={() => toggleLineExpansion(line.Id)}
+                      activeOpacity={0.6}
                       style={{ flex: 1 }}
-                      onContentSizeChange={(width, height) => {
-                        // Si la hauteur dépasse 16, alors elle est défilable
-                        if (height > 64) {
-                          setScrollableLines((prev) => ({
-                            ...prev,
-                            [line.Id]: true,
-                          }));
-                        } else {
-                          setScrollableLines((prev) => ({
-                            ...prev,
-                            [line.Id]: false,
-                          }));
-                        }
-                      }}
                     >
-                      <Text className="text-xs p-1">{line.DescriptionClear}</Text>
-                    </ScrollView>
+                      <View
+                        onLayout={(event) => handleLayout(line.Id, event)}
+                        style={{
+                          padding: 8,
+                          maxHeight: expandedLines[line.Id] ? undefined : 64,
+                          overflow: expandedLines[line.Id] ? "visible" : "hidden",
+                          position: "relative"
+                        }}
+                      >
+                        <Text style={{ fontSize: 12 }}>{line.DescriptionClear}</Text>
 
-                    {/* Afficher l'icône si la ligne est défilable */}
-                    {scrollableLines[line.Id] && (
-                      <View style={{ position: "absolute", bottom: 2, right: 2 }}>
-                        <Icon name="arrow-drop-down-circle" size={20} color="#1e40af" />
+                        {!expandedLines[line.Id] && scrollableLines[line.Id] && (
+                          <View style={{ position: "absolute", bottom: 2, right: 2 }}>
+                            <Icon name="arrow-drop-down-circle" size={14} color="#1e40af" />
+                          </View>
+                        )}
                       </View>
-                    )}
+                    </TouchableOpacity>
                   </View>
 
                   <Text
@@ -134,7 +157,7 @@ function SaleDetail() {
       ) : (
         <Text>Document not found.</Text>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
