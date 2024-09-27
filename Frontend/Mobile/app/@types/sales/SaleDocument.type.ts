@@ -3,6 +3,7 @@ import { SaleDocumentLine } from "./SaleDocumentLine.type";
 export class SaleDocument {
     Id: string = "";
     DocumentNumber: string = "";
+    DocumentDate: string = "";
     xx_Soldee: boolean = false;
     xx_Fin_Loc: boolean = false;
     DeliveryAddress_Npai: boolean = false;

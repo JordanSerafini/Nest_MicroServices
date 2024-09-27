@@ -59,11 +59,16 @@ function SalesList() {
             <Icon name="person" size={20} color="#1e40af" />
             <Text className="text-xs w-5/10 max-h-8">{sale.CustomerName}</Text>
           </View>
+          <View className="flex-row gap-1 h-full items-center">
+            <Icon name="person" size={20} color="#1e40af" />
+            <Text className="text-xs w-5/10 max-h-8">{sale.DocumentDate}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
   };
 
+  //* ------------------------ Return ------------------------
   return (
     <SafeAreaView className="h-full w-screen items-center">
       <View className="h-10 w-9.5/10 items-center bg-gray-200 mb-2">
