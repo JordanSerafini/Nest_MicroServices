@@ -17,7 +17,10 @@ import { from } from 'rxjs';
           user: configService.get<string>('PG_USER'),
           password: configService.get<string>('PG_PASSWORD'),
           database: configService.get<string>('PG_DATABASE'),
+          max: 50,
+          connectionTimeoutMillis: 2000,
         });
+        
 
         return from(pool.connect()).pipe(
           retry(5)
