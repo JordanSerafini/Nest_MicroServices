@@ -1,6 +1,7 @@
 import { SaleDocumentLine } from "./SaleDocumentLine.type";
 
 export class SaleDocument {
+    id?: number ;
     Id: string = "";
     DocumentNumber: string = "";
     DocumentDate: string = "";

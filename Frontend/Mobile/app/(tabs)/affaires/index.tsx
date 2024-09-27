@@ -29,9 +29,9 @@ export default function AffairePage() {
 
      </View>
       ) : (
-        <SafeAreaView className='w-screen h-screen justify-start'>
+        <View className='w-screen h-screen justify-start'>
           {content}
-        </SafeAreaView>
+        </View>
       )}
     </SafeAreaView>
   );
