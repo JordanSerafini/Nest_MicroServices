@@ -4,6 +4,7 @@ import { getSalePaginated } from "../../utils/functions/sale_function";
 import { useEffect, useState } from "react";
 import { SaleDocument } from "../../@types/sales/SaleDocument.type";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useRouter } from "expo-router";
 
 function SalesList() {
   const [sales, setSales] = useState<SaleDocument[]>([]);
@@ -14,6 +15,31 @@ function SalesList() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<any>(null);
+
+  const router = useRouter();
+
+
+  //* ------------------------ Handle Detail Press ------------------------
+  const handleDetailPress = (sale: SaleDocument) => {
+    console.log("Sale pressed", sale.Id);
+    if (sale.Id) {
+      router.push({
+        pathname: "/affaires/saleDetail",
+        params: { Id: sale.Id, name: sale.CustomerName, DocumentNumber: sale.DocumentNumber},
+      });
+    }
+  };
+
+  //* ------------------------ Format Date ------------------------
+  function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    
+    const day = date.getUTCDate().toString().padStart(2, '0');
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = date.getUTCFullYear();
+  
+    return `${day}/${month}/${year}`;
+  }
 
   //* ------------------------ Fetch Sales ------------------------
   const fetchSales = async (newSearch = false) => {
@@ -46,12 +72,18 @@ function SalesList() {
   };
 
   //* ------------------------ RenderItem ------------------------
-  const renderItem = ({ item: sale }: { item: SaleDocument }) => {
+  const uniqueSales = sales.filter((sale, index, self) =>
+    index === self.findIndex((t) => (
+      t.id === sale.id
+    ))
+  );
+  
+  const renderItem = ({ item: sale, index }: { item: SaleDocument, index: number }) => {
     return (
       <TouchableOpacity
-        key={sale.Id}
-        className="p-4 border-b border-gray-200 h-20 justify-between overflow-hidden"
-        onPress={() => console.log("Sale pressed", sale.Id)}
+      key={`${sale.id}-${index}`}        
+      className="p-4 border-b border-gray-200 h-20 justify-between overflow-hidden"
+        onPress={() => handleDetailPress(sale)}
       >
         <Text className="italic text-sm">{sale.DocumentNumber}</Text>
         <View className="flex-row w-full h-full justify-between items-center pl-4">
@@ -59,13 +91,18 @@ function SalesList() {
             <Icon name="person" size={20} color="#1e40af" />
             <Text className="text-xs w-5/10 max-h-8">{sale.CustomerName}</Text>
           </View>
+          <View className="flex-row gap-1 h-full items-center">
+            <Icon name="event" size={20} color="#1e40af" />
+            <Text className="text-xs w-5/10 max-h-8">{formatDate(sale.DocumentDate)}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
   };
 
+  //* ------------------------ Return ------------------------
   return (
-    <SafeAreaView className="h-full w-screen items-center">
+    <View className="h-screen w-screen items-center">
       <View className="h-10 w-9.5/10 items-center bg-gray-200 mb-2">
         <TextInput
           className="h-full w-full px-2"
@@ -84,9 +121,9 @@ function SalesList() {
           <Text className="text-red-500">Error: {error.message}</Text>
         ) : (
           <FlatList
-            data={sales}
+            data={uniqueSales}
             renderItem={renderItem}
-            keyExtractor={(item) => item.Id ? item.Id.toString() : Math.random().toString()}
+            keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
             contentContainerStyle={{ paddingBottom: 20 }}
             onEndReached={() => {
               if (offset < totalPages * limit) {
@@ -98,7 +135,7 @@ function SalesList() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

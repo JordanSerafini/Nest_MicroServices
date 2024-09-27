@@ -3,10 +3,10 @@ import { DealService } from './app.service';
 
 @Controller()
 export class DealController {
-  constructor(private readonly DealService: DealService) {}
+  constructor(private readonly appService: DealService) {}
 
   @Get()
   getHello(): string {
-    return this.DealService.getHello();
+    return this.appService.getHello();
   }
 }

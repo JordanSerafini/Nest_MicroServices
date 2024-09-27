@@ -1,0 +1,30 @@
+export class DealSaleDocumentLine {
+  QuantityDecimalNumber: number;
+  PricesDecimalNumber: number;
+  PurchasePrice: number;
+  Quantity: number;
+  GrossInterestBase: number;
+  Id: string;
+  LineType: number;
+  LineOrder: number;
+  DocumentId: string;
+  RealQuantity: number;
+  SumRealQuantityServiceComponents: number;
+  DescriptionClear: string;
+  ItemId: string;
+  ParentLineId: string;
+  sysCreatedDate: Date;
+  sysCreatedUser: string;
+  sysModifiedDate: Date;
+  sysModifiedUser: string;
+  NetInterestAmount: number;
+  GrossInterestAmount: number;
+  InterestAmount: number;
+  AmountVatExcluded: number;
+  NetAmountVatExcludedWithDiscount: number;
+  NetAmountVatIncludedWithDiscount: number;
+  DealId: string;
+  DocumentLineId: string;
+  TechnicalDescriptionClear: string;
+  ConstructionSiteId: string;
+}

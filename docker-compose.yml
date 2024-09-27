@@ -330,6 +330,19 @@ services:
       - supplier_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
+  # postgres:
+  #   image: postgres:16
+  #   environment:
+  #     POSTGRES_USER: jordans
+  #     POSTGRES_PASSWORD: slitest
+  #     POSTGRES_DB: SLI
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - "C:/Program Files/PostgreSQL/16/data:/var/lib/postgresql/data"
+  #   networks:
+  #     - nestjs_network
+
 
 networks:
   nestjs_network:
