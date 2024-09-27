@@ -1,6 +1,12 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, LayoutChangeEvent } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  LayoutChangeEvent,
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import {
   getSaleById,
@@ -17,8 +23,12 @@ function SaleDetail() {
   const [docLines, setDocLines] = useState<SaleDocumentLine[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [expandedLines, setExpandedLines] = useState<{ [key: string]: boolean }>({});
-  const [scrollableLines, setScrollableLines] = useState<{ [key: string]: boolean }>({});
+  const [expandedLines, setExpandedLines] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [scrollableLines, setScrollableLines] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   //* --------- fetch Doc and Lines --------- *//
   const fetchDocAndLines = async (DocumentId: string) => {
@@ -40,12 +50,13 @@ function SaleDetail() {
 
   //* Fonction de filtrage pour supprimer les lignes avec quantité 0 ou sans description
   const filterLines = (lines: SaleDocumentLine[]) => {
-    return lines.filter(line => 
-      line.Quantity !== 0 && 
-      line.DescriptionClear && line.DescriptionClear.trim() !== ''
+    return lines.filter(
+      (line) =>
+        line.Quantity !== 0 &&
+        line.DescriptionClear &&
+        line.DescriptionClear.trim() !== ""
     );
   };
-  
 
   useEffect(() => {
     if (Id) {
@@ -58,6 +69,13 @@ function SaleDetail() {
       navigation.setOptions({ title: `${DocumentNumber}` });
     }
   }, [name, DocumentNumber, navigation]);
+
+  //* Fonction pour calculer le total
+  const calculateTotal = () => {
+    return docLines.reduce((total, line) => {
+      return total + line.Quantity * line.NetPriceVatExcluded;
+    }, 0);
+  };
 
   //* Fonction pour basculer l'état d'expansion d'une ligne
   const toggleLineExpansion = (lineId: string) => {
@@ -97,26 +115,41 @@ function SaleDetail() {
           <View className="p-2 w-10/10">
             {/* -------------------------------------------------------- Header des lignes -------------------------------------------------------- */}
             {docLines.length > 0 && (
-            <View className="flex-row">
-              <Text className="text-xs font-bold w-7/10 text-center border p-1">
-                Description
-              </Text>
-              <Text className="text-xs font-bold w-1.5/10 text-center border-b border-t border-r p-1">
-                Quantité
-              </Text>
-              <Text className="text-xs font-bold w-1.5/10 text-center border-b border-t border-r p-1">
-                Prix
-              </Text>
-            </View>
+              <View className="flex-row">
+                <Text
+                  className="text-xs font-bold w-7/10 text-center border p-1"
+                  style={{
+                    justifyContent: "center",
+                    textAlignVertical: "center",
+                  }}
+                >
+                  Description
+                </Text>
+                <Text
+                  className="text-xs font-bold w-1.5/10 text-center border-b border-t border-r p-1"
+                  style={{
+                    justifyContent: "center",
+                    textAlignVertical: "center",
+                  }}
+                >
+                  Qtité
+                </Text>
+                <Text
+                  className="text-xs font-bold w-1.5/10 text-center border-b border-t border-r p-1"
+                  style={{
+                    justifyContent: "center",
+                    textAlignVertical: "center",
+                  }}
+                >
+                  Prix
+                </Text>
+              </View>
             )}
 
             {/* -------------------------------------------------------- Liste des lignes -------------------------------------------------------- */}
             {docLines.length > 0 ? (
               docLines.map((line, index) => (
-                <View
-                  key={line.Id}
-                  className={`w-full flex-row items-center`}
-                >
+                <View key={line.Id} className={`w-full flex-row items-center`}>
                   <View
                     style={{
                       flexDirection: "row",
@@ -124,7 +157,7 @@ function SaleDetail() {
                       borderRightWidth: 1,
                       borderTopWidth: index !== 0 ? 1 : 0,
                       borderBottomWidth: index === docLines.length - 1 ? 1 : 0,
-                      width: "100%"
+                      width: "100%",
                     }}
                   >
                     {/* Colonne Description */}
@@ -138,18 +171,33 @@ function SaleDetail() {
                         style={{
                           padding: 8,
                           maxHeight: expandedLines[line.Id] ? undefined : 64,
-                          overflow: expandedLines[line.Id] ? "visible" : "hidden",
+                          overflow: expandedLines[line.Id]
+                            ? "visible"
+                            : "hidden",
                           position: "relative",
-                          borderRightWidth: 1
+                          borderRightWidth: 1,
                         }}
                       >
-                        <Text style={{ fontSize: 12 }}>{line.DescriptionClear}</Text>
+                        <Text style={{ fontSize: 12 }}>
+                          {line.DescriptionClear}
+                        </Text>
 
-                        {!expandedLines[line.Id] && scrollableLines[line.Id] && (
-                          <View style={{ position: "absolute", bottom: 2, right: 2 }}>
-                            <Icon name="arrow-drop-down-circle" size={14} color="#1e40af" />
-                          </View>
-                        )}
+                        {!expandedLines[line.Id] &&
+                          scrollableLines[line.Id] && (
+                            <View
+                              style={{
+                                position: "absolute",
+                                bottom: 2,
+                                right: 2,
+                              }}
+                            >
+                              <Icon
+                                name="arrow-drop-down-circle"
+                                size={14}
+                                color="#1e40af"
+                              />
+                            </View>
+                          )}
                       </View>
                     </TouchableOpacity>
 
@@ -161,7 +209,9 @@ function SaleDetail() {
                         borderRightWidth: 1,
                       }}
                     >
-                      <Text style={{ textAlign: "center", fontSize: 12 }}>{line.Quantity}</Text>
+                      <Text style={{ textAlign: "center", fontSize: 12 }}>
+                        {line.Quantity}
+                      </Text>
                     </View>
 
                     {/* Colonne Prix */}
@@ -172,7 +222,9 @@ function SaleDetail() {
                         borderRightWidth: 1,
                       }}
                     >
-                      <Text style={{ textAlign: "center", fontSize: 12 }}>{line.NetPriceVatExcluded}</Text>
+                      <Text style={{ textAlign: "center", fontSize: 12 }}>
+                        {line.NetPriceVatExcluded}
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -180,6 +232,29 @@ function SaleDetail() {
             ) : (
               <Text>No document lines found.</Text>
             )}
+
+            {/* -------------------------------------------------------- Total -------------------------------------------------------- */}
+            <View className="flex-row mt-2">
+              <Text
+                className="text-xs font-bold w-7/10 text-center border p-1"
+                style={{
+                  justifyContent: "center",
+                  textAlignVertical: "center",
+                  letterSpacing:4,
+                }}
+              >
+                Total
+              </Text>
+              <Text
+                className="text-xs font-bold w-3/10 text-center border-b border-t border-r p-1"
+                style={{
+                  justifyContent: "center",
+                  textAlignVertical: "center",
+                }}
+              >
+                {calculateTotal().toFixed(2)} €
+              </Text>
+            </View>
           </View>
         </View>
       ) : (
