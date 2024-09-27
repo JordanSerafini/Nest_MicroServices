@@ -16,7 +16,7 @@ import { ConfigModule } from '@nestjs/config';
   controllers: [DealController],
   providers: [
     DealService,
-    CustomLogger,
+    { provide: 'Logger', useClass: CustomLogger },
     {
       provide: 'REDIS_CLIENT',
       useFactory: async () => {
@@ -29,4 +29,4 @@ import { ConfigModule } from '@nestjs/config';
     },
   ],
 })
-export class DealModule {}
+export class AppModule {}

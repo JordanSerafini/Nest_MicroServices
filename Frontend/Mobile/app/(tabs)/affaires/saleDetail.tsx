@@ -234,6 +234,8 @@ function SaleDetail() {
             )}
 
             {/* -------------------------------------------------------- Total -------------------------------------------------------- */}
+            {docLines  && (
+
             <View className="flex-row mt-2">
               <Text
                 className="text-xs font-bold w-7/10 text-center border p-1"
@@ -255,6 +257,7 @@ function SaleDetail() {
                 {calculateTotal().toFixed(2)} €
               </Text>
             </View>
+            )}
           </View>
         </View>
       ) : (
