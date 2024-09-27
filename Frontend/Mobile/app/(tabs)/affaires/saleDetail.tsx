@@ -96,6 +96,7 @@ function SaleDetail() {
           </View>
           <View className="p-2 w-10/10">
             {/* -------------------------------------------------------- Header des lignes -------------------------------------------------------- */}
+            {docLines.length > 0 && (
             <View className="flex-row">
               <Text className="text-xs font-bold w-8/10 text-center border p-1">
                 Description
@@ -104,6 +105,7 @@ function SaleDetail() {
                 Quantité
               </Text>
             </View>
+            )}
 
             {/* -------------------------------------------------------- Liste des lignes -------------------------------------------------------- */}
             {docLines.length > 0 ? (
