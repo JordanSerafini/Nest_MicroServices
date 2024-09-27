@@ -24,7 +24,10 @@ function SaleDetail() {
   const fetchDocAndLines = async (DocumentId: string) => {
     try {
       const responseDoc = await getSaleById(DocumentId);
-      const responselines = await getLineByDocumentId(DocumentId);
+      let responselines = await getLineByDocumentId(DocumentId);
+
+      // Filtrer les lignes ayant quantité 0 et sans description
+      responselines = filterLines(responselines);
 
       setSale(responseDoc);
       setDocLines(responselines);
@@ -34,6 +37,15 @@ function SaleDetail() {
       setLoading(false);
     }
   };
+
+  //* Fonction de filtrage pour supprimer les lignes avec quantité 0 ou sans description
+  const filterLines = (lines: SaleDocumentLine[]) => {
+    return lines.filter(line => 
+      line.Quantity !== 0 && 
+      line.DescriptionClear && line.DescriptionClear.trim() !== ''
+    );
+  };
+  
 
   useEffect(() => {
     if (Id) {
@@ -51,7 +63,7 @@ function SaleDetail() {
   const toggleLineExpansion = (lineId: string) => {
     setExpandedLines((prev) => ({
       ...prev,
-      [lineId]: !prev[lineId], 
+      [lineId]: !prev[lineId],
     }));
   };
 
@@ -61,12 +73,12 @@ function SaleDetail() {
     if (height > 64 && !expandedLines[lineId]) {
       setScrollableLines((prev) => ({
         ...prev,
-        [lineId]: true,
+        [lineId]: true, // La ligne est défilable car elle dépasse 64px
       }));
     } else {
       setScrollableLines((prev) => ({
         ...prev,
-        [lineId]: false,
+        [lineId]: false, // La ligne n'est pas défilable
       }));
     }
   };
