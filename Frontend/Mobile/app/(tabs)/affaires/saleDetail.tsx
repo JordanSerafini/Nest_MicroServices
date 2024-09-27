@@ -98,11 +98,14 @@ function SaleDetail() {
             {/* -------------------------------------------------------- Header des lignes -------------------------------------------------------- */}
             {docLines.length > 0 && (
             <View className="flex-row">
-              <Text className="text-xs font-bold w-8/10 text-center border p-1">
+              <Text className="text-xs font-bold w-7/10 text-center border p-1">
                 Description
               </Text>
-              <Text className="text-xs font-bold w-2/10 text-center border-b border-t border-r p-1">
+              <Text className="text-xs font-bold w-1.5/10 text-center border-b border-t border-r p-1">
                 Quantité
+              </Text>
+              <Text className="text-xs font-bold w-1.5/10 text-center border-b border-t border-r p-1">
+                Prix
               </Text>
             </View>
             )}
@@ -116,18 +119,19 @@ function SaleDetail() {
                 >
                   <View
                     style={{
-                      flex: 1,
                       flexDirection: "row",
                       borderLeftWidth: 1,
                       borderRightWidth: 1,
                       borderTopWidth: index !== 0 ? 1 : 0,
                       borderBottomWidth: index === docLines.length - 1 ? 1 : 0,
+                      width: "100%"
                     }}
                   >
+                    {/* Colonne Description */}
                     <TouchableOpacity
                       onPress={() => toggleLineExpansion(line.Id)}
                       activeOpacity={0.6}
-                      style={{ flex: 1 }}
+                      style={{ width: "70%" }}
                     >
                       <View
                         onLayout={(event) => handleLayout(line.Id, event)}
@@ -135,7 +139,8 @@ function SaleDetail() {
                           padding: 8,
                           maxHeight: expandedLines[line.Id] ? undefined : 64,
                           overflow: expandedLines[line.Id] ? "visible" : "hidden",
-                          position: "relative"
+                          position: "relative",
+                          borderRightWidth: 1
                         }}
                       >
                         <Text style={{ fontSize: 12 }}>{line.DescriptionClear}</Text>
@@ -147,20 +152,29 @@ function SaleDetail() {
                         )}
                       </View>
                     </TouchableOpacity>
-                  </View>
 
-                  <Text
-                    className={`text-xs w-2/10 border-r ${
-                      index !== 0 ? "border-t" : ""
-                    } ${index !== docLines.length - 1 ? "" : "border-b"}`}
-                    style={{
-                      textAlign: "center",
-                      height: "100%",
-                      textAlignVertical: "center",
-                    }}
-                  >
-                    {line.Quantity}
-                  </Text>
+                    {/* Colonne Quantité */}
+                    <View
+                      style={{
+                        width: "15%",
+                        justifyContent: "center",
+                        borderRightWidth: 1,
+                      }}
+                    >
+                      <Text style={{ textAlign: "center", fontSize: 12 }}>{line.Quantity}</Text>
+                    </View>
+
+                    {/* Colonne Prix */}
+                    <View
+                      style={{
+                        width: "15%",
+                        justifyContent: "center",
+                        borderRightWidth: 1,
+                      }}
+                    >
+                      <Text style={{ textAlign: "center", fontSize: 12 }}>{line.NetPriceVatExcluded}</Text>
+                    </View>
+                  </View>
                 </View>
               ))
             ) : (
