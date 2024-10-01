@@ -19,7 +19,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -45,7 +45,7 @@ services:
       - item_service
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -68,7 +68,7 @@ services:
       - customer_service
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -91,7 +91,7 @@ services:
       - authentification_service
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -112,7 +112,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -134,7 +134,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -156,7 +156,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -177,7 +177,7 @@ services:
       - "3009:3009"
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -199,7 +199,7 @@ services:
       - "3010:3010"
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -223,7 +223,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -245,7 +245,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -270,7 +270,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -292,7 +292,7 @@ services:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=host.docker.internal
+      - PG_HOST=172.17.0.1
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
