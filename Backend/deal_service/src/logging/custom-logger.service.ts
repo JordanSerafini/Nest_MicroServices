@@ -7,9 +7,9 @@ export class CustomLogger extends Logger {
   private logDirectory: string;
   private logFileName: string;
 
-  constructor(private serviceName: string = 'SaleService') {
+  constructor(private serviceName: string = 'DealService') {
     super();
-    this.logDirectory = path.join('/var/log', `Logs_SaleService`);
+    this.logDirectory = path.join('/var/log', `Logs_DealService`);
     this.ensureLogDirectoryExists();
     this.updateLogFileName();
   }
