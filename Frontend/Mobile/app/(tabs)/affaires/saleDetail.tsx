@@ -91,12 +91,12 @@ function SaleDetail() {
     if (height > 64 && !expandedLines[lineId]) {
       setScrollableLines((prev) => ({
         ...prev,
-        [lineId]: true, // La ligne est défilable car elle dépasse 64px
+        [lineId]: true,
       }));
     } else {
       setScrollableLines((prev) => ({
         ...prev,
-        [lineId]: false, // La ligne n'est pas défilable
+        [lineId]: false,
       }));
     }
   };

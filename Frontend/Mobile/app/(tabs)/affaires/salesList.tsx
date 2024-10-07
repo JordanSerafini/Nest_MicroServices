@@ -1,4 +1,11 @@
-import { FlatList, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import {
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from "react-native";
 import { getSalePaginated, getSaleByCategory } from "../../utils/functions/sale_function";
 import React, { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
@@ -17,10 +24,9 @@ function SalesList() {
   const [error, setError] = useState<any>(null);
   const [bannerVisible, setBannerVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const categories = ["FA", "AV", "AD"];
+  const categories = ["BR", "FC", "AD", "BL", "FA", "DEX", "FD", "CM", "CC", "AV", "DE"];
 
   const router = useRouter();
-
 
   //* ------------------------ Handle Detail Press ------------------------
   const handleDetailPress = (sale: SaleDocument) => {
@@ -28,7 +34,7 @@ function SalesList() {
     if (sale.Id) {
       router.push({
         pathname: "/affaires/saleDetail",
-        params: { Id: sale.Id, name: sale.CustomerName, DocumentNumber: sale.DocumentNumber},
+        params: { Id: sale.Id, name: sale.CustomerName, DocumentNumber: sale.DocumentNumber },
       });
     }
   };
@@ -36,11 +42,11 @@ function SalesList() {
   //* ------------------------ Format Date ------------------------
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
-    
-    const day = date.getUTCDate().toString().padStart(2, '0');
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+
+    const day = date.getUTCDate().toString().padStart(2, "0");
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
     const year = date.getUTCFullYear();
-  
+
     return `${day}/${month}/${year}`;
   }
 
@@ -50,10 +56,17 @@ function SalesList() {
 
     setLoadingMore(true);
     try {
-      const data = await getSalePaginated(searchQuery, limit, newSearch ? 0 : offset);
-      setSales((prevSales) => newSearch ? data.saleDocuments : [...prevSales, ...data.saleDocuments]);
-      setTotalPages(data.totalPages); 
-      setOffset(newSearch ? limit : offset + limit); 
+      let data;
+      if (selectedCategory) {
+        data = await getSaleByCategory(selectedCategory, limit, newSearch ? 0 : offset);
+      } else {
+        data = await getSalePaginated(searchQuery, limit, newSearch ? 0 : offset);
+      }
+      setSales((prevSales) =>
+        newSearch ? data.saleDocuments : [...prevSales, ...data.saleDocuments]
+      );
+      setTotalPages(data.totalPages);
+      setOffset(newSearch ? limit : offset + limit);
     } catch (error: any) {
       console.error("Error fetching sales:", error);
       setError(error);
@@ -62,41 +75,31 @@ function SalesList() {
     setLoading(false);
   };
 
+  //* ------------------------ useEffect ------------------------
   useEffect(() => {
     setLoading(true);
+    setSales([]); // Réinitialiser les ventes précédentes
     fetchSales(true);
-  }, [searchQuery, limit]);
-
-  //* ------------------------ Fetch Sales by Category ------------------------
-  useEffect(() => {
-    if (selectedCategory) {
-      setLoading(true);
-      getSaleByCategory(selectedCategory, limit, offset).then((data) => {
-        setSales(data.saleDocuments);
-        setLoading(false);
-      });
-    }
-  }, [selectedCategory]);
+  }, [searchQuery, limit, selectedCategory]);
 
   //* ------------------------ Handle Search ------------------------
   const handleSearch = (text: string) => {
     setSearchQuery(text);
+    setSelectedCategory(null); // Réinitialiser la catégorie sélectionnée
     setOffset(0);
     setSales([]);
   };
 
   //* ------------------------ RenderItem ------------------------
-  const uniqueSales = sales.filter((sale, index, self) =>
-    index === self.findIndex((t) => (
-      t.id === sale.id
-    ))
+  const uniqueSales = sales.filter(
+    (sale, index, self) => index === self.findIndex((t) => t.id === sale.id)
   );
-  
-  const renderItem = ({ item: sale, index }: { item: SaleDocument, index: number }) => {
+
+  const renderItem = ({ item: sale, index }: { item: SaleDocument; index: number }) => {
     return (
       <TouchableOpacity
-      key={`${sale.id}-${index}`}        
-      className="p-4 border-b border-gray-200 h-20 justify-between overflow-hidden"
+        key={`${sale.id}-${index}`}
+        className="p-4 border-b border-gray-200 h-20 justify-between overflow-hidden"
         onPress={() => handleDetailPress(sale)}
       >
         <Text className="italic text-sm">{sale.DocumentNumber}</Text>
@@ -119,29 +122,39 @@ function SalesList() {
     <View className="h-screen w-screen items-center">
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
       <View className="w-10/10 max-h-20 items-center">
-      <View className="h-10 items-center justify-between flex-row">
-        <TextInput
-          className="h-full px-2 w-8.5/10 bg-gray-200 "
-          value={searchQuery}
-          onChangeText={handleSearch}
-          placeholder="Search"
-        />
-        <Icon name={bannerVisible? "arrow-drop-up" : "arrow-drop-down"} size={32} color="#3B82F6" className="" onPress={()=>setBannerVisible(!bannerVisible)}/>
+        <View className="h-10 items-center justify-between flex-row">
+          <TextInput
+            className="h-full px-2 w-8.5/10 bg-gray-200 "
+            value={searchQuery}
+            onChangeText={handleSearch}
+            placeholder="Search"
+          />
+          <Icon
+            name={bannerVisible ? "arrow-drop-up" : "arrow-drop-down"}
+            size={32}
+            color="#3B82F6"
+            onPress={() => setBannerVisible(!bannerVisible)}
+          />
         </View>
         {bannerVisible && (
-      <View className="h-10 items-center justify-between flex-row">
-        <Picker
-          selectedValue={selectedCategory}
-          style={{ height: 50, width: 150 }}
-          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-        >
-          <Picker.Item label="Choisir catégorie" value="" />
-          {categories.map((category) => (
-            <Picker.Item label={category} value={category} key={category} />
-          ))}
-        </Picker>
-      </View>
-    )}
+          <View className="h-10 items-center justify-between flex-row">
+            <Picker
+              selectedValue={selectedCategory}
+              style={{ height: 50, width: 150 }}
+              onValueChange={(itemValue) => {
+                setSelectedCategory(itemValue || null);
+                setSearchQuery(""); // Réinitialiser la recherche textuelle
+                setOffset(0);
+                setSales([]);
+              }}
+            >
+              <Picker.Item label="Choisir catégorie" value="" />
+              {categories.map((category) => (
+                <Picker.Item label={category} value={category} key={category} />
+              ))}
+            </Picker>
+          </View>
+        )}
       </View>
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
       <View className="w-full h-full">
@@ -156,7 +169,9 @@ function SalesList() {
           <FlatList
             data={uniqueSales}
             renderItem={renderItem}
-            keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
+            keyExtractor={(item, index) =>
+              item.id ? item.id.toString() : index.toString()
+            }
             contentContainerStyle={{ paddingBottom: 20 }}
             onEndReached={() => {
               if (offset < totalPages * limit) {
@@ -164,7 +179,9 @@ function SalesList() {
               }
             }}
             onEndReachedThreshold={0.5}
-            ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#0000ff" /> : null}
+            ListFooterComponent={
+              loadingMore ? <ActivityIndicator size="small" color="#0000ff" /> : null
+            }
           />
         )}
       </View>

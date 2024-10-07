@@ -43,27 +43,7 @@ export class SaleController {
   }
 
   //* ------------------- Dynamic Routes ------------------- *//
-  @Get(':Id')
-  findOneItem(@Param('Id') Id: string, @Request() req) {
-    const email = req.user.email;
-    this.logger.log(`Fetching all items for user: ${email}`);
-    return this.saleServiceClient.send(
-      { cmd: 'find_one_SaleDocument' },
-      { Id, email },
-    );
-  }
-
-  @Get(':Id/lines')
-  findLines(@Param('Id') Id: string, @Request() req) {
-    const email = req.user.email;
-    this.logger.log(`Fetching all lines for user: ${email}`);
-    return this.saleServiceClient.send(
-      { cmd: 'find_lines_SaleDocument' },
-      { Id, email },
-    );
-  }
-
-  @Get('paginate/:category')
+  @Get('paginate/:category([A-Z]{2})')
   paginateCategory(
     @Request() req,
     @Param('category') category: string,
@@ -88,6 +68,26 @@ export class SaleController {
     return this.saleServiceClient.send(
       { cmd: 'paginate_category' },
       paginationParams,
+    );
+  }
+
+  @Get(':Id')
+  findOneItem(@Param('Id') Id: string, @Request() req) {
+    const email = req.user.email;
+    this.logger.log(`Fetching all items for user: ${email}`);
+    return this.saleServiceClient.send(
+      { cmd: 'find_one_SaleDocument' },
+      { Id, email },
+    );
+  }
+
+  @Get(':Id/lines')
+  findLines(@Param('Id') Id: string, @Request() req) {
+    const email = req.user.email;
+    this.logger.log(`Fetching all lines for user: ${email}`);
+    return this.saleServiceClient.send(
+      { cmd: 'find_lines_SaleDocument' },
+      { Id, email },
     );
   }
 }
