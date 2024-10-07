@@ -62,4 +62,32 @@ export class SaleController {
       { Id, email },
     );
   }
+
+  @Get('paginate/:category')
+  paginateCategory(
+    @Request() req,
+    @Param('category') category: string,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string,
+  ) {
+    const email = req.user.email;
+    this.logger.log(
+      `Fetching paginated sale for user: ${email}, category: ${category}`,
+    );
+
+    const parsedLimit = parseInt(limit, 10) || 10;
+    const parsedOffset = parseInt(offset, 10) || 0;
+
+    const paginationParams = {
+      email,
+      category,
+      limit: parsedLimit,
+      page: Math.floor(parsedOffset / parsedLimit) || 0,
+    };
+
+    return this.saleServiceClient.send(
+      { cmd: 'paginate_category' },
+      paginationParams,
+    );
+  }
 }

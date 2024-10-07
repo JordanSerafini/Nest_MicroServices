@@ -103,6 +103,8 @@ function SalesList() {
   //* ------------------------ Return ------------------------
   return (
     <View className="h-screen w-screen items-center">
+      {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
+      <View className="bg-red-500 w-10/10 h-24">
       <View className="h-10 w-9.5/10 items-center bg-gray-200 mb-2">
         <TextInput
           className="h-full w-full px-2"
@@ -111,6 +113,8 @@ function SalesList() {
           placeholder="Search"
         />
       </View>
+      </View>
+      {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
       <View className="w-full h-full">
         {loading && offset === 0 ? (
           <View className="h-8/10 flex items-center justify-center w-full gap-2 flex-row">

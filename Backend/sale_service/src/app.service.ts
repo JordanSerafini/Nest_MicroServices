@@ -91,8 +91,8 @@ export class SaleService {
       const countParams: (string | number)[] = [];
 
       if (searchQuery) {
-        query += ` WHERE "CustomerId" ILIKE $1 OR "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1`;
-        countQuery += ` WHERE "CustomerId" ILIKE $1 OR "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1`;
+        query += ` WHERE "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1 OR "NumberPrefix" ILIKE $1`;
+        countQuery += ` WHERE "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1 OR "NumberPrefix" ILIKE $1`;
         queryParams.push(`%${searchQuery}%`);
         countParams.push(`%${searchQuery}%`);
       }
@@ -152,6 +152,63 @@ export class SaleService {
         error.message,
       );
       return [];
+    }
+  }
+
+  async paginateByCategory(category: string, limit: number, page: number) {
+    this.logger.log(`Paginating SaleDocuments by category: ${category}`);
+
+    const limitValue = limit > 0 ? limit : 10;
+    const offset = page * limitValue;
+
+    const cacheKey = `saleDocuments_paginated_by_category_${category}_${limitValue}_${offset}`;
+    const cachedData = await this.redisClient.get(cacheKey);
+
+    if (cachedData) {
+      console.log('Cache hit');
+      return JSON.parse(cachedData);
+    } else {
+      console.log('Cache miss');
+
+      let query = `SELECT * FROM "SaleDocument" WHERE "NumberPrefix" = $1`;
+      const countQuery = `SELECT COUNT(*) FROM "SaleDocument" WHERE "NumberPrefix" = $1`;
+      const queryParams: (string | number)[] = [category];
+      const countParams: (string | number)[] = [category];
+
+      query += ` ORDER BY "NumberPrefix" ASC LIMIT $2 OFFSET $3`;
+
+      queryParams.push(limitValue);
+      queryParams.push(offset);
+
+      try {
+        const [saleResult, totalResult] = await Promise.all([
+          this.pool.query(query, queryParams),
+          this.pool.query(countQuery, countParams),
+        ]);
+
+        const totalSaleDocuments = parseInt(totalResult.rows[0].count, 10);
+        const totalPages =
+          totalSaleDocuments > 0
+            ? Math.ceil(totalSaleDocuments / limitValue)
+            : 0;
+
+        const response = {
+          totalSaleDocuments,
+          totalPages,
+          saleDocuments: saleResult.rows,
+        };
+
+        // Cacher le résultat pour 1 heure
+        await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
+
+        return response;
+      } catch (error) {
+        this.logger.error(
+          `Error while paginating SaleDocuments by category: ${category}`,
+          error.message,
+        );
+        return [];
+      }
     }
   }
 

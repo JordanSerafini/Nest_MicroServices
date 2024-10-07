@@ -76,8 +76,8 @@ const LoginScreen: React.FC = () => {
         <View className="w-9/10 h-10/10 flex items-center justify-center">
           <Image source={sli} className=" rounded-full h-5/10 w-10/10" />
         </View>
-        <View className="h-5/10 w-9.5/10 items-center justify-center flex gap-6">
-          <View className="items-center justify-center flex w-full gap-2">
+        <View className="h-5/10 w-9.5/10 items-center justify-center flex ">
+          <View className="items-center justify-center flex w-full gap-2 pb-3">
             <TextInput
               value={email}
               onChangeText={setEmail}
