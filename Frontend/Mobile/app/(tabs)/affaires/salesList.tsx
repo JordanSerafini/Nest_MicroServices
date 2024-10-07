@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Modal,
+  ScrollView,
 } from "react-native";
 import { getSalePaginated, getSaleByCategory } from "../../utils/functions/sale_function";
 import React, { useEffect, useState } from "react";
-import { Picker } from "@react-native-picker/picker";
 import { SaleDocument } from "../../@types/sales/SaleDocument.type";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
@@ -24,6 +25,7 @@ function SalesList() {
   const [error, setError] = useState<any>(null);
   const [bannerVisible, setBannerVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const categories = ["BR", "FC", "AD", "BL", "FA", "DEX", "FD", "CM", "CC", "AV", "DE"];
 
   const router = useRouter();
@@ -90,6 +92,15 @@ function SalesList() {
     setSales([]);
   };
 
+  //* ------------------------ Handle Category Selection ------------------------
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    setModalVisible(false);
+    setSearchQuery("");
+    setOffset(0);
+    setSales([]);
+  };
+
   //* ------------------------ RenderItem ------------------------
   const uniqueSales = sales.filter(
     (sale, index, self) => index === self.findIndex((t) => t.id === sale.id)
@@ -138,22 +149,71 @@ function SalesList() {
         </View>
         {bannerVisible && (
           <View className="items-center justify-between flex-row w-9.5/10">
-            <Picker
-              selectedValue={selectedCategory}
-              className="w-8/10 h-10 "
-               mode="dropdown"
-              onValueChange={(itemValue) => {
-                setSelectedCategory(itemValue || null);
-                setSearchQuery("");
-                setOffset(0);
-                setSales([]);
+            {/* Sélecteur personnalisé */}
+            <TouchableOpacity
+              style={{
+                height: 50,
+                width: 150,
+                backgroundColor: "#f0f0f0",
+                justifyContent: "center",
+                borderWidth: 1,
+                borderColor: "gray",
+                borderRadius: 4,
+                padding: 10,
               }}
+              onPress={() => setModalVisible(true)}
             >
-              <Picker.Item label="Choisir catégorie" value="" />
-              {categories.map((category) => (
-                <Picker.Item label={category} value={category} key={category} />
-              ))}
-            </Picker>
+              <Text>{selectedCategory ? selectedCategory : "Choisir catégorie"}</Text>
+            </TouchableOpacity>
+
+            {/* Modal pour afficher la liste des catégories */}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => setModalVisible(false)}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                }}
+              >
+                <View
+                  style={{
+                    width: "80%",
+                    backgroundColor: "white",
+                    borderRadius: 10,
+                    padding: 20,
+                    alignItems: "center",
+                  }}
+                >
+                  <ScrollView style={{ width: "100%" }}>
+                    {categories.map((category) => (
+                      <TouchableOpacity
+                        key={category}
+                        style={{
+                          padding: 10,
+                          borderBottomWidth: 1,
+                          borderBottomColor: "#ddd",
+                        }}
+                        onPress={() => handleCategorySelect(category)}
+                      >
+                        <Text>{category}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                  <TouchableOpacity
+                    style={{ marginTop: 20 }}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={{ color: "red" }}>Annuler</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           </View>
         )}
       </View>
