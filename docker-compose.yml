@@ -157,7 +157,7 @@ services:
       - ./Backend/deal_service/logs:/var/log/Logs_DealService
       # - /app/node_modules
     ports:
-      - "3015:3015"
+      - "3008:3008"
     networks:
       - nestjs_network
     environment:
@@ -168,9 +168,10 @@ services:
       - PG_USER=jordans
       - PG_PASSWORD=slitest
       - PG_DATABASE=SLI
+      - REDIS_URL=redis://redis:6379
+
     depends_on:
       - colleague_service
-      - redis
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
   incident_service:

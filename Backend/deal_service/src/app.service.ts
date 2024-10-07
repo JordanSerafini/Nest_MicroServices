@@ -13,22 +13,25 @@ export class DealService {
   ) {
     this.logger.log('Initializing DealService...');
 
-    this.pool.query('SELECT 1', (err) => {
-      if (err) {
-        this.logger.error('Failed to connect to PostgreSQL', err);
-      } else {
-        this.logger.log('PostgreSQL connection established');
-      }
-    });
+    this.initializeConnections();
+  }
 
-    this.redisClient
-      .ping()
-      .then(() => {
-        this.logger.log('Redis connection established');
-      })
-      .catch((err) => {
-        this.logger.error('Failed to connect to Redis', err);
-      });
+  async initializeConnections() {
+    try {
+      // Vérification de la connexion PostgreSQL
+      await this.pool.query('SELECT 1');
+      this.logger.log('PostgreSQL connection established');
+    } catch (err) {
+      this.logger.error('Failed to connect to PostgreSQL', err);
+    }
+
+    try {
+      // Vérification de la connexion Redis
+      await this.redisClient.ping();
+      this.logger.log('Redis connection established');
+    } catch (err) {
+      this.logger.error('Failed to connect to Redis', err);
+    }
   }
 
   async paginate(
@@ -64,6 +67,7 @@ export class DealService {
 
         query += ` ORDER BY "Caption" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
 
+        // Exécuter les deux requêtes
         const [dealResult, totalResult] = await Promise.all([
           this.pool.query(query, queryParams),
           this.pool.query(countQuery, countParams),
@@ -78,6 +82,7 @@ export class DealService {
           deals: dealResult.rows,
         };
 
+        // Mettre en cache les résultats dans Redis
         await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
 
         return response;
