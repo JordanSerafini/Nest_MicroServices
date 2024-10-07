@@ -51,15 +51,30 @@ export class DealService {
         let query = `
         SELECT 
           d.*, 
-          COALESCE(di.items, '[]') AS items
+          COALESCE(di.items, '[]') AS items,
+          COALESCE(dc.customer, '{}'::json) AS customer
         FROM "Deal" d
         LEFT JOIN (
+          -- Jointure pour DealItems
           SELECT 
             "DealItem"."DealId", 
             json_agg("DealItem") AS items
           FROM "DealItem"
           GROUP BY "DealItem"."DealId"
         ) di ON d."Id" = di."DealId"
+        LEFT JOIN (
+          -- Jointure pour DealCustomer, retourne un seul client
+          SELECT 
+            "DealCustomer"."DealId", 
+            json_build_object(
+              'Id', "DealCustomer"."Id", 
+              'Name', "DealCustomer"."Name", 
+              'Turnover', "DealCustomer"."Turnover", 
+              'InvoiceDefault', "DealCustomer"."InvoiceDefault"
+            ) AS customer
+          FROM "DealCustomer"
+          GROUP BY "DealCustomer"."DealId"
+        ) dc ON d."Id" = dc."DealId"
       `;
 
         let countQuery = `SELECT COUNT(*) FROM "Deal"`;
@@ -95,6 +110,7 @@ export class DealService {
           deals: dealResult.rows,
         };
 
+        // Mettre en cache les résultats dans Redis
         await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
 
         return response;
