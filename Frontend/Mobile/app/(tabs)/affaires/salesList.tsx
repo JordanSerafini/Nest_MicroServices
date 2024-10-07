@@ -141,6 +141,7 @@ function SalesList() {
             <Picker
               selectedValue={selectedCategory}
               className="w-8/10 h-10 "
+               mode="dropdown"
               onValueChange={(itemValue) => {
                 setSelectedCategory(itemValue || null);
                 setSearchQuery("");
