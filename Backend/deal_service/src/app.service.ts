@@ -18,7 +18,6 @@ export class DealService {
 
   async initializeConnections() {
     try {
-      // Vérification de la connexion PostgreSQL
       await this.pool.query('SELECT 1');
       this.logger.log('PostgreSQL connection established');
     } catch (err) {
@@ -26,7 +25,6 @@ export class DealService {
     }
 
     try {
-      // Vérification de la connexion Redis
       await this.redisClient.ping();
       this.logger.log('Redis connection established');
     } catch (err) {
@@ -50,14 +48,27 @@ export class DealService {
       } else {
         this.logger.log('Cache miss');
 
-        let query = `SELECT * FROM "Deal"`;
+        let query = `
+        SELECT 
+          d.*, 
+          COALESCE(di.items, '[]') AS items
+        FROM "Deal" d
+        LEFT JOIN (
+          SELECT 
+            "DealItem"."DealId", 
+            json_agg("DealItem") AS items
+          FROM "DealItem"
+          GROUP BY "DealItem"."DealId"
+        ) di ON d."Id" = di."DealId"
+      `;
+
         let countQuery = `SELECT COUNT(*) FROM "Deal"`;
         const queryParams: (string | number)[] = [];
         const countParams: (string | number)[] = [];
 
         if (searchQuery) {
-          query += ` WHERE "Caption" ILIKE $1`;
-          countQuery += ` WHERE "Caption" ILIKE $1`;
+          query += ` WHERE d."Caption" ILIKE $1`;
+          countQuery += ` WHERE d."Caption" ILIKE $1`;
           queryParams.push(`%${searchQuery}%`);
           countParams.push(`%${searchQuery}%`);
         }
@@ -65,9 +76,11 @@ export class DealService {
         queryParams.push(limit);
         queryParams.push(offset);
 
-        query += ` ORDER BY "Caption" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+        query += `
+        ORDER BY d."Caption" ASC 
+        LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}
+      `;
 
-        // Exécuter les deux requêtes
         const [dealResult, totalResult] = await Promise.all([
           this.pool.query(query, queryParams),
           this.pool.query(countQuery, countParams),
@@ -82,7 +95,6 @@ export class DealService {
           deals: dealResult.rows,
         };
 
-        // Mettre en cache les résultats dans Redis
         await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
 
         return response;
