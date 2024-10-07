@@ -78,14 +78,14 @@ function SalesList() {
   //* ------------------------ useEffect ------------------------
   useEffect(() => {
     setLoading(true);
-    setSales([]); // Réinitialiser les ventes précédentes
+    setSales([]);
     fetchSales(true);
   }, [searchQuery, limit, selectedCategory]);
 
   //* ------------------------ Handle Search ------------------------
   const handleSearch = (text: string) => {
     setSearchQuery(text);
-    setSelectedCategory(null); // Réinitialiser la catégorie sélectionnée
+    setSelectedCategory(null);
     setOffset(0);
     setSales([]);
   };
@@ -137,13 +137,13 @@ function SalesList() {
           />
         </View>
         {bannerVisible && (
-          <View className="h-10 items-center justify-between flex-row">
+          <View className="items-center justify-between flex-row w-9.5/10">
             <Picker
               selectedValue={selectedCategory}
-              style={{ height: 50, width: 150 }}
+              className="w-8/10 h-10 "
               onValueChange={(itemValue) => {
                 setSelectedCategory(itemValue || null);
-                setSearchQuery(""); // Réinitialiser la recherche textuelle
+                setSearchQuery("");
                 setOffset(0);
                 setSales([]);
               }}
