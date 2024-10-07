@@ -55,7 +55,6 @@ export class DealService {
           COALESCE(dc.customer, '{}'::json) AS customer
         FROM "Deal" d
         LEFT JOIN (
-          -- Jointure pour DealItems
           SELECT 
             "DealItem"."DealId", 
             json_agg("DealItem") AS items
@@ -63,38 +62,45 @@ export class DealService {
           GROUP BY "DealItem"."DealId"
         ) di ON d."Id" = di."DealId"
         LEFT JOIN (
-          -- Jointure pour DealCustomer, retourne un seul client
           SELECT 
             "DealCustomer"."DealId", 
             json_build_object(
               'Id', "DealCustomer"."Id", 
-              'Name', "DealCustomer"."Name", 
-              'Turnover', "DealCustomer"."Turnover", 
-              'InvoiceDefault', "DealCustomer"."InvoiceDefault"
+              'Name', "DealCustomer"."Name"
             ) AS customer
           FROM "DealCustomer"
-          GROUP BY "DealCustomer"."DealId"
+          GROUP BY "DealCustomer"."DealId", "DealCustomer"."Id", "DealCustomer"."Name"
         ) dc ON d."Id" = dc."DealId"
-      `;
+        `;
 
         let countQuery = `SELECT COUNT(*) FROM "Deal"`;
         const queryParams: (string | number)[] = [];
         const countParams: (string | number)[] = [];
 
-        if (searchQuery) {
-          query += ` WHERE d."Caption" ILIKE $1`;
-          countQuery += ` WHERE d."Caption" ILIKE $1`;
+        // Si searchQuery est fourni et non vide, ajoutez la condition WHERE
+        if (searchQuery && searchQuery.trim() !== '') {
+          query += ` WHERE d."Caption" ILIKE $1::text`;
+          countQuery += ` WHERE d."Caption" ILIKE $1::text`;
           queryParams.push(`%${searchQuery}%`);
           countParams.push(`%${searchQuery}%`);
         }
 
+        // Ajout des paramètres de pagination
         queryParams.push(limit);
         queryParams.push(offset);
 
-        query += `
-        ORDER BY d."Caption" ASC 
-        LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}
-      `;
+        // Correction des index pour LIMIT et OFFSET
+        if (searchQuery && searchQuery.trim() !== '') {
+          query += `
+            ORDER BY d."Caption" ASC 
+            LIMIT $2 OFFSET $3
+          `;
+        } else {
+          query += `
+            ORDER BY d."Caption" ASC 
+            LIMIT $1 OFFSET $2
+          `;
+        }
 
         const [dealResult, totalResult] = await Promise.all([
           this.pool.query(query, queryParams),
@@ -110,7 +116,6 @@ export class DealService {
           deals: dealResult.rows,
         };
 
-        // Mettre en cache les résultats dans Redis
         await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
 
         return response;

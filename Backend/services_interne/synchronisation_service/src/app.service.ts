@@ -45,15 +45,13 @@ export class AppService {
     insertedCustomers: { id: any; name: any }[];
     skippedCustomers: string[];
   }> {
-    // Étape 1 : Récupérer tous les clients existants dans PostgreSQL
-    const pgExistingQuery = 'SELECT "Id" FROM "Customer"'; // Utiliser la casse correcte (avec guillemets) pour la colonne "Id" dans PostgreSQL
+    const pgExistingQuery = 'SELECT "Id" FROM "Customer"';
     const pgExistingResult = await this.pgPool.query(pgExistingQuery);
 
-    // Extraire les IDs existants dans PostgreSQL
-    const pgExistingIds = pgExistingResult.rows.map((row) => row.Id); // "Id" est sensible à la casse ici
+    const pgExistingIds = pgExistingResult.rows.map((row) => row.Id);
 
     // Étape 2 : Récupérer tous les clients et colonnes depuis MSSQL
-    const mssqlQuery = 'SELECT * FROM Customer'; // Récupérer toutes les colonnes de la table MSSQL
+    const mssqlQuery = 'SELECT * FROM Customer';
     const mssqlRequest = this.mssqlPool.request();
     const mssqlResult = await mssqlRequest.query(mssqlQuery);
 
@@ -69,7 +67,7 @@ export class AppService {
 
     // Étape 3 : Construire dynamiquement la requête d'insertion
     const columns = Object.keys(customersToInsert[0]);
-    const columnNames = columns.map((col) => `"${col}"`).join(', '); // Utiliser les guillemets pour toutes les colonnes
+    const columnNames = columns.map((col) => `"${col}"`).join(', ');
     const placeholders = columns.map((_, index) => `$${index + 1}`).join(', ');
 
     const pgQuery = `INSERT INTO "Customer" (${columnNames}) VALUES (${placeholders})`;
@@ -85,7 +83,7 @@ export class AppService {
         await this.pgPool.query(pgQuery, values);
 
         // Ajouter le client inséré avec son id et name
-        insertedCustomers.push({ id: row.Id, name: row.Name }); // Respectez la casse des colonnes MSSQL
+        insertedCustomers.push({ id: row.Id, name: row.Name });
       } catch (error) {
         // Vérifiez si l'erreur est liée à une colonne manquante et ignorez cet enregistrement
         if (error.message.includes('does not exist')) {
@@ -95,12 +93,11 @@ export class AppService {
           skippedCustomers.push(`Customer ID: ${row.Id}, Name: ${row.Name}`);
         } else {
           console.error('Unexpected error during insertion:', error);
-          throw error; // Si ce n'est pas une erreur de colonne manquante, on relance l'erreur
+          throw error;
         }
       }
     }
 
-    // Retourner les clients insérés et ceux ignorés
     return { insertedCustomers, skippedCustomers };
   }
 
@@ -181,7 +178,7 @@ export class AppService {
         throw new Error('No records found in ConstructionSite');
       }
 
-      const info = result.recordset; // Ici, info est un tableau d'objets
+      const info = result.recordset;
 
       return { info };
     } catch (error) {
