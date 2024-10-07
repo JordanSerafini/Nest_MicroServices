@@ -90,4 +90,34 @@ export const getLineByDocumentId = async (DocumentId: string) => {
         console.error('Error fetching line by DocumentId:', error);
         throw error;
     }
+};
+
+export const getSaleByCategory = async (category: string, limit: number, offset: number) => {
+    try {
+        const token = await getToken();
+        if (!token) {
+            const error = new Error('Token not found');
+            throw error;
+        }
+
+        // Ajustement de l'URL ici :
+        const response = await fetch(`${url.api_gateway}/sale/paginate/${category}?limit=${limit}&offset=${offset}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            const error = new Error('Network response was not ok');
+            throw error;
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error: any) {
+        console.error('Error fetching sales by category:', error);
+        throw error;
+    }
 }

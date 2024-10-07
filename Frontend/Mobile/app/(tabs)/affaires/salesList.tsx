@@ -1,20 +1,23 @@
-import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
-import { getSalePaginated } from "../../utils/functions/sale_function";
-import { useEffect, useState } from "react";
+import { getSalePaginated, getSaleByCategory } from "../../utils/functions/sale_function";
+import React, { useEffect, useState } from "react";
+import { Picker } from "@react-native-picker/picker";
 import { SaleDocument } from "../../@types/sales/SaleDocument.type";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 
 function SalesList() {
   const [sales, setSales] = useState<SaleDocument[]>([]);
-  const [totalPages, setTotalPages] = useState(0); // Total pages available
+  const [totalPages, setTotalPages] = useState(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
   const [offset, setOffset] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<any>(null);
+  const [bannerVisible, setBannerVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const categories = ["FA", "AV", "AD"];
 
   const router = useRouter();
 
@@ -64,6 +67,17 @@ function SalesList() {
     fetchSales(true);
   }, [searchQuery, limit]);
 
+  //* ------------------------ Fetch Sales by Category ------------------------
+  useEffect(() => {
+    if (selectedCategory) {
+      setLoading(true);
+      getSaleByCategory(selectedCategory, limit, offset).then((data) => {
+        setSales(data.saleDocuments);
+        setLoading(false);
+      });
+    }
+  }, [selectedCategory]);
+
   //* ------------------------ Handle Search ------------------------
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -104,15 +118,30 @@ function SalesList() {
   return (
     <View className="h-screen w-screen items-center">
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
-      <View className="bg-red-500 w-10/10 h-24">
-      <View className="h-10 w-9.5/10 items-center bg-gray-200 mb-2">
+      <View className="w-10/10 max-h-20 items-center">
+      <View className="h-10 items-center justify-between flex-row">
         <TextInput
-          className="h-full w-full px-2"
+          className="h-full px-2 w-8.5/10 bg-gray-200 "
           value={searchQuery}
           onChangeText={handleSearch}
           placeholder="Search"
         />
+        <Icon name={bannerVisible? "arrow-drop-up" : "arrow-drop-down"} size={32} color="#3B82F6" className="" onPress={()=>setBannerVisible(!bannerVisible)}/>
+        </View>
+        {bannerVisible && (
+      <View className="h-10 items-center justify-between flex-row">
+        <Picker
+          selectedValue={selectedCategory}
+          style={{ height: 50, width: 150 }}
+          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+        >
+          <Picker.Item label="Choisir catégorie" value="" />
+          {categories.map((category) => (
+            <Picker.Item label={category} value={category} key={category} />
+          ))}
+        </Picker>
       </View>
+    )}
       </View>
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
       <View className="w-full h-full">
