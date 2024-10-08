@@ -100,7 +100,6 @@ export const getSaleByCategory = async (category: string, limit: number, offset:
             throw error;
         }
 
-        // Ajustement de l'URL ici :
         const response = await fetch(`${url.api_gateway}/sale/paginate/${category}?limit=${limit}&offset=${offset}`, {
             method: 'GET',
             headers: {
