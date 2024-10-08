@@ -5,6 +5,7 @@ import {
   UseGuards,
   Request,
   Query,
+  Param,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { CustomLogger } from '../../logging/custom-logger.service';
@@ -41,7 +42,7 @@ export class DealController {
   }
 
   @Get(':Id')
-  getDeal(@Request() req, @Query('Id') Id: string) {
+  getDeal(@Request() req, @Param('Id') Id: string) {
     const email = req.user.email;
     this.logger.log(`Fetching deal ${Id} for user: ${email}`);
 

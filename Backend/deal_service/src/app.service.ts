@@ -195,6 +195,7 @@ LEFT JOIN "DealPurchaseDocumentLine" pdl ON pd."DocumentId" = pdl."DocumentId"
 WHERE d."Id" = $1
 GROUP BY d."Id", d."DealDate", d."xx_DateDebut", d."xx_DateFin", d."xx_Client", d."Caption", d."NotesClear", d."ActualTreasury", d."CustomerCommitmentBalanceDues", dc."ThirdId", dc."Name", dc."Id", di."Id", di."ItemId", di."DealId", di."ItemCaption", di."AmountVatExcluded", pd."Id", pd."DocumentId", pd."DocumentDate", pd."GlobalDocumentState", pdl."Quantity", pdl."DocumentId", pdl."DescriptionClear";
 
+
       `;
 
       const result = await this.pool.query(query, queryParams);

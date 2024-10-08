@@ -1,0 +1,35 @@
+export class DealSaleDocument {
+  Id: string;
+  DocumentId: string;
+  DocumentNumber: string;
+  DocumentDate: Date;
+  InvoiceCorrectionType: number;
+  DocumentType: number;
+  CustomerId: string;
+  CustomerName: string;
+  ColleagueId: string;
+  NetInterestAmount: number;
+  GrossInterestAmount: number;
+  InterestAmount: number;
+  DocumentState: number;
+  TransferedDocumentId: string;
+  AmountVatExcluded: number;
+  NetAmountVatExcludedWithDiscount: number;
+  DocumentTotalAmountVatExcludedWithDiscount: number;
+  NetAmountVatIncludedWithDiscount: number;
+  DealId: string;
+  sysCreatedDate: Date;
+  sysCreatedUser: string;
+  sysModifiedDate: Date;
+  sysModifiedUser: string;
+  AchievedDuration: number;
+  ExpectedDuration: number;
+  ToScheduleDuration: number;
+  InvoicableAchievedDuration: number;
+  InvoicableExpectedDuration: number;
+  InvoicableToScheduleDuration: number;
+  ConstructionSiteId: string;
+  GlobalDocumentState: string;
+  IsReferenceDocument: boolean;
+  DocumentEditCounter: number;
+}
