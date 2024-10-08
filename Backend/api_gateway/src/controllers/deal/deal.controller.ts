@@ -39,4 +39,12 @@ export class DealController {
 
     return this.dealServiceClient.send({ cmd: 'paginate' }, paginationParams);
   }
+
+  @Get(':Id')
+  getDeal(@Request() req, @Query('Id') Id: string) {
+    const email = req.user.email;
+    this.logger.log(`Fetching deal ${Id} for user: ${email}`);
+
+    return this.dealServiceClient.send({ cmd: 'dealId' }, { Id });
+  }
 }
