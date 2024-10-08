@@ -10,14 +10,9 @@ foreach ($folder in $folders) {
         Push-Location $folder.FullName
 
         try {
-            Write-Host "Installing specific versions of NestJS packages in $($folder.FullName)"
-            npm install reflect-metadata@^0.1.12
-            # Installer les versions spécifiques des packages NestJS
-            npm install @nestjs/core@^10.0.0 @nestjs/microservices@^10.0.0 @nestjs/platform-express@^10.0.0 --legacy-peer-deps
-            
-            # Exécuter npm audit pour vérifier les vulnérabilités
+
             Write-Host "Running npm audit for $($folder.FullName)"
-            npm audit fix
+            npm audit fix --force
         }
         catch {
             # Si une erreur survient, afficher un message d'erreur

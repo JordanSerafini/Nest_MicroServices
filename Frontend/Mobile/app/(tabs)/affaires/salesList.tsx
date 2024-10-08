@@ -202,17 +202,19 @@ function SalesList() {
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
       <View className="w-10/10 items-center">
         <View className="h-10 items-center justify-between flex-row">
-          <Icon name="search" size={32} color="#3B82F6" />
-          <TextInput
-            className="h-full px-2 w-8.5/10 bg-gray-200 "
-            value={searchQuery}
-            onChangeText={handleSearch}
-            placeholder="Search"
-          />
+          <View className="h-full px-2 w-8.5/10 bg-gray-200 justify-start items-center flex-row">
+          {/* <Icon name="search" size={20} color="#1e40af"  /> */}
+            <TextInput
+              value={searchQuery}
+              onChangeText={handleSearch}
+              placeholder="Search"
+              className="pl-2"
+            />
+          </View>
           <Icon
             name={bannerVisible ? "arrow-drop-up" : "arrow-drop-down"}
             size={32}
-            color="#3B82F6"
+            color="#1e40af"
             onPress={() => setBannerVisible(!bannerVisible)}
           />
         </View>
@@ -310,12 +312,9 @@ function SalesList() {
                     borderRadius: 4,
                   }}
                   className="p-2 border w-20"
-
                 >
                   <Text className="text-xs text-center">
-                    {selectedEndDate
-                      ? selectedEndDate.toDateString()
-                      : "Fin"}
+                    {selectedEndDate ? selectedEndDate.toDateString() : "Fin"}
                   </Text>
                 </TouchableOpacity>
               </View>

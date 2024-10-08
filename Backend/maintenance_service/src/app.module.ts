@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { DealController } from './app.controller';
-import { DealService } from './app.service';
+import { MainteananceController } from './app.controller';
+import { MaintenanceService } from './app.service';
 import { PgConnectionModule } from 'pool_package';
 import { ConfigModule } from '@nestjs/config';
 import { CustomLogger } from './logging/custom-logger.service';
@@ -13,9 +13,9 @@ import { createClient } from 'redis';
     }),
     PgConnectionModule,
   ],
-  controllers: [DealController],
+  controllers: [MainteananceController],
   providers: [
-    DealService,
+    MaintenanceService,
     CustomLogger,
     {
       provide: 'REDIS_CLIENT',
