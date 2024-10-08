@@ -8,7 +8,11 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
-import { getSalePaginated, getSaleByCategory } from "../../utils/functions/sale_function";
+import {
+  getSalePaginated,
+  getSaleByCategory,
+} from "../../utils/functions/sale_function";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import React, { useEffect, useState } from "react";
 import { SaleDocument } from "../../@types/sales/SaleDocument.type";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -26,7 +30,24 @@ function SalesList() {
   const [bannerVisible, setBannerVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const categories = ["BR", "FC", "AD", "BL", "FA", "DEX", "FD", "CM", "CC", "AV", "DE"];
+  const categories = [
+    "BR",
+    "FC",
+    "AD",
+    "BL",
+    "FA",
+    "DEX",
+    "FD",
+    "CM",
+    "CC",
+    "AV",
+    "DE",
+  ];
+  const [isStartDatePickerVisible, setStartDatePickerVisibility] =
+    useState(false);
+  const [isEndDatePickerVisible, setEndDatePickerVisibility] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
 
   const router = useRouter();
 
@@ -36,7 +57,11 @@ function SalesList() {
     if (sale.Id) {
       router.push({
         pathname: "/affaires/saleDetail",
-        params: { Id: sale.Id, name: sale.CustomerName, DocumentNumber: sale.DocumentNumber },
+        params: {
+          Id: sale.Id,
+          name: sale.CustomerName,
+          DocumentNumber: sale.DocumentNumber,
+        },
       });
     }
   };
@@ -60,9 +85,17 @@ function SalesList() {
     try {
       let data;
       if (selectedCategory) {
-        data = await getSaleByCategory(selectedCategory, limit, newSearch ? 0 : offset);
+        data = await getSaleByCategory(
+          selectedCategory,
+          limit,
+          newSearch ? 0 : offset
+        );
       } else {
-        data = await getSalePaginated(searchQuery, limit, newSearch ? 0 : offset);
+        data = await getSalePaginated(
+          searchQuery,
+          limit,
+          newSearch ? 0 : offset
+        );
       }
       setSales((prevSales) =>
         newSearch ? data.saleDocuments : [...prevSales, ...data.saleDocuments]
@@ -92,6 +125,33 @@ function SalesList() {
     setSales([]);
   };
 
+  //* ------------------------ Handle Date Selection ------------------------
+  const showStartDatePicker = () => {
+    setStartDatePickerVisibility(true);
+  };
+
+  const hideStartDatePicker = () => {
+    setStartDatePickerVisibility(false);
+  };
+
+  const handleConfirmStartDate = (date: Date) => {
+    setSelectedStartDate(date);
+    hideStartDatePicker();
+  };
+
+  const showEndDatePicker = () => {
+    setEndDatePickerVisibility(true);
+  };
+
+  const hideEndDatePicker = () => {
+    setEndDatePickerVisibility(false);
+  };
+
+  const handleConfirmEndDate = (date: Date) => {
+    setSelectedEndDate(date);
+    hideEndDatePicker();
+  };
+
   //* ------------------------ Handle Category Selection ------------------------
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
@@ -106,7 +166,13 @@ function SalesList() {
     (sale, index, self) => index === self.findIndex((t) => t.id === sale.id)
   );
 
-  const renderItem = ({ item: sale, index }: { item: SaleDocument; index: number }) => {
+  const renderItem = ({
+    item: sale,
+    index,
+  }: {
+    item: SaleDocument;
+    index: number;
+  }) => {
     return (
       <TouchableOpacity
         key={`${sale.id}-${index}`}
@@ -121,7 +187,9 @@ function SalesList() {
           </View>
           <View className="flex-row gap-1 h-full items-center">
             <Icon name="event" size={20} color="#1e40af" />
-            <Text className="text-xs w-5/10 max-h-8">{formatDate(sale.DocumentDate)}</Text>
+            <Text className="text-xs w-5/10 max-h-8">
+              {formatDate(sale.DocumentDate)}
+            </Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -132,7 +200,7 @@ function SalesList() {
   return (
     <View className="h-screen w-screen items-center">
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
-      <View className="w-10/10 max-h-20 items-center">
+      <View className="w-10/10 items-center">
         <View className="h-10 items-center justify-between flex-row">
           <TextInput
             className="h-full px-2 w-8.5/10 bg-gray-200 "
@@ -148,72 +216,122 @@ function SalesList() {
           />
         </View>
         {bannerVisible && (
-          <View className="items-center justify-between flex-row w-9.5/10">
-            {/* Sélecteur personnalisé */}
-            <TouchableOpacity
-              style={{
-                height: 50,
-                width: 150,
-                backgroundColor: "#f0f0f0",
-                justifyContent: "center",
-                borderWidth: 1,
-                borderColor: "gray",
-                borderRadius: 4,
-                padding: 10,
-              }}
-              onPress={() => setModalVisible(true)}
-            >
-              <Text>{selectedCategory ? selectedCategory : "Choisir catégorie"}</Text>
-            </TouchableOpacity>
-
-            {/* Modal pour afficher la liste des catégories */}
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => setModalVisible(false)}
-            >
-              <View
+          <View className="max-h-20 flex-row items-center justify-between w-9.5/10 pt-2">
+            {/* ----------------   ------------------------------------------------------------------------ Category -------------------------------------------------------------------------------- */}
+            <View className="items-center justify-between flex-row h-full w-5/10 ">
+              <TouchableOpacity
                 style={{
-                  flex: 1,
+                  backgroundColor: "#f0f0f0",
                   justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  borderWidth: 1,
+                  borderColor: "gray",
+                  borderRadius: 4,
                 }}
+                onPress={() => setModalVisible(true)}
+                className="w-9/10 tex p-2"
+              >
+                <Text className="text-center" style={{ letterSpacing: 1 }}>
+                  {selectedCategory ? selectedCategory : "Choisir catégorie"}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Modal pour afficher la liste des catégories */}
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
               >
                 <View
                   style={{
-                    width: "80%",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    padding: 20,
+                    flex: 1,
+                    justifyContent: "center",
                     alignItems: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
                   }}
                 >
-                  <ScrollView style={{ width: "100%" }}>
-                    {categories.map((category) => (
-                      <TouchableOpacity
-                        key={category}
-                        style={{
-                          padding: 10,
-                          borderBottomWidth: 1,
-                          borderBottomColor: "#ddd",
-                        }}
-                        onPress={() => handleCategorySelect(category)}
-                      >
-                        <Text>{category}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                  <TouchableOpacity
-                    style={{ marginTop: 20 }}
-                    onPress={() => setModalVisible(false)}
+                  <View
+                    style={{
+                      width: "80%",
+                      backgroundColor: "white",
+                      borderRadius: 10,
+                      padding: 20,
+                      alignItems: "center",
+                    }}
                   >
-                    <Text style={{ color: "red" }}>Annuler</Text>
-                  </TouchableOpacity>
+                    <ScrollView style={{ width: "100%" }}>
+                      {categories.map((category) => (
+                        <TouchableOpacity
+                          key={category}
+                          style={{
+                            padding: 10,
+                            borderBottomWidth: 1,
+                            borderBottomColor: "#ddd",
+                          }}
+                          onPress={() => handleCategorySelect(category)}
+                        >
+                          <Text>{category}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                    <TouchableOpacity
+                      style={{ marginTop: 20 }}
+                      onPress={() => setModalVisible(false)}
+                    >
+                      <Text style={{ color: "red" }}>Annuler</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
+              </Modal>
+            </View>
+            {/* ---------------------------------------------------------------------------------------- Date -------------------------------------------------------------------------------- */}
+            <View className="w-5/10 items-center">
+              <View className=" flex-row items-center justify-evenly w-full h-12 ">
+                <TouchableOpacity
+                  onPress={showStartDatePicker}
+                  style={{
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: 4,
+                  }}
+                  className="p-2 border w-20"
+                >
+                  <Text className="text-xs text-center">
+                    {selectedStartDate
+                      ? selectedStartDate.toDateString()
+                      : "Début"}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={showEndDatePicker}
+                  style={{
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: 4,
+                  }}
+                  className="p-2 border w-20"
+
+                >
+                  <Text className="text-xs text-center">
+                    {selectedEndDate
+                      ? selectedEndDate.toDateString()
+                      : "Fin"}
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </Modal>
+              <DateTimePickerModal
+                isVisible={isStartDatePickerVisible}
+                mode="date"
+                onConfirm={handleConfirmStartDate}
+                onCancel={hideStartDatePicker}
+              />
+
+              <DateTimePickerModal
+                isVisible={isEndDatePickerVisible}
+                mode="date"
+                onConfirm={handleConfirmEndDate}
+                onCancel={hideEndDatePicker}
+              />
+            </View>
           </View>
         )}
       </View>
@@ -235,13 +353,18 @@ function SalesList() {
             }
             contentContainerStyle={{ paddingBottom: 20 }}
             onEndReached={() => {
-              if (offset < totalPages * limit) {
+              if (!loadingMore && offset < totalPages * limit) {
                 fetchSales();
               }
             }}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
-              loadingMore ? <ActivityIndicator size="small" color="#0000ff" /> : null
+              loadingMore ? (
+                <View style={{ padding: 10, alignItems: "center" }}>
+                  <ActivityIndicator size="small" color="#0000ff" />
+                  <Text>Chargement en cours...</Text>
+                </View>
+              ) : null
             }
           />
         )}
