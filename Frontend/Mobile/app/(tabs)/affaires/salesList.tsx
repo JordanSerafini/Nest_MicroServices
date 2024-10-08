@@ -202,6 +202,7 @@ function SalesList() {
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
       <View className="w-10/10 items-center">
         <View className="h-10 items-center justify-between flex-row">
+          <Icon name="search" size={32} color="#3B82F6" />
           <TextInput
             className="h-full px-2 w-8.5/10 bg-gray-200 "
             value={searchQuery}

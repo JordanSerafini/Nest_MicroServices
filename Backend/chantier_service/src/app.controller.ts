@@ -42,20 +42,13 @@ export class ChantierController {
   }
 
   @MessagePattern({ cmd: 'find_one_chantier' })
-  findOne(@Payload() { id, email }: { id: string | number; email: string }) {
+  findOne(@Payload() { id, email }: { id: string; email: string }) {
     if (!id) {
       console.error(`ID is missing or invalid: ${id}`);
       throw new BadRequestException(`Invalid ID: ${id}`);
     }
 
-    const parsedId = Number(id);
-    if (isNaN(parsedId)) {
-      console.error(`Unable to parse ID: ${id}`);
-      throw new BadRequestException(`Invalid ID: ${id}`);
-    }
-
-    console.log(`Received ID: ${parsedId}, Email: ${email}`);
-    return this.chantierService.findOne(parsedId, email);
+    return this.chantierService.findOne(id, email);
   }
 
   @MessagePattern({ cmd: 'update_chantier' })

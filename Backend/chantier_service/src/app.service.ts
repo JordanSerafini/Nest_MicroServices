@@ -58,7 +58,7 @@ export class ChantierService {
     }
   }
 
-  async findOne(id: number, email: string): Promise<any> {
+  async findOne(id: string, email: string): Promise<any> {
     this.logger.log(`Fetching chantier with ID: ${id}, User: ${email}`);
 
     try {
@@ -68,7 +68,7 @@ export class ChantierService {
             row_to_json(customer) AS customer
               FROM "ConstructionSite" cs
               JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
-          WHERE cs."id" = $1
+          WHERE cs."Id" = $1
         `;
       const values = [id];
       const result = await this.pool.query(query, values);

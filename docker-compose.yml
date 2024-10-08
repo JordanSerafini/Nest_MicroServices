@@ -214,6 +214,8 @@ services:
       - PG_USER=jordans
       - PG_PASSWORD=slitest
       - PG_DATABASE=SLI
+      - REDIS_URL=redis://redis:6379
+
     networks:
       - nestjs_network
     depends_on:

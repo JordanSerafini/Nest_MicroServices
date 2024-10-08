@@ -29,7 +29,6 @@ export default function AffairePage() {
     console.log("Ajouter affaire");
   };
 
-  // Fonction pour rendre le contenu en fonction de l'onglet actif
   const renderContent = () => {
     switch (activeTab) {
       case "sales":
@@ -101,7 +100,7 @@ export default function AffairePage() {
 
         {/* Floating Action Button (FAB) */}
         <FabDeal
-        content={activeTab}
+          content={activeTab}
           showEditSaleModal={showEditSaleModal}
           showAddSaleModal={showAddSaleModal}
           showEditDealModal={showEditDealModal}
