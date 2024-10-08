@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { RedisClientType } from 'redis';
 import { CustomLogger } from './logging/custom-logger.service';
 import { Pool } from 'pg';
+import { Deal } from './entities/Deal.entity';
 
 @Injectable()
 export class DealService {
@@ -123,6 +124,88 @@ export class DealService {
     } catch (error) {
       this.logger.error('Error during pagination', error);
       throw new Error('Failed to paginate deals');
+    }
+  }
+
+  async findOneById(id: string): Promise<Deal> {
+    let query;
+    const queryParams = [id];
+    try {
+      query = `
+SELECT
+    -- Agrégation des informations de Deal
+    json_build_object(
+        'Id', d."Id",
+        'DealDate', d."DealDate",
+        'xx_DateDebut', d."xx_DateDebut",
+        'xx_DateFin', d."xx_DateFin",
+        'xx_client', d."xx_Client",
+        'Caption', d."Caption",
+        'NotesClear', d."NotesClear",
+        'ActualTreasury', d."ActualTreasury",
+        'CustomerCommitmentBalanceDues', d."CustomerCommitmentBalanceDues"
+    ) AS "Deal",
+    
+    -- Agrégation des informations des clients (DealCustomer)
+    json_build_object(
+        'Id', dc."Id",
+        'ThirdId', dc."ThirdId",
+        'Name', dc."Name"
+    ) AS "DealCustomer",
+    
+    -- Agrégation des items du deal (DealItem)
+    json_agg(
+        json_build_object(
+            'Id', di."Id",
+            'ItemId', di."ItemId",
+            'DealId', di."DealId",
+            'ItemCaption', di."ItemCaption",
+            'AmountVatExcluded', di."AmountVatExcluded"
+        )
+    ) AS "DealItems",
+    
+    -- Agrégation des documents d'achat (DealPurchaseDocument)
+    json_agg(
+        json_build_object(
+            'Id', pd."Id",
+            'DocumentId', pd."DocumentId",
+            'DocumentDate', pd."DocumentDate",
+            'GlobalDocumentState', pd."GlobalDocumentState"
+        )
+    ) AS "DealPurchaseDocuments",
+    
+    -- Agrégation des lignes des documents d'achat (DealPurchaseDocumentLine)
+    json_agg(
+        json_build_object(
+            'Quantity', pdl."Quantity",
+            'DocumentId', pdl."DocumentId",
+            'DescriptionClear', pdl."DescriptionClear"
+        )
+    ) AS "DealPurchaseDocumentLines"
+    
+FROM "Deal" d
+-- Jointure avec les informations des clients (DealCustomer)
+LEFT JOIN "DealCustomer" dc ON d."Id" = dc."DealId"
+-- Jointure avec les items du deal (DealItem)
+LEFT JOIN "DealItem" di ON d."Id" = di."DealId"
+-- Jointure avec les documents d'achat (DealPurchaseDocument)
+LEFT JOIN "DealPurchaseDocument" pd ON d."Id" = pd."DealId"
+-- Jointure avec les lignes des documents d'achat (DealPurchaseDocumentLine)
+LEFT JOIN "DealPurchaseDocumentLine" pdl ON pd."DocumentId" = pdl."DocumentId"
+WHERE d."Id" = $1
+GROUP BY d."Id", d."DealDate", d."xx_DateDebut", d."xx_DateFin", d."xx_Client", d."Caption", d."NotesClear", d."ActualTreasury", d."CustomerCommitmentBalanceDues", dc."ThirdId", dc."Name", dc."Id", di."Id", di."ItemId", di."DealId", di."ItemCaption", di."AmountVatExcluded", pd."Id", pd."DocumentId", pd."DocumentDate", pd."GlobalDocumentState", pdl."Quantity", pdl."DocumentId", pdl."DescriptionClear";
+
+      `;
+
+      const result = await this.pool.query(query, queryParams);
+      if (result.rows.length === 0) {
+        throw new Error('Deal not found');
+      } else {
+        return result.rows[0];
+      }
+    } catch (error) {
+      this.logger.error('Error during findOne', error);
+      throw new Error('Failed to find deal');
     }
   }
 }

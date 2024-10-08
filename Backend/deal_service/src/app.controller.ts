@@ -23,4 +23,9 @@ export class DealController {
   ) {
     return await this.dealService.paginate(email, searchQuery, limit, offset);
   }
+
+  @MessagePattern({ cmd: 'dealId' })
+  async getDeal(@Payload() { Id }: { Id: string }) {
+    return await this.dealService.findOneById(Id);
+  }
 }
