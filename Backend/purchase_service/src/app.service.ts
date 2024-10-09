@@ -41,8 +41,8 @@ export class PurchaseService {
         const queryParams: (number | string)[] = [limit, offset];
 
         if (searchQuery) {
-          query += `WHERE ("description" ILIKE $3 OR "title" ILIKE $3) `;
-          queryParams.push(`%${searchQuery}%`); // searchQuery becomes $3
+          query += `WHERE ("SupplierId" ILIKE $3 OR "DocumentNumber" ILIKE $3) `;
+          queryParams.push(`%${searchQuery}%`);
         }
 
         query += `ORDER BY "DocumentDate" DESC LIMIT $1 OFFSET $2`;
@@ -82,7 +82,7 @@ export class PurchaseService {
         throw new NotFoundException('No purchase document found');
       }
 
-      this.logger.log(`User: ${email}Fetched purchase document ${Id}`);
+      this.logger.log(`User: ${email} Fetched purchase document ${Id}`);
 
       return result.rows[0];
     } catch (error) {
@@ -105,21 +105,21 @@ export class PurchaseService {
       const result = await this.pool.query(query, queryParams);
 
       if (result.rows.length === 0) {
-        throw new NotFoundException('No purchase document found');
+        throw new NotFoundException('No purchase commitment found');
       }
 
       this.logger.log(
-        `User: ${email}Fetched PurchaseCommitment document ${Id}`,
+        `User: ${email} Fetched purchase commitment document ${Id}`,
       );
 
       return result.rows[0];
     } catch (error) {
       this.logger.error(
-        `User: ${email} Error during fetching PurchaseCommitment document`,
+        `User: ${email} Error during fetching purchase commitment`,
         error,
       );
       throw new BadRequestException(
-        'Failed to fetch PurchaseCommitment document',
+        'Failed to fetch purchase commitment document',
       );
     }
   }
@@ -127,7 +127,7 @@ export class PurchaseService {
   async findPurchaseDocumentAssociatedFiles(
     Id: string,
     email: string,
-  ): Promise<PurchaseDocumentAssociatedFiles> {
+  ): Promise<PurchaseDocumentAssociatedFiles[]> {
     try {
       const query = `SELECT * FROM "PurchaseDocumentAssociatedFiles" WHERE "ParentId" = $1`;
       const queryParams = [Id];
@@ -135,25 +135,27 @@ export class PurchaseService {
       const result = await this.pool.query(query, queryParams);
 
       if (result.rows.length === 0) {
-        throw new NotFoundException('No purchase document found');
+        throw new NotFoundException('No associated files found');
       }
 
-      this.logger.log(`User: ${email}Fetched purchase document ${Id}`);
+      this.logger.log(
+        `User: ${email} Fetched associated files for document ${Id}`,
+      );
 
-      return result.rows[0];
+      return result.rows; // Return all associated files
     } catch (error) {
       this.logger.error(
-        `User: ${email} Error during fetching purchase document`,
+        `User: ${email} Error during fetching associated files`,
         error,
       );
-      throw new BadRequestException('Failed to fetch purchase document');
+      throw new BadRequestException('Failed to fetch associated files');
     }
   }
 
   async findPurchaseDocumentLine(
     Id: string,
     email: string,
-  ): Promise<PurchaseDocumentLine> {
+  ): Promise<PurchaseDocumentLine[]> {
     try {
       const query = `SELECT * FROM "PurchaseDocumentLine" WHERE "DocumentId" = $1`;
       const queryParams = [Id];
@@ -161,18 +163,18 @@ export class PurchaseService {
       const result = await this.pool.query(query, queryParams);
 
       if (result.rows.length === 0) {
-        throw new NotFoundException('No PurchaseDocumentLin found');
+        throw new NotFoundException('No purchase document lines found');
       }
 
-      this.logger.log(`User: ${email}Fetched PurchaseDocumentLin ${Id}`);
+      this.logger.log(`User: ${email} Fetched lines for document ${Id}`);
 
-      return result.rows[0];
+      return result.rows; // Return all document lines
     } catch (error) {
       this.logger.error(
-        `User: ${email} Error during fetching PurchaseDocumentLin`,
+        `User: ${email} Error during fetching document lines`,
         error,
       );
-      throw new BadRequestException('Failed to fetch PurchaseDocumentLin');
+      throw new BadRequestException('Failed to fetch document lines');
     }
   }
 
@@ -185,11 +187,14 @@ export class PurchaseService {
         purchaseDocumentLine,
       ] = await Promise.all([
         this.findOneById(Id, email),
-        this.findPurchaseCommitmentById(Id, email),
-        this.findPurchaseDocumentAssociatedFiles(Id, email),
-        this.findPurchaseDocumentLine(Id, email),
+        this.findPurchaseCommitmentById(Id, email).catch(() => null),
+        this.findPurchaseDocumentAssociatedFiles(Id, email).catch(() => []),
+        this.findPurchaseDocumentLine(Id, email).catch(() => []),
       ]);
-      this.logger.log(`User: ${email}Fetched purchase document ${Id}`);
+
+      this.logger.log(
+        `User: ${email} Fetched complete purchase document data for ${Id}`,
+      );
 
       return {
         purchaseDocument,
@@ -199,10 +204,12 @@ export class PurchaseService {
       };
     } catch (error) {
       this.logger.error(
-        `User: ${email} Error during fetching purchase document`,
+        `User: ${email} Error during fetching complete purchase document data`,
         error,
       );
-      throw new BadRequestException('Failed to fetch purchase document');
+      throw new BadRequestException(
+        'Failed to fetch complete purchase document data',
+      );
     }
   }
 }
