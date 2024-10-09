@@ -25,7 +25,7 @@ export class PurchaseController {
   }
 
   @MessagePattern({ cmd: 'find_one' })
-  async findOneFull(@Payload() data: { Id: string; email: string }) {
+  async findOne(@Payload() data: { Id: string; email: string }) {
     const { Id, email } = data;
     return await this.purchaseService.findOneById(Id, email);
   }

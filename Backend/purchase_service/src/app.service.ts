@@ -7,6 +7,10 @@ import {
 import { CustomLogger } from './logging/custom-logger.service';
 import { RedisClientType } from 'redis';
 import { Pool } from 'pg';
+import { PurchaseDocument } from './entity/PurchaseDocument.entity';
+import { PurchaseCommitment } from './entity/PurchaseCommitment.entity';
+import { PurchaseDocumentAssociatedFiles } from './entity/PurchaseDocumentAssociatedFiles.entity';
+import { PurchaseDocumentLine } from './entity/PurchaseDocumentLine.entity';
 
 @Injectable()
 export class PurchaseService {
@@ -21,7 +25,7 @@ export class PurchaseService {
     email: string,
     limit: number,
     offset: number,
-    searchQuery: string,
+    searchQuery?: string,
   ) {
     const cacheKey = `purchase_paginated_${limit}_${offset}_${searchQuery}`;
 
@@ -33,16 +37,15 @@ export class PurchaseService {
       console.log('Cache miss');
 
       try {
-        // Base query
-        let query = `SELECT * FROM "PurchaseDocument"`;
-        const queryParams = [email, limit, offset];
+        let query = `SELECT * FROM "PurchaseDocument" `;
+        const queryParams: (number | string)[] = [limit, offset];
 
         if (searchQuery) {
-          query += `AND ("description" ILIKE $4 OR "title" ILIKE $4) `;
-          queryParams.push(`%${searchQuery}%`);
+          query += `WHERE ("description" ILIKE $3 OR "title" ILIKE $3) `;
+          queryParams.push(`%${searchQuery}%`); // searchQuery becomes $3
         }
 
-        query += `ORDER BY "created_at" DESC LIMIT $2 OFFSET $3`;
+        query += `ORDER BY "DocumentDate" DESC LIMIT $1 OFFSET $2`;
 
         const result = await this.pool.query(query, queryParams);
 
@@ -68,7 +71,7 @@ export class PurchaseService {
     }
   }
 
-  async findOneById(Id: string, email: string) {
+  async findOneById(Id: string, email: string): Promise<PurchaseDocument> {
     try {
       const query = `SELECT * FROM "PurchaseDocument" WHERE "Id" = $1`;
       const queryParams = [Id];
@@ -82,6 +85,118 @@ export class PurchaseService {
       this.logger.log(`User: ${email}Fetched purchase document ${Id}`);
 
       return result.rows[0];
+    } catch (error) {
+      this.logger.error(
+        `User: ${email} Error during fetching purchase document`,
+        error,
+      );
+      throw new BadRequestException('Failed to fetch purchase document');
+    }
+  }
+
+  async findPurchaseCommitmentById(
+    Id: string,
+    email: string,
+  ): Promise<PurchaseCommitment> {
+    try {
+      const query = `SELECT * FROM "PurchaseCommitment" WHERE "DocumentId" = $1`;
+      const queryParams = [Id];
+
+      const result = await this.pool.query(query, queryParams);
+
+      if (result.rows.length === 0) {
+        throw new NotFoundException('No purchase document found');
+      }
+
+      this.logger.log(
+        `User: ${email}Fetched PurchaseCommitment document ${Id}`,
+      );
+
+      return result.rows[0];
+    } catch (error) {
+      this.logger.error(
+        `User: ${email} Error during fetching PurchaseCommitment document`,
+        error,
+      );
+      throw new BadRequestException(
+        'Failed to fetch PurchaseCommitment document',
+      );
+    }
+  }
+
+  async findPurchaseDocumentAssociatedFiles(
+    Id: string,
+    email: string,
+  ): Promise<PurchaseDocumentAssociatedFiles> {
+    try {
+      const query = `SELECT * FROM "PurchaseDocumentAssociatedFiles" WHERE "ParentId" = $1`;
+      const queryParams = [Id];
+
+      const result = await this.pool.query(query, queryParams);
+
+      if (result.rows.length === 0) {
+        throw new NotFoundException('No purchase document found');
+      }
+
+      this.logger.log(`User: ${email}Fetched purchase document ${Id}`);
+
+      return result.rows[0];
+    } catch (error) {
+      this.logger.error(
+        `User: ${email} Error during fetching purchase document`,
+        error,
+      );
+      throw new BadRequestException('Failed to fetch purchase document');
+    }
+  }
+
+  async findPurchaseDocumentLine(
+    Id: string,
+    email: string,
+  ): Promise<PurchaseDocumentLine> {
+    try {
+      const query = `SELECT * FROM "PurchaseDocumentLine" WHERE "DocumentId" = $1`;
+      const queryParams = [Id];
+
+      const result = await this.pool.query(query, queryParams);
+
+      if (result.rows.length === 0) {
+        throw new NotFoundException('No PurchaseDocumentLin found');
+      }
+
+      this.logger.log(`User: ${email}Fetched PurchaseDocumentLin ${Id}`);
+
+      return result.rows[0];
+    } catch (error) {
+      this.logger.error(
+        `User: ${email} Error during fetching PurchaseDocumentLin`,
+        error,
+      );
+      throw new BadRequestException('Failed to fetch PurchaseDocumentLin');
+    }
+  }
+
+  async findOne(Id: string, email: string) {
+    try {
+      const [
+        purchaseDocument,
+        purchaseCommitment,
+        purchaseDocumentAssociatedFiles,
+        purchaseDocumentLine,
+      ] = await Promise.all([
+        this.findOneById(Id, email),
+        this.findPurchaseCommitmentById(Id, email),
+        this.findPurchaseDocumentAssociatedFiles(Id, email),
+        this.findPurchaseDocumentLine(Id, email),
+      ]);
+      this.logger.log(`User: ${email}Fetched purchase document ${Id}`);
+
+      return {
+        purchaseDocument,
+        purchaseCommitment,
+        purchaseDocumentAssociatedFiles,
+        purchaseDocumentLine,
+      };
     } catch (error) {
       this.logger.error(
         `User: ${email} Error during fetching purchase document`,
