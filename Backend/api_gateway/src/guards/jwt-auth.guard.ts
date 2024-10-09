@@ -25,7 +25,7 @@ export class JwtAuthGuard implements CanActivate {
     if (serviceAuthHeader && serviceAuthHeader === 'trusted-service-key') {
       this.logger.log('Request from trusted internal service');
       // On définit un utilisateur fictif pour les requêtes internes
-      request.user = { email: 'requete interne service' };
+      request.user = { email: 'requete service interne' };
       return true;
     }
 

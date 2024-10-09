@@ -26,7 +26,7 @@ export const getAllchantiers = async () => {
 };
 
 // Fonction pour récupérer un chantier par ID
-export const getChantierById = async (id: number) => {
+export const getChantierById = async (id: string) => {
   try {
     const token = await getToken();
     if (!token) {

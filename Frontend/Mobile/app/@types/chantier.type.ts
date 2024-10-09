@@ -1,6 +1,7 @@
 import { Customer } from "./customer.type";
 
 export class ConstructionSite {
+  Id?: string;
   id?: number;
   ProfitsOnDuration?: number;
   sysCreatedDate?: Date;

@@ -82,10 +82,10 @@ const ConsulterChantier: React.FC = () => {
   }
 
   const handleChantierPress = (chantier: ConstructionSite) => {
-    if (chantier.id) {
+    if (chantier.Id) {
       router.push({
         pathname: "/chantier/chantierDetail",
-        params: { id: chantier.id, name: chantier.CustomerId },
+        params: {id: chantier.Id, name: chantier.CustomerId },
       });
     }
   };

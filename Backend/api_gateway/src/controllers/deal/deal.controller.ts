@@ -29,7 +29,7 @@ export class DealController {
     @Query('searchQuery') searchQuery: string,
   ) {
     const email = req.user.email;
-    this.logger.log(`Fetching paginated customers for user: ${email}`);
+    this.logger.log(`Fetching paginated deals for user: ${email}`);
 
     const paginationParams = {
       email,
