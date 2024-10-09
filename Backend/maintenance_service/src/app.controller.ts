@@ -28,4 +28,16 @@ export class MainteananceController {
       offset,
     );
   }
+
+  @MessagePattern({ cmd: 'find_one' })
+  async findOneFull(@Payload() data: { Id: string; email: string }) {
+    const { Id, email } = data;
+    return await this.maintenanceService.findOneFull(Id, email);
+  }
+
+  @MessagePattern({ cmd: 'findone' })
+  async findOne(@Payload() data: { Id: string; email: string }) {
+    const { Id, email } = data;
+    return await this.maintenanceService.findOne(Id, email);
+  }
 }

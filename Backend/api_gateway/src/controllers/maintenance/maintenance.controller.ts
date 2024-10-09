@@ -5,6 +5,7 @@ import {
   Query,
   UseGuards,
   Request,
+  Param,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { CustomLogger } from '../../logging/custom-logger.service';
@@ -42,4 +43,26 @@ export class MaintenanceController {
       paginationParams,
     );
   }
+
+  @Get(':Id')
+  getMaintenanceContractFULL(@Request() req, @Param('Id') Id: string) {
+    const email = req.user.email;
+    this.logger.log(`Fetching maintenance ${Id} for user: ${email}`);
+
+    return this.maintenanceServiceClient.send(
+      { cmd: 'find_one' },
+      { Id, email },
+    );
+  }
+
+  // @Get(':Id')
+  // getMaintenanceContractFULL(@Request() req, @Param('Id') Id: string) {
+  //   const email = req.user.email;
+  //   this.logger.log(`Fetching maintenance ${Id} for user: ${email}`);
+
+  //   return this.maintenanceServiceClient.send(
+  //     { cmd: 'findone' },
+  //     { Id, email },
+  //   );
+  // }
 }

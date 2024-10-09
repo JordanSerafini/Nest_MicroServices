@@ -1,12 +1,26 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller } from '@nestjs/common';
+import { PurchaseService } from './app.service';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class PurchaseController {
+  constructor(private readonly purchaseService: PurchaseService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @MessagePattern({ cmd: 'paginate' })
+  paginate(
+    @Payload()
+    {
+      email,
+      limit,
+      offset,
+      searchQuery,
+    }: {
+      email: string;
+      limit: number;
+      offset: number;
+      searchQuery: string;
+    },
+  ) {
+    return this.purchaseService.paginate(email, limit, offset, searchQuery);
   }
 }
