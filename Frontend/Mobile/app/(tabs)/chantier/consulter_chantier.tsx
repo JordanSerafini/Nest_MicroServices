@@ -3,11 +3,10 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
   TextInput,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ConstructionSite } from "../../@types/chantier.type";
 import { getChantiersPaginated } from "../../utils/functions/chantier_functions";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -85,12 +84,12 @@ const ConsulterChantier: React.FC = () => {
     if (chantier.Id) {
       router.push({
         pathname: "/chantier/chantierDetail",
-        params: {id: chantier.Id, name: chantier.CustomerId },
+        params: { id: chantier.Id, name: chantier.CustomerId },
       });
     }
   };
 
-    const renderItem = ({ item: chantier }: { item: ConstructionSite }) => (
+  const renderItem = ({ item: chantier }: { item: ConstructionSite }) => (
     <TouchableOpacity
       key={chantier.id}
       className="p-4 border-b border-gray-200 h-20 justify-between overflow-hidden"
@@ -112,24 +111,33 @@ const ConsulterChantier: React.FC = () => {
   );
 
   return (
-    <SafeAreaView className="h-full w-screen items-center">
+    <View className="pb-4 h-9.5/10 w-screen items-center">
+      {/* Input de recherche */}
       <View className="h-10 w-9.5/10 items-center bg-gray-200 mb-2">
         <TextInput
-          className="h-10/10 w-full px-2 "
+          className="h-10/10 w-full px-2"
           value={searchQuery}
-          //onChangeText={handleSearch}
+          onChangeText={setSearchQuery}
           placeholder="Search"
         />
       </View>
-      <View className="w-full h-full">
-      <FlatList
-        data={chantiers}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-      </View>
-    </SafeAreaView>
+
+      {/* Affichage du loader ou de la liste */}
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#1e40af" />
+        </View>
+      ) : (
+        <FlatList
+          data={chantiers}
+          renderItem={renderItem}
+          keyExtractor={(item) =>
+            item.id ? item.id.toString() : Math.random().toString()
+          }
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      )}
+    </View>
   );
 };
 

@@ -198,7 +198,7 @@ function SalesList() {
 
   //* ------------------------ Return ------------------------
   return (
-    <View className="h-screen w-screen items-center">
+    <View className="h-9/10 w-screen items-center">
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}
       <View className="w-10/10 items-center">
         <View className="h-10 items-center justify-between flex-row">
