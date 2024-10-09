@@ -1,15 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, Animated, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SalesList from "./salesList";
 import DealsList from "./dealsList";
-import FabDeal from "./Fab/dealFab"; // Import du FAB
+import FabDeal from "./Fab/dealFab";
 import { PaperProvider } from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function AffairePage() {
-  const [activeTab, setActiveTab] = useState<"sales" | "affaires" | "another">("sales");
+  const [activeTab, setActiveTab] = useState<"Sales" | "Affaires" | "Autres">(
+    "Sales"
+  );
 
   // Animation setup
   const translateX = useRef(new Animated.Value(0)).current;
@@ -17,13 +26,13 @@ export default function AffairePage() {
   useEffect(() => {
     let toValue = 0;
     switch (activeTab) {
-      case "sales":
+      case "Sales":
         toValue = 0;
         break;
-      case "affaires":
+      case "Affaires":
         toValue = -screenWidth;
         break;
-      case "another":
+      case "Autres":
         toValue = -2 * screenWidth;
         break;
       default:
@@ -42,7 +51,7 @@ export default function AffairePage() {
       <Animated.View
         style={{
           flexDirection: "row",
-          width: 3 * screenWidth, // 3 tabs * largeur de l'écran
+          width: 3 * screenWidth,
           transform: [{ translateX }],
         }}
       >
@@ -52,7 +61,13 @@ export default function AffairePage() {
         <View style={{ width: screenWidth }}>
           <DealsList />
         </View>
-        <View style={{ width: screenWidth, justifyContent: "center", alignItems: "center" }}>
+        <View
+          style={{
+            width: screenWidth,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <Text>Autre contenu</Text>
         </View>
       </Animated.View>
@@ -83,48 +98,75 @@ export default function AffairePage() {
         {/* Barre d'onglets */}
         <View className="flex-row justify-evenly h-14 items-center">
           <TouchableOpacity
-            onPress={() => setActiveTab("sales")}
-            className={`p-2 border w-3/10 rounded-full ${
-              activeTab === "sales" ? "bg-blue-800" : "bg-gray-100"
-            }`}
+            onPress={() => setActiveTab("Sales")}
+            className="w-3/10 rounded-full shadow-lg"
           >
-            <Text
-              className={`text-center ${
-                activeTab === "sales" ? "text-white" : "text-blue-800"
-              }`}
+            <LinearGradient
+              colors={
+                activeTab === "Sales"
+                  ? ["#4c669f", "#3b5998", "#192f6a"]
+                  : ["#e0e0e0", "#d5d5d5"]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="p-2 rounded-full"
             >
-              Ventes
-            </Text>
+              <Text
+                className={`text-center font-bold ${
+                  activeTab === "Sales" ? "text-white" : "text-blue-800"
+                }`}
+              >
+                Ventes
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setActiveTab("affaires")}
-            className={`p-2 border w-3/10 rounded-full ${
-              activeTab === "affaires" ? "bg-blue-800" : "bg-gray-100"
-            }`}
+            onPress={() => setActiveTab("Affaires")}
+            className="w-3/10 rounded-full shadow-lg"
           >
-            <Text
-              className={`text-center ${
-                activeTab === "affaires" ? "text-white" : "text-blue-800"
-              }`}
+            <LinearGradient
+              colors={
+                activeTab === "Affaires"
+                  ? ["#4c669f", "#3b5998", "#192f6a"]
+                  : ["#e0e0e0", "#d5d5d5"]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="p-2 rounded-full"
             >
-              Affaires
-            </Text>
+              <Text
+                className={`text-center font-bold ${
+                  activeTab === "Affaires" ? "text-white" : "text-blue-800"
+                }`}
+              >
+                Affaires
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setActiveTab("another")}
-            className={`p-2 border w-3/10 rounded-full ${
-              activeTab === "another" ? "bg-blue-800" : "bg-gray-100"
-            }`}
+            onPress={() => setActiveTab("Autres")}
+            className="w-3/10 rounded-full shadow-lg"
           >
-            <Text
-              className={`text-center ${
-                activeTab === "another" ? "text-white" : "text-blue-800"
-              }`}
+            <LinearGradient
+              colors={
+                activeTab === "Autres"
+                  ? ["#4c669f", "#3b5998", "#192f6a"]
+                  : ["#e0e0e0", "#d5d5d5"]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="p-2 rounded-full"
             >
-              Autres
-            </Text>
+              <Text
+                className={`text-center font-bold ${
+                  activeTab === "Autres" ? "text-white" : "text-blue-800"
+                }`}
+              >
+                Autres
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
