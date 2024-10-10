@@ -507,4 +507,6 @@ export class PurchaseDocument {
   xx_Saisie_Cde_Terminee!: boolean;
   InvoicingContact_Profession!: string;
   DeliveryContact_Profession!: string;
+    purchaseDocument: any;
+    purchaseDocumentLine: any;
 }

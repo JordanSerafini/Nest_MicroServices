@@ -44,6 +44,31 @@ export class PurchaseController {
     );
   }
 
+  @Get('paginate/:category')
+  getPurchaseDocumentByCat(
+    @Request() req,
+    @Param('category') category: string,
+    @Query('searchQuery') searchQuery: string,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string,
+  ) {
+    const email = req.user.email;
+    this.logger.log(
+      `Fetching purchase document category: ${category} for user: ${email}`,
+    );
+
+    return this.purchaseServiceClient.send(
+      { cmd: 'paginateByCategory' },
+      {
+        category,
+        searchQuery,
+        limit: parseInt(limit, 10),
+        offset: parseInt(offset, 10),
+        email,
+      },
+    );
+  }
+
   @Get(':Id')
   getMaintenanceContractFULL(@Request() req, @Param('Id') Id: string) {
     const email = req.user.email;

@@ -37,33 +37,51 @@ export class PurchaseService {
       console.log('Cache miss');
 
       try {
-        let query = `SELECT * FROM "PurchaseDocument" `;
-        const queryParams: (number | string)[] = [limit, offset];
+        let query = `SELECT * FROM "PurchaseDocument"`;
+        const queryParams: (string | number)[] = [];
 
+        // Gestion du searchQuery
         if (searchQuery) {
-          query += `WHERE ("SupplierId" ILIKE $3 OR "DocumentNumber" ILIKE $3) `;
+          query += ` WHERE ("SupplierId" ILIKE $1 OR "DocumentNumber" ILIKE $1)`;
           queryParams.push(`%${searchQuery}%`);
         }
 
-        query += `ORDER BY "DocumentDate" DESC LIMIT $1 OFFSET $2`;
+        // Indices pour limit et offset
+        const limitIndex = queryParams.length + 1;
+        const offsetIndex = queryParams.length + 2;
+
+        query += ` ORDER BY "DocumentDate" DESC LIMIT $${limitIndex} OFFSET $${offsetIndex}`;
+        queryParams.push(limit, offset);
 
         const result = await this.pool.query(query, queryParams);
 
-        if (result.rows.length === 0) {
-          throw new NotFoundException('No purchase documents found');
+        // Calcul du total de documents
+        let totalQuery = `SELECT COUNT(*) FROM "PurchaseDocument"`;
+        const totalQueryParams: (string | number)[] = [];
+
+        if (searchQuery) {
+          totalQuery += ` WHERE ("SupplierId" ILIKE $1 OR "DocumentNumber" ILIKE $1)`;
+          totalQueryParams.push(`%${searchQuery}%`);
         }
+
+        const totalResult = await this.pool.query(totalQuery, totalQueryParams);
+        const totalRecords = parseInt(totalResult.rows[0].count, 10);
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        const data = {
+          purchaseDocuments: result.rows,
+          totalPages,
+          currentPage: Math.floor(offset / limit) + 1,
+        };
 
         this.logger.log(
           `Fetched ${result.rows.length} purchase records for user: ${email}`,
         );
 
-        await this.redisClient.setEx(
-          cacheKey,
-          3600,
-          JSON.stringify(result.rows),
-        );
+        // Mise en cache des données
+        await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(data));
 
-        return result.rows;
+        return data;
       } catch (error) {
         this.logger.error('Error during fetching purchase records', error);
         throw new BadRequestException('Failed to fetch purchase records');
@@ -210,6 +228,61 @@ export class PurchaseService {
       throw new BadRequestException(
         'Failed to fetch complete purchase document data',
       );
+    }
+  }
+
+  async paginateByCategory(
+    category: string,
+    limit: number,
+    offset: number,
+    searchQuery?: string,
+  ) {
+    try {
+      // Validation des paramètres limit et offset
+      if (limit <= 0 || offset < 0) {
+        throw new BadRequestException(
+          'Limit and offset must be positive numbers.',
+        );
+      }
+
+      let query = `SELECT * FROM "PurchaseDocument" WHERE "NumberPrefix" = $1`;
+      const queryParams: (string | number)[] = [category];
+
+      if (searchQuery) {
+        query += ` AND ("DocumentNumber" ILIKE $2 OR "SupplierName" ILIKE $2)`;
+        queryParams.push(`%${searchQuery}%`);
+      }
+
+      // Indices pour limit et offset
+      const limitIndex = queryParams.length + 1;
+      const offsetIndex = queryParams.length + 2;
+
+      query += ` ORDER BY "DocumentDate" DESC LIMIT $${limitIndex} OFFSET $${offsetIndex}`;
+      queryParams.push(limit, offset);
+
+      const result = await this.pool.query(query, queryParams);
+
+      // Calcul du total de documents
+      let totalQuery = `SELECT COUNT(*) FROM "PurchaseDocument" WHERE "NumberPrefix" = $1`;
+      const totalQueryParams: (string | number)[] = [category];
+
+      if (searchQuery) {
+        totalQuery += ` AND ("DocumentNumber" ILIKE $2 OR "SupplierName" ILIKE $2)`;
+        totalQueryParams.push(`%${searchQuery}%`);
+      }
+
+      const totalResult = await this.pool.query(totalQuery, totalQueryParams);
+      const totalRecords = parseInt(totalResult.rows[0].count, 10);
+      const totalPages = Math.ceil(totalRecords / limit);
+
+      return {
+        purchaseDocuments: result.rows,
+        totalPages,
+        currentPage: Math.floor(offset / limit) + 1,
+      };
+    } catch (error) {
+      this.logger.error('Error during fetching purchase records', error);
+      throw new BadRequestException('Failed to fetch purchase records');
     }
   }
 }

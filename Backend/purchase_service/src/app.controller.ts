@@ -29,4 +29,27 @@ export class PurchaseController {
     const { Id, email } = data;
     return await this.purchaseService.findOne(Id, email);
   }
+
+  @MessagePattern({ cmd: 'paginateByCategory' })
+  async paginateByCategory(
+    @Payload()
+    {
+      category,
+      limit,
+      offset,
+      searchQuery,
+    }: {
+      category: string;
+      limit: number;
+      offset: number;
+      searchQuery: string;
+    },
+  ) {
+    return await this.purchaseService.paginateByCategory(
+      category,
+      limit,
+      offset,
+      searchQuery,
+    );
+  }
 }
