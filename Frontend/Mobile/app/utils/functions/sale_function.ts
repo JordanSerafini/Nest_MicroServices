@@ -7,6 +7,8 @@ const getToken = async () => {
 
   export const getSalePaginated = async (searchQuery: string, limit: number, offset: number) => {
     try {
+        //console.log('Fetching sales data with query:', searchQuery, 'limit:', limit, 'offset:', offset);
+
         const token = await getToken();
         if (!token) {
             const error = new Error('Token not found');
@@ -27,6 +29,8 @@ const getToken = async () => {
         }
 
         const data = await response.json();
+        //console.log('Sales data fetched:', data);
+
         return data;
     } catch (error: any) {
         console.error('Error fetching paginated sales:', error);
