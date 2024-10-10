@@ -22,7 +22,7 @@ import {
 } from "../../utils/functions/purchase.function";
 
 function AchatList() {
-    const [hasMoreData, setHasMoreData] = useState(false);
+    const [hasMoreData, setHasMoreData] = useState(true);
   const [purchases, setPurchases] = useState<PurchaseDocument[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -106,47 +106,33 @@ function AchatList() {
           newSearch ? 0 : offset,
           searchQuery
         );
-        //console.log("Data from getPurchaseDocumentByCat:", data);
+        // console.log("Data from getPurchaseDocumentByCat:", data);
       } else {
         data = await getPurchasePaginated(
           searchQuery,
           limit,
           newSearch ? 0 : offset
         );
-        //console.log("Data from getPurchasePaginated:", data);
+        // console.log("Data from getPurchasePaginated:", data);
       }
   
-      if (!data) {
+      if (!data || !Array.isArray(data.purchaseDocuments)) {
         throw new Error("Invalid data structure received from the API");
       }
   
-      let purchasesArray;
+      const purchasesArray = data.purchaseDocuments;
   
-      if (Array.isArray(data)) {
-        purchasesArray = data;
-      } else if (typeof data === 'object') {
-        purchasesArray = Object.values(data);
-      } else {
-        throw new Error("Data is neither array nor object");
-      }
+      setPurchases((prevPurchases) =>
+        newSearch ? purchasesArray : [...prevPurchases, ...purchasesArray]
+      );
   
-      // Combine previous purchases and new purchases
-      const combinedPurchases = newSearch
-        ? purchasesArray
-        : [...purchases, ...purchasesArray];
-  
-      // Remove duplicates
-      const uniquePurchases = removeDuplicates(combinedPurchases, 'Id');
-  
-      // Set purchases state
-      setPurchases(uniquePurchases);
-  
-      // Update offset
       setOffset(newSearch ? limit : offset + limit);
+      setTotalPages(data.totalPages);
   
-      // Check if more data is available
       if (purchasesArray.length < limit) {
         setHasMoreData(false);
+      } else {
+        setHasMoreData(true);
       }
     } catch (error) {
       console.error("Error fetching purchases:", error);
@@ -157,22 +143,6 @@ function AchatList() {
     }
   };
   
-  // Function to remove duplicates
-  const removeDuplicates = (array: any[], key: string) => {
-    const seen = new Set();
-    return array.filter((item: { [x: string]: any; }) => {
-      const keyValue = item[key];
-      if (seen.has(keyValue)) {
-        return false;
-      } else {
-        seen.add(keyValue);
-        return true;
-      }
-    });
-  };
-  
-  
-
   
 
   //* ------------------------ useEffect ------------------------
@@ -426,11 +396,12 @@ function AchatList() {
             }
             contentContainerStyle={{ paddingBottom: 20 }}
             onEndReached={() => {
-              const currentPage = offset / limit + 1;
-              if (!loadingMore && currentPage < totalPages) {
-                fetchPurchase();
-              }
-            }}
+                const currentPage = Math.floor(offset / limit) + 1;
+                if (!loadingMore && currentPage < totalPages && hasMoreData) {
+                  fetchPurchase();
+                }
+              }}
+              
             onEndReachedThreshold={0.5}
             ListFooterComponent={
               loadingMore ? (
