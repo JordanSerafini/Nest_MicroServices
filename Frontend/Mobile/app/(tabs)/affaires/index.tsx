@@ -12,11 +12,12 @@ import DealsList from "./dealsList";
 import FabDeal from "./Fab/dealFab";
 import { PaperProvider } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
+import AchatList from "./achatList";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function AffairePage() {
-  const [activeTab, setActiveTab] = useState<"Sales" | "Affaires" | "Autres">(
+  const [activeTab, setActiveTab] = useState<"Sales" | "Affaires" | "Achats">(
     "Sales"
   );
 
@@ -32,7 +33,7 @@ export default function AffairePage() {
       case "Affaires":
         toValue = -screenWidth;
         break;
-      case "Autres":
+      case "Achats":
         toValue = -2 * screenWidth;
         break;
       default:
@@ -61,14 +62,8 @@ export default function AffairePage() {
         <View style={{ width: screenWidth }}>
           <DealsList />
         </View>
-        <View
-          style={{
-            width: screenWidth,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text>Autre contenu</Text>
+        <View style={{ width: screenWidth }}>
+          <AchatList />
         </View>
       </Animated.View>
     );
@@ -146,12 +141,12 @@ export default function AffairePage() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setActiveTab("Autres")}
+            onPress={() => setActiveTab("Achats")}
             className="w-3/10 rounded-full shadow-lg"
           >
             <LinearGradient
               colors={
-                activeTab === "Autres"
+                activeTab === "Achats"
                   ? ["#4c669f", "#3b5998", "#192f6a"]
                   : ["#e0e0e0", "#d5d5d5"]
               }
@@ -161,10 +156,10 @@ export default function AffairePage() {
             >
               <Text
                 className={`text-center font-bold ${
-                  activeTab === "Autres" ? "text-white" : "text-blue-800"
+                  activeTab === "Achats" ? "text-white" : "text-blue-800"
                 }`}
               >
-                Autres
+                Achats
               </Text>
             </LinearGradient>
           </TouchableOpacity>

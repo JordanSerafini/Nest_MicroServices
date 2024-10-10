@@ -59,10 +59,9 @@ function SalesList() {
   //* ------------------------ Handle Banner Animation ------------------------
   const toggleBanner = () => {
     if (bannerVisible) {
-      // Cacher la bannière
       Animated.timing(bannerHeight, {
         toValue: 0,
-        duration: 300,
+        duration: 350,
         easing: Easing.inOut(Easing.ease),
         useNativeDriver: false,
       }).start(() => setBannerVisible(false));
