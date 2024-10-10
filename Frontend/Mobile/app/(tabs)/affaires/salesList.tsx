@@ -7,16 +7,18 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
+  Animated,
 } from "react-native";
 import {
   getSalePaginated,
   getSaleByCategory,
 } from "../../utils/functions/sale_function";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { SaleDocument } from "../../@types/sales/SaleDocument.type";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
+import { Easing } from "react-native-reanimated";
 
 function SalesList() {
   const [sales, setSales] = useState<SaleDocument[]>([]);
@@ -50,6 +52,29 @@ function SalesList() {
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
 
   const router = useRouter();
+
+  const bannerHeight = useRef(new Animated.Value(0)).current;
+
+  //* ------------------------ Handle Banner Animation ------------------------
+  const toggleBanner = () => {
+    if (bannerVisible) {
+      // Cacher la bannière
+      Animated.timing(bannerHeight, {
+        toValue: 0, 
+        duration: 300,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: false,
+      }).start(() => setBannerVisible(false));
+    } else {
+      setBannerVisible(true);
+      Animated.timing(bannerHeight, {
+        toValue: 50,
+        duration: 300,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: false,
+      }).start();
+    }
+  };
 
   //* ------------------------ Handle Detail Press ------------------------
   const handleDetailPress = (sale: SaleDocument) => {
@@ -203,7 +228,6 @@ function SalesList() {
       <View className="w-10/10 items-center">
         <View className="h-10 items-center justify-between flex-row">
           <View className="h-full px-2 w-8.5/10 bg-gray-200 justify-start items-center flex-row">
-          {/* <Icon name="search" size={20} color="#1e40af"  /> */}
             <TextInput
               value={searchQuery}
               onChangeText={handleSearch}
@@ -215,124 +239,132 @@ function SalesList() {
             name={bannerVisible ? "arrow-drop-up" : "arrow-drop-down"}
             size={32}
             color="#1e40af"
-            onPress={() => setBannerVisible(!bannerVisible)}
+            onPress={toggleBanner}
           />
         </View>
         {bannerVisible && (
-          <View className="max-h-20 flex-row items-center justify-between w-9.5/10 pt-2">
-            {/* ----------------   ------------------------------------------------------------------------ Category -------------------------------------------------------------------------------- */}
-            <View className="items-center justify-between flex-row h-full w-5/10 ">
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#f0f0f0",
-                  justifyContent: "center",
-                  borderWidth: 1,
-                  borderColor: "gray",
-                  borderRadius: 4,
-                }}
-                onPress={() => setModalVisible(true)}
-                className="w-9/10 tex p-2"
-              >
-                <Text className="text-center" style={{ letterSpacing: 1 }}>
-                  {selectedCategory ? selectedCategory : "Choisir catégorie"}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Modal pour afficher la liste des catégories */}
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-              >
-                <View
+           <Animated.View
+           className={``}
+           style={{
+             height: bannerHeight,
+             overflow: "hidden", 
+           }}
+         >
+            <View className="max-h-20 flex-row items-center justify-between w-9.5/10">
+              {/* ----------------   ------------------------------------------------------------------------ Category -------------------------------------------------------------------------------- */}
+              <View className="items-center justify-between flex-row h-full w-5/10 ">
+                <TouchableOpacity
                   style={{
-                    flex: 1,
+                    backgroundColor: "#f0f0f0",
                     justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    borderWidth: 1,
+                    borderColor: "gray",
+                    borderRadius: 4,
                   }}
+                  onPress={() => setModalVisible(true)}
+                  className="w-9/10 tex p-2"
+                >
+                  <Text className="text-center" style={{ letterSpacing: 1 }}>
+                    {selectedCategory ? selectedCategory : "Choisir catégorie"}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Modal pour afficher la liste des catégories */}
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible}
+                  onRequestClose={() => setModalVisible(false)}
                 >
                   <View
                     style={{
-                      width: "80%",
-                      backgroundColor: "white",
-                      borderRadius: 10,
-                      padding: 20,
+                      flex: 1,
+                      justifyContent: "center",
                       alignItems: "center",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
                     }}
                   >
-                    <ScrollView style={{ width: "100%" }}>
-                      {categories.map((category) => (
-                        <TouchableOpacity
-                          key={category}
-                          style={{
-                            padding: 10,
-                            borderBottomWidth: 1,
-                            borderBottomColor: "#ddd",
-                          }}
-                          onPress={() => handleCategorySelect(category)}
-                        >
-                          <Text>{category}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                    <TouchableOpacity
-                      style={{ marginTop: 20 }}
-                      onPress={() => setModalVisible(false)}
+                    <View
+                      style={{
+                        width: "80%",
+                        backgroundColor: "white",
+                        borderRadius: 10,
+                        padding: 20,
+                        alignItems: "center",
+                      }}
                     >
-                      <Text style={{ color: "red" }}>Annuler</Text>
-                    </TouchableOpacity>
+                      <ScrollView style={{ width: "100%" }}>
+                        {categories.map((category) => (
+                          <TouchableOpacity
+                            key={category}
+                            style={{
+                              padding: 10,
+                              borderBottomWidth: 1,
+                              borderBottomColor: "#ddd",
+                            }}
+                            onPress={() => handleCategorySelect(category)}
+                          >
+                            <Text>{category}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                      <TouchableOpacity
+                        style={{ marginTop: 20 }}
+                        onPress={() => setModalVisible(false)}
+                      >
+                        <Text style={{ color: "red" }}>Annuler</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
-              </Modal>
-            </View>
-            {/* ---------------------------------------------------------------------------------------- Date -------------------------------------------------------------------------------- */}
-            <View className="w-5/10 items-center">
-              <View className=" flex-row items-center justify-evenly w-full h-12 ">
-                <TouchableOpacity
-                  onPress={showStartDatePicker}
-                  style={{
-                    backgroundColor: "#f0f0f0",
-                    borderRadius: 4,
-                  }}
-                  className="p-2 border w-20"
-                >
-                  <Text className="text-xs text-center">
-                    {selectedStartDate
-                      ? selectedStartDate.toDateString()
-                      : "Début"}
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={showEndDatePicker}
-                  style={{
-                    backgroundColor: "#f0f0f0",
-                    borderRadius: 4,
-                  }}
-                  className="p-2 border w-20"
-                >
-                  <Text className="text-xs text-center">
-                    {selectedEndDate ? selectedEndDate.toDateString() : "Fin"}
-                  </Text>
-                </TouchableOpacity>
+                </Modal>
               </View>
-              <DateTimePickerModal
-                isVisible={isStartDatePickerVisible}
-                mode="date"
-                onConfirm={handleConfirmStartDate}
-                onCancel={hideStartDatePicker}
-              />
+              {/* ---------------------------------------------------------------------------------------- Date -------------------------------------------------------------------------------- */}
+              <View className="w-5/10 items-center">
+                <View className=" flex-row items-center justify-evenly w-full h-12 ">
+                  <TouchableOpacity
+                    onPress={showStartDatePicker}
+                    style={{
+                      backgroundColor: "#f0f0f0",
+                      borderRadius: 4,
+                    }}
+                    className="p-2 border w-20"
+                  >
+                    <Text className="text-xs text-center">
+                      {selectedStartDate
+                        ? selectedStartDate.toDateString()
+                        : "Début"}
+                    </Text>
+                  </TouchableOpacity>
 
-              <DateTimePickerModal
-                isVisible={isEndDatePickerVisible}
-                mode="date"
-                onConfirm={handleConfirmEndDate}
-                onCancel={hideEndDatePicker}
-              />
+                  <TouchableOpacity
+                    onPress={showEndDatePicker}
+                    style={{
+                      backgroundColor: "#f0f0f0",
+                      borderRadius: 4,
+                    }}
+                    className="p-2 border w-20"
+                  >
+                    <Text className="text-xs text-center">
+                      {selectedEndDate ? selectedEndDate.toDateString() : "Fin"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePickerModal
+                  isVisible={isStartDatePickerVisible}
+                  mode="date"
+                  onConfirm={handleConfirmStartDate}
+                  onCancel={hideStartDatePicker}
+                />
+
+                <DateTimePickerModal
+                  isVisible={isEndDatePickerVisible}
+                  mode="date"
+                  onConfirm={handleConfirmEndDate}
+                  onCancel={hideEndDatePicker}
+                />
+              </View>
             </View>
-          </View>
+          </Animated.View>
         )}
       </View>
       {/* ----------------------------------------------------------------  Search Part  ----------------------------------------------------------- */}

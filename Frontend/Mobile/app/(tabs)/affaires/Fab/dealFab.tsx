@@ -25,12 +25,12 @@ const FabDeal: React.FC<FabDealProps> = ({
   const { open } = state;
 
   const renderActions = () => {
-    if (content === 'sales') {
+    if (content === 'Sales') {
       return [
         { icon: 'account-edit', label: 'Editer vente', onPress: showEditSaleModal, color: '#1e3a8a' },
         { icon: 'account-plus', label: 'Ajouter vente', onPress: showAddSaleModal, color: '#1e3a8a' },
       ];
-    } else if (content === 'affaires') {
+    } else if (content === 'Affaires') {
       return [
         { icon: 'account-edit', label: 'Editer affaire', onPress: showEditDealModal, color: '#1e3a8a' },
         { icon: 'account-plus', label: 'Ajouter affaire', onPress: showAddDealModal, color: '#1e3a8a' },
