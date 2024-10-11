@@ -22,7 +22,7 @@ import {
 } from "../../utils/functions/purchase.function";
 
 function AchatList() {
-    const [hasMoreData, setHasMoreData] = useState(true);
+  const [hasMoreData, setHasMoreData] = useState(true);
   const [purchases, setPurchases] = useState<PurchaseDocument[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -94,15 +94,14 @@ function AchatList() {
   //* ------------------------ Fetch Purchase ------------------------
   const fetchPurchase = async (newSearch = false) => {
     if (loadingMore) return;
-  
-    // Compute the current offset based on whether it's a new search
+
     const currentOffset = newSearch ? 0 : offset;
-  
+
     setLoadingMore(true);
-  
+
     try {
       let data;
-  
+
       if (selectedCategory) {
         data = await getPurchaseDocumentByCat(
           selectedCategory,
@@ -111,30 +110,41 @@ function AchatList() {
           searchQuery
         );
       } else {
-        data = await getPurchasePaginated(
-          searchQuery,
-          limit,
-          currentOffset
-        );
+        data = await getPurchasePaginated(searchQuery, limit, currentOffset);
       }
-  
+
       if (!data || !Array.isArray(data.purchaseDocuments)) {
         throw new Error("Invalid data structure received from the API");
       }
-  
+
       const purchasesArray = data.purchaseDocuments;
-  
-      // Update purchases based on whether it's a new search
-      setPurchases((prevPurchases) =>
-        newSearch ? purchasesArray : [...prevPurchases, ...purchasesArray]
-      );
-  
-      // Update the offset after fetching data
+
+      setPurchases((prevPurchases) => {
+        const combinedPurchases = newSearch
+          ? purchasesArray
+          : [...prevPurchases, ...purchasesArray];
+
+        const uniquePurchases = combinedPurchases.reduce(
+          (accumulator: PurchaseDocument[], current: PurchaseDocument) => {
+            if (
+              !accumulator.some(
+                (purchase: PurchaseDocument) => purchase.Id === current.Id
+              )
+            ) {
+              accumulator.push(current);
+            }
+            return accumulator;
+          },
+          []
+        );
+
+        return uniquePurchases;
+      });
+
       setOffset(currentOffset + limit);
-  
+
       setTotalPages(data.totalPages);
-  
-      // Determine if there's more data to fetch
+
       if (purchasesArray.length < limit) {
         setHasMoreData(false);
       } else {
@@ -147,13 +157,13 @@ function AchatList() {
       setLoadingMore(false);
       setLoading(false);
     }
-  };  
+  };
 
   //* ------------------------ useEffect ------------------------
 
   useEffect(() => {
     fetchPurchase();
-    }, []);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -400,12 +410,11 @@ function AchatList() {
             }
             contentContainerStyle={{ paddingBottom: 20 }}
             onEndReached={() => {
-                const currentPage = Math.floor(offset / limit) + 1;
-                if (!loadingMore && currentPage < totalPages && hasMoreData) {
-                  fetchPurchase();
-                }
-              }}
-              
+              const currentPage = Math.floor(offset / limit) + 1;
+              if (!loadingMore && currentPage < totalPages && hasMoreData) {
+                fetchPurchase();
+              }
+            }}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
               loadingMore ? (
@@ -421,7 +430,5 @@ function AchatList() {
     </View>
   );
 }
-
-
 
 export default AchatList;
