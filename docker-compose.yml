@@ -12,15 +12,15 @@ services:
     volumes:
       - ./Backend/item_service:/app
       - ./Backend/item_service/logs:/var/log/Logs_ItemService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3001:3001"
     networks:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -36,7 +36,7 @@ services:
       - ./Backend/customer_service/src/validated:/app/validated
       - ./Backend/customer_service/src/error:/app/error
       - ./Backend/customer_service/src/address:/app/address
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3002:3002"
     networks:
@@ -46,8 +46,8 @@ services:
       - item_service
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -61,7 +61,7 @@ services:
     volumes:
       - ./Backend/authentification_service:/app
       - ./Backend/authentification_service/logs:/var/log/Logs_AuthService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3003:3003"
     networks:
@@ -70,8 +70,8 @@ services:
       - customer_service
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -84,7 +84,7 @@ services:
     volumes:
       - ./Backend/stock_service:/app
       - ./Backend/stock_service/logs:/var/log/Logs_StockService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3004:3004"
     networks:
@@ -94,8 +94,8 @@ services:
       - authentification_service
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -109,15 +109,15 @@ services:
     volumes:
       - ./Backend/chantier_service:/app
       - ./Backend/chantier_service/logs:/var/log/Logs_ChantierService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3006:3006"
     networks:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -132,15 +132,15 @@ services:
     volumes:
       - ./Backend/colleague_service:/app
       - ./Backend/colleague_service/logs:/var/log/Logs_ColleagueService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3007:3007"
     networks:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -155,15 +155,15 @@ services:
     volumes:
       - ./Backend/deal_service:/app
       - ./Backend/deal_service/logs:/var/log/Logs_DealService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3008:3008"
     networks:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -180,13 +180,13 @@ services:
     volumes:
       - ./Backend/incident_service:/app
       - ./Backend/incident_service/logs:/var/log/Logs_IncidentService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3009:3009"
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -203,13 +203,13 @@ services:
     volumes:
       - ./Backend/maintenance_service:/app
       - ./Backend/maintenance_service/logs:/var/log/Logs_MaintenanceService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3010:3010"
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -228,15 +228,15 @@ services:
     volumes:
       - ./Backend/purchase_service:/app
       - ./Backend/purchase_service/logs:/var/log/Logs_PurchaseService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3011:3011"
     networks:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -253,15 +253,15 @@ services:
     volumes:
       - ./Backend/sale_service:/app
       - ./Backend/sale_service/logs:/var/log/Logs_SaleService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3012:3012"
     networks:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -279,15 +279,15 @@ services:
     volumes:
       - ./Backend/schedule_service:/app
       - ./Backend/schedule_service/logs:/var/log/Logs_ScheduleService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3013:3013"
     networks:
       - nestjs_network
     environment:
       - CHOKIDAR_USEPOLLING=true
-      #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -302,7 +302,7 @@ services:
     volumes:
       - ./Backend/supplier_service:/app
       - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3014:3014"
     networks:
@@ -310,7 +310,8 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       #- PG_HOST=172.17.0.1
-      - PG_HOST=host.docker.internal
+      - PG_HOST=192.168.20.240
+      #- PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_USER=jordans
       - PG_PASSWORD=slitest
@@ -325,7 +326,7 @@ services:
     volumes:
       - ./Backend/api_gateway:/app
       - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
-      # - /app/node_modules
+      - /app/node_modules
     ports:
       - "3000:3000"
     networks:
