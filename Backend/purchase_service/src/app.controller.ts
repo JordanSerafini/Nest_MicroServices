@@ -43,6 +43,7 @@ export class PurchaseController {
       limit: number;
       offset: number;
       searchQuery: string;
+      email: string;
     },
   ) {
     return await this.purchaseService.paginateByCategory(

@@ -95,7 +95,11 @@ function AchatList() {
   const fetchPurchase = async (newSearch = false) => {
     if (loadingMore) return;
   
+    // Compute the current offset based on whether it's a new search
+    const currentOffset = newSearch ? 0 : offset;
+  
     setLoadingMore(true);
+  
     try {
       let data;
   
@@ -103,17 +107,15 @@ function AchatList() {
         data = await getPurchaseDocumentByCat(
           selectedCategory,
           limit,
-          newSearch ? 0 : offset,
+          currentOffset,
           searchQuery
         );
-        // console.log("Data from getPurchaseDocumentByCat:", data);
       } else {
         data = await getPurchasePaginated(
           searchQuery,
           limit,
-          newSearch ? 0 : offset
+          currentOffset
         );
-        // console.log("Data from getPurchasePaginated:", data);
       }
   
       if (!data || !Array.isArray(data.purchaseDocuments)) {
@@ -122,13 +124,17 @@ function AchatList() {
   
       const purchasesArray = data.purchaseDocuments;
   
+      // Update purchases based on whether it's a new search
       setPurchases((prevPurchases) =>
         newSearch ? purchasesArray : [...prevPurchases, ...purchasesArray]
       );
   
-      setOffset(newSearch ? limit : offset + limit);
+      // Update the offset after fetching data
+      setOffset(currentOffset + limit);
+  
       setTotalPages(data.totalPages);
   
+      // Determine if there's more data to fetch
       if (purchasesArray.length < limit) {
         setHasMoreData(false);
       } else {
@@ -141,9 +147,7 @@ function AchatList() {
       setLoadingMore(false);
       setLoading(false);
     }
-  };
-  
-  
+  };  
 
   //* ------------------------ useEffect ------------------------
 

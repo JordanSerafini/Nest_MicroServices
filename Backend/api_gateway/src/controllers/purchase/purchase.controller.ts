@@ -62,8 +62,8 @@ export class PurchaseController {
       {
         category,
         searchQuery,
-        limit: parseInt(limit, 10),
-        offset: parseInt(offset, 10),
+        limit: parseInt(limit, 10) || 25,
+        offset: parseInt(offset, 10) || 0,
         email,
       },
     );

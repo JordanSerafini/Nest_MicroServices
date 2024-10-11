@@ -13,18 +13,18 @@ import { getDealPaginated } from "../../utils/functions/deals_function";
 import { ConstructionSite } from "../../@types/chantier.type";
 
 function Index({ typess }: { typess: string }) {
-  const [data, setData] = useState<(SaleDocument | Deal)[]>([]); // Les données affichées
-  const [currentModule, setCurrentModule] = useState<string | null>(null); // Module courant
+  const [data, setData] = useState<(SaleDocument | Deal)[]>([]);
+  const [currentModule, setCurrentModule] = useState<string | null>(null);
 
-  const [totalPages, setTotalPages] = useState(0); // Nombre total de pages pour la pagination
-  const [searchQuery, setSearchQuery] = useState<string>(""); // Query de recherche
-  const [limit, setLimit] = useState<number>(10); // Limite d'éléments par page
-  const [offset, setOffset] = useState<number>(0); // Offset pour la pagination
-  const [loading, setLoading] = useState(true); // État de chargement initial
-  const [loadingMore, setLoadingMore] = useState(false); // État de chargement supplémentaire (infinite scroll)
-  const [error, setError] = useState<any>(null); // Pour gérer les erreurs
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [limit, setLimit] = useState<number>(10);
+  const [offset, setOffset] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<any>(null);
 
-  let type = "Ventes"; // Variable pour définir le type de données affichées
+  let type = "Ventes";
 
   //* ---------------------- Fonction générique pour fetch les données
   const fetchData = async (
@@ -34,8 +34,8 @@ function Index({ typess }: { typess: string }) {
     offset: number,
     newSearch = false
   ) => {
-    if (loadingMore || loading) return; // Empêche les appels multiples
-    setLoadingMore(true); // Active le chargement supplémentaire
+    if (loadingMore || loading) return;
+    setLoadingMore(true);
     
     console.log("Fetching data...");
     try {
@@ -45,7 +45,6 @@ function Index({ typess }: { typess: string }) {
       let fetchedData = [];
       let totalPages = 0;
 
-      // Adapter en fonction du module
       if (currentModule === "Sales") {
         fetchedData = result.saleDocuments || [];
         totalPages = result.totalPages || 0;
@@ -60,21 +59,20 @@ function Index({ typess }: { typess: string }) {
       console.log("Fetched Data: ", fetchedData);
 
       if (fetchedData.length > 0) {
-        // Si c'est une nouvelle recherche, on remplace les données, sinon on ajoute
         setData((prevData) =>
           newSearch ? fetchedData : [...prevData, ...fetchedData]
         );
-        setTotalPages(totalPages); // Met à jour le nombre total de pages
-        setOffset(newSearch ? limit : offset + limit); // Met à jour l'offset
+        setTotalPages(totalPages);
+        setOffset(newSearch ? limit : offset + limit);
       } else {
         console.log("No data found for the module.");
       }
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError(err); // Gère l'erreur
+      setError(err);
     } finally {
-      setLoading(false); // Désactive le chargement initial
-      setLoadingMore(false); // Désactive le chargement supplémentaire
+      setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -99,7 +97,7 @@ function Index({ typess }: { typess: string }) {
   useEffect(() => {
     if (!currentModule) return;
 
-    console.log("Current Module: ", currentModule); // Log le module actuel
+    //console.log("Current Module: ", currentModule);
 
     switch (currentModule) {
       case "Sales":
@@ -127,7 +125,7 @@ function Index({ typess }: { typess: string }) {
   //* ---------------------- Fonction pour charger plus de données quand on arrive en bas
   const loadMoreData = () => {
     if (offset < totalPages * limit) {
-      console.log("Loading more data..."); // Debugging
+      console.log("Loading more data...");
       fetchData(
         currentModule === "Sales" ? getSalePaginated : currentModule === "Chantiers" ? getChantiersPaginated : getDealPaginated,
         searchQuery,
@@ -175,7 +173,7 @@ function Index({ typess }: { typess: string }) {
     <View style={{ flex: 1 }}>
       <Text>{type}</Text>
       
-      {/* Liste des données */}
+      {/* --------------------------------------------------------------------- Liste des données ----------------------------------------- */}
       <FlatList
         data={data}
         renderItem={renderItem}
