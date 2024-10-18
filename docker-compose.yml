@@ -103,7 +103,6 @@ services:
       - REDIS_URL=redis://redis:6379
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
-    
   chantier_service:
     image: node:22-alpine
     working_dir: /app
