@@ -349,6 +349,11 @@ services:
       - supplier_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
+
+networks:
+  nestjs_network:
+    driver: bridge
+
   # postgres:
   #   image: postgres:16
   #   environment:
@@ -362,10 +367,6 @@ services:
   #   networks:
   #     - nestjs_network
 
-
-networks:
-  nestjs_network:
-    driver: bridge
 
   # mobile_service:
   #   build:
