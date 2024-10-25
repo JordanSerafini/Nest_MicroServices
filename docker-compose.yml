@@ -349,7 +349,6 @@ services:
       - supplier_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
-
 networks:
   nestjs_network:
     driver: bridge
