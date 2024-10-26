@@ -12,7 +12,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() registerDto: { email: string; password: string }) {
+  async register(@Body() registerDto: { email: string; password: string, nom: string, prenom: string, role:string }) {
     return this.handleRegister(registerDto);
   }
 
@@ -36,11 +36,14 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'register' })
-  async handleRegister(registerDto: { email: string; password: string }) {
+  async handleRegister(registerDto: { email: string; password: string, nom: string, prenom: string, role:string }) {
     try {
       const user = await this.authService.register(
         registerDto.email,
         registerDto.password,
+        registerDto.nom,
+        registerDto.prenom,
+        registerDto.role,
       );
       return user;
     } catch (error) {
