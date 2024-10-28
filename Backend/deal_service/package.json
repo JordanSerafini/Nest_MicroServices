@@ -29,13 +29,13 @@
     "@nestjs/platform-express": "^10.0.0",
     "@types/redis": "^4.0.10",
     "class-validator": "^0.14.1",
-    "glob": "^11.0.0",
-    "lru-cache": "^11.0.1",
+    "glob": "^9.0.0",
+    "lru-cache": "^6.0.0",
     "pg": "^8.12.0",
     "pool_package": "^1.0.4",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.1.12",
-    "rimraf": "^6.0.1",
+    "rimraf": "^4.3.1",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {

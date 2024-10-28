@@ -16,7 +16,7 @@ const getToken = async () => {
     totalPages: number;
     currentPage: number;
   }> => {
-    console.log('Fetching purchases data with query:', searchQuery, 'limit:', limit, 'offset:', offset);
+    //console.log('Fetching purchases data with query:', searchQuery, 'limit:', limit, 'offset:', offset);
     try {
       const token = await getToken();
       if (!token) {
