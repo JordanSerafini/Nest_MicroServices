@@ -10,9 +10,8 @@ foreach ($folder in $folders) {
         Push-Location $folder.FullName
 
         try {
-
-            Write-Host "Running npm audit for $($folder.FullName)"
-            npm audit fix --force
+            Write-Host "working in $($folder.FullName)"
+            npm install lru-cache@^6.0.0 @eslint/config-array@latest @eslint/object-schema@latest glob@^9.0.0 rimraf@^4.3.1
         }
         catch {
             # Si une erreur survient, afficher un message d'erreur
