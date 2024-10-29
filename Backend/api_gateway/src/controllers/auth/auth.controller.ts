@@ -14,7 +14,9 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() registerDto: { email: string; password: string, nom, prenom, role }) {
+  async register(
+    @Body() registerDto: { email: string; password: string; nom; prenom; role },
+  ) {
     return this.authServiceClient
       .send({ cmd: 'register' }, registerDto)
       .toPromise();
