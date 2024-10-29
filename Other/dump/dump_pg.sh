@@ -1,0 +1,1 @@
+ pg_dump -U jordans -d SLI -F c -v -f C:\Users\j.serafini\Desktop\Jordan\Code\dump\sli_backup_29102024.backup
