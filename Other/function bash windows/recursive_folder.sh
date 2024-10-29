@@ -11,7 +11,7 @@ foreach ($folder in $folders) {
 
         try {
             Write-Host "working in $($folder.FullName)"
-            npm install lru-cache@^6.0.0 @eslint/config-array@latest @eslint/object-schema@latest glob@^9.0.0 rimraf@^4.3.1
+            npm install
         }
         catch {
             # Si une erreur survient, afficher un message d'erreur
