@@ -8,8 +8,8 @@ import { login } from '../utils/functions/auth.function';
 import Image from 'next/image';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>('jordan@solution-logique.fr');
+  const [password, setPassword] = useState<string>('pass123');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const router = useRouter();
 
@@ -23,6 +23,7 @@ const Login: React.FC = () => {
 
     try {
       const data = await login(email, password); // Utiliser la fonction d'authentification
+      console.log(data);
 
       if (!data.success) {
         setErrorMessage(data.message || "Échec de la connexion. Vérifiez vos identifiants.");
@@ -32,7 +33,7 @@ const Login: React.FC = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.userData));
 
-      router.push('/'); // Rediriger vers la page d'accueil après connexion
+      router.push('/');
     } catch (error) {
       console.error("Failed to login:", error);
       setErrorMessage("Échec de la connexion. Vérifiez vos identifiants.");

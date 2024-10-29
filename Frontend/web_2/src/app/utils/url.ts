@@ -1,5 +1,5 @@
 export const url = {
 
-    api_gateway: "http://192.168.20.12:3000",
+    api_gateway: "http://localhost:3000",
 
 }
