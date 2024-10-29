@@ -333,20 +333,20 @@ services:
       - nestjs_network
     # environment:
     #   - CHOKIDAR_USEPOLLING=true
-    depends_on:
-      - customer_service
-      - item_service
-      - authentification_service
-      - stock_service
-      - chantier_service
-      - colleague_service
-      - deal_service
-      - incident_service
-      - maintenance_service
-      - purchase_service
-      - sale_service
-      - schedule_service
-      - supplier_service
+    # depends_on:
+    #   - customer_service
+    #   - item_service
+    #   - authentification_service
+    #   - stock_service
+    #   - chantier_service
+    #   - colleague_service
+    #   - deal_service
+    #   - incident_service
+    #   - maintenance_service
+    #   - purchase_service
+    #   - sale_service
+    #   - schedule_service
+    #   - supplier_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
     
 
