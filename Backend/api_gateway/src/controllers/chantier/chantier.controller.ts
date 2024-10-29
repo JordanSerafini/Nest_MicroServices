@@ -70,7 +70,7 @@ export class ChantierController {
   }
 
   //* ------------------- CHANTIER DOC ------------------- *//
-  @Get('documment/:id')
+  @Get('document/:id')
   getChantierDoc(@Request() req, @Param('id') id: string) {
     const email = req.user.email;
     this.logger.log(`Fetching chantierdoc for user: ${email}`);
@@ -80,7 +80,7 @@ export class ChantierController {
     );
   }
 
-  @Get('documment_line/:id')
+  @Get('document_line/:id')
   getChantierDocLine(@Request() req, @Param('id') id: string) {
     const email = req.user.email;
     this.logger.log(`Fetching chantierdoc_line for user: ${email}`);

@@ -32,10 +32,10 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/customer_service:/app
-      - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
-      - ./Backend/customer_service/src/validated:/app/validated
-      - ./Backend/customer_service/src/error:/app/error
-      - ./Backend/customer_service/src/address:/app/address
+      # - ./Backend/customer_service/logs:/var/log/Logs_CustomerService
+      # - ./Backend/customer_service/src/validated:/app/validated
+      # - ./Backend/customer_service/src/error:/app/error
+      # - ./Backend/customer_service/src/address:/app/address
       # - /app/node_modules
     ports:
       - "3002:3002"
@@ -60,7 +60,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/authentification_service:/app
-      - ./Backend/authentification_service/logs:/var/log/Logs_AuthService
+      # - ./Backend/authentification_service/logs:/var/log/Logs_AuthService
       # - /app/node_modules
     ports:
       - "3003:3003"
@@ -83,7 +83,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/stock_service:/app
-      - ./Backend/stock_service/logs:/var/log/Logs_StockService
+      # - ./Backend/stock_service/logs:/var/log/Logs_StockService
       # - /app/node_modules
     ports:
       - "3004:3004"
@@ -108,7 +108,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/chantier_service:/app
-      - ./Backend/chantier_service/logs:/var/log/Logs_ChantierService
+      # - ./Backend/chantier_service/logs:/var/log/Logs_ChantierService
       # - /app/node_modules
     ports:
       - "3006:3006"
@@ -131,7 +131,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/colleague_service:/app
-      - ./Backend/colleague_service/logs:/var/log/Logs_ColleagueService
+      # - ./Backend/colleague_service/logs:/var/log/Logs_ColleagueService
       # - /app/node_modules
     ports:
       - "3007:3007"
@@ -154,7 +154,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/deal_service:/app
-      - ./Backend/deal_service/logs:/var/log/Logs_DealService
+      # - ./Backend/deal_service/logs:/var/log/Logs_DealService
       # - /app/node_modules
     ports:
       - "3008:3008"
@@ -179,7 +179,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/incident_service:/app
-      - ./Backend/incident_service/logs:/var/log/Logs_IncidentService
+      # - ./Backend/incident_service/logs:/var/log/Logs_IncidentService
       # - /app/node_modules
     ports:
       - "3009:3009"
@@ -202,7 +202,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/maintenance_service:/app
-      - ./Backend/maintenance_service/logs:/var/log/Logs_MaintenanceService
+      # - ./Backend/maintenance_service/logs:/var/log/Logs_MaintenanceService
       # - /app/node_modules
     ports:
       - "3010:3010"
@@ -227,7 +227,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/purchase_service:/app
-      - ./Backend/purchase_service/logs:/var/log/Logs_PurchaseService
+      # - ./Backend/purchase_service/logs:/var/log/Logs_PurchaseService
       # - /app/node_modules
     ports:
       - "3011:3011"
@@ -252,7 +252,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/sale_service:/app
-      - ./Backend/sale_service/logs:/var/log/Logs_SaleService
+      # - ./Backend/sale_service/logs:/var/log/Logs_SaleService
       # - /app/node_modules
     ports:
       - "3012:3012"
@@ -278,7 +278,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/schedule_service:/app
-      - ./Backend/schedule_service/logs:/var/log/Logs_ScheduleService
+      # - ./Backend/schedule_service/logs:/var/log/Logs_ScheduleService
       # - /app/node_modules
     ports:
       - "3013:3013"
@@ -301,7 +301,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/supplier_service:/app
-      - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
+      # - ./Backend/supplier_service/logs:/var/log/Logs_SupplierService
       # - /app/node_modules
     ports:
       - "3014:3014"
@@ -325,7 +325,7 @@ services:
     working_dir: /app
     volumes:
       - ./Backend/api_gateway:/app
-      - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
+      # - ./Backend/api_gateway/logs:/var/log/Logs_ApiGateway
       # - /app/node_modules
     ports:
       - "3000:3000"
