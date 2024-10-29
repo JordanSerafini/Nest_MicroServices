@@ -94,7 +94,7 @@ services:
       - authentification_service
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PG_HOST=192.168.20.218
+      - PG_HOST=192.168.20.218    git config --global --edit
       # PG_HOST=192.168.20.240/docker.host.internal
       - PG_PORT=5432
       - PG_USER=jordans
@@ -348,6 +348,7 @@ services:
       - schedule_service
       - supplier_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
+    
 
 networks:
   nestjs_network:
