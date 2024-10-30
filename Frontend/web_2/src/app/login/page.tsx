@@ -22,7 +22,7 @@ const Login: React.FC = () => {
     }
 
     try {
-      const data = await login(email, password); // Utiliser la fonction d'authentification
+      const data = await login(email, password);
       console.log(data);
 
       if (!data.success) {

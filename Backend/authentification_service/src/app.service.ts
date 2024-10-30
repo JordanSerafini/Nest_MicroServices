@@ -60,7 +60,18 @@ export class AuthService {
       expiresIn: '10000h',
     });
 
-    this.logger.log(`User with email: ${user.email} logged in successfully`);
+    try {
+      const query = `UPDATE "Utilisateurs" SET token = $1 WHERE id = $2`;
+      await this.pool.query(query, [accessToken, user.id]);
+
+      this.logger.log(`User with email: ${user.email} logged in successfully`);
+    } catch (error) {
+      this.logger.error(
+        `Database update tokens failed for email: ${user.email}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Database update failed');
+    }
 
     return {
       access_token: accessToken,
@@ -68,18 +79,30 @@ export class AuthService {
     };
   }
 
-  async register(email: string, password: string, nom: string, prenom: string, role: string): Promise<any> {
+  async register(
+    email: string,
+    password: string,
+    nom: string,
+    prenom: string,
+    role: string,
+  ): Promise<any> {
     this.logger.log(`Registering new user with email: ${email}`);
     let result;
     const hashedPassword = await bcrypt.hash(password, 10);
-  
+
     try {
       const query = `
         INSERT INTO "Utilisateurs" (email, password, nom, prenom, role)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id, email, nom, prenom, role;
       `;
-      result = await this.pool.query(query, [email, hashedPassword, nom, prenom, role]);
+      result = await this.pool.query(query, [
+        email,
+        hashedPassword,
+        nom,
+        prenom,
+        role,
+      ]);
     } catch (error) {
       this.logger.error(
         `Database insert failed for email: ${email}`,
@@ -87,11 +110,10 @@ export class AuthService {
       );
       throw new InternalServerErrorException('Database insert failed');
     }
-  
+
     this.logger.log(`User with email: ${email} registered successfully`);
     return result.rows[0];
   }
-  
 
   validateToken(token: string): any {
     try {
