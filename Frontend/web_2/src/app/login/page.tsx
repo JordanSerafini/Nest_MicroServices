@@ -19,13 +19,15 @@ const Login: React.FC = () => {
 
   // Afficher les notifications en fonction de l'état de redirection
   useEffect(() => {
-    const message = searchParams.get('message');
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
     if (message === 'not_logged_in') {
       toast.info('Vous devez être connecté pour accéder à cette page');
     } else if (message === 'token_expired') {
       toast.error('Votre jeton de connexion a expiré, veuillez vous reconnecter');
     }
-  }, [searchParams]);
+  }, []);
+  
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -48,7 +50,7 @@ const Login: React.FC = () => {
       Cookies.set('token', data.access_token, { expires: 1000, sameSite: 'Strict' });
       Cookies.set('user', JSON.stringify(data.user), { expires: 1000, sameSite: 'Strict' });
 
-      router.push('/'); // Redirection après connexion réussie
+      router.push('/');
     } catch (error) {
       console.error("Failed to login:", error);
       setErrorMessage("Échec de la connexion. Vérifiez vos identifiants.");
