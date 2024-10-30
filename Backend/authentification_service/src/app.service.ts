@@ -54,29 +54,41 @@ export class AuthService {
   async login(user: any): Promise<{ access_token: string; user: any }> {
     this.logger.log(`Logging in user with email: ${user.email}`);
 
-    const payload = { email: user.email, sub: user.id };
-    const accessToken = this.jwtService.sign(payload, {
-      secret: 'zdf4e4fs6e4fesz4v1svds+df784+e+9zef4654fe4potydkyj',
-      expiresIn: '10000h',
-    });
-
     try {
+      // Génération du token JWT
+      const payload = { email: user.email, sub: user.id };
+      const accessToken = this.jwtService.sign(payload, {
+        secret: 'zdf4e4fs6e4fesz4v1svds+df784+e+9zef4654fe4potydkyj',
+        expiresIn: '10000h',
+      });
+
+      // Mise à jour du token dans la base de données
       const query = `UPDATE "Utilisateurs" SET token = $1 WHERE id = $2`;
       await this.pool.query(query, [accessToken, user.id]);
 
-      this.logger.log(`User with email: ${user.email} logged in successfully`);
-    } catch (error) {
-      this.logger.error(
-        `Database update tokens failed for email: ${user.email}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Database update failed');
-    }
+      // Mise à jour de l'objet `user` avec le nouveau token
+      user.token = accessToken;
 
-    return {
-      access_token: accessToken,
-      user: user,
-    };
+      this.logger.log(`User with email: ${user.email} logged in successfully`);
+
+      // Retourne le token d'accès et les informations utilisateur
+      return {
+        access_token: accessToken,
+        user: user,
+      };
+    } catch (error) {
+      // Gestion des erreurs pour la génération de token ou la mise à jour de la base
+      if (error instanceof InternalServerErrorException) {
+        this.logger.error(
+          `Database update tokens failed for email: ${user.email}`,
+          error.stack,
+        );
+        throw new InternalServerErrorException('Database update failed');
+      } else {
+        this.logger.error('Token generation failed', error.stack);
+        throw new InternalServerErrorException('Token generation failed');
+      }
+    }
   }
 
   async register(
