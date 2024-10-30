@@ -2,19 +2,30 @@
 
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { login } from '../utils/functions/auth.function';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>('jordan@solution-logique.fr');
   const [password, setPassword] = useState<string>('pass123');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  
+  // Afficher les notifications en fonction de l'état de redirection
+  useEffect(() => {
+    const message = searchParams.get('message');
+    if (message === 'not_logged_in') {
+      toast.info('Vous devez être connecté pour accéder à cette page');
+    } else if (message === 'token_expired') {
+      toast.error('Votre jeton de connexion a expiré, veuillez vous reconnecter');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -103,6 +114,9 @@ const Login: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* Conteneur pour les notifications toast */}
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
     </div>
   );
 }
