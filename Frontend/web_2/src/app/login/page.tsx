@@ -6,12 +6,15 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '../utils/functions/auth.function';
 import Image from 'next/image';
+import Cookies from 'js-cookie';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>('jordan@solution-logique.fr');
   const [password, setPassword] = useState<string>('pass123');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const router = useRouter();
+
+  
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -25,15 +28,16 @@ const Login: React.FC = () => {
       const data = await login(email, password);
       console.log(data);
 
-      if (!data.success) {
+      if (!data.access_token) {
         setErrorMessage(data.message || "Échec de la connexion. Vérifiez vos identifiants.");
         return;
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.userData));
+      // Stocke le token et l'utilisateur dans les cookies
+      Cookies.set('token', data.access_token, { expires: 1000, sameSite: 'Strict' });
+      Cookies.set('user', JSON.stringify(data.user), { expires: 1000, sameSite: 'Strict' });
 
-      router.push('/');
+      router.push('/'); // Redirection après connexion réussie
     } catch (error) {
       console.error("Failed to login:", error);
       setErrorMessage("Échec de la connexion. Vérifiez vos identifiants.");

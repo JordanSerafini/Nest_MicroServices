@@ -1,4 +1,10 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { AuthService } from './app.service';
 import { MessagePattern } from '@nestjs/microservices';
 
@@ -68,5 +74,18 @@ export class AuthController {
       );
       throw new BadRequestException('Registration failed');
     }
+  }
+
+  @MessagePattern({ cmd: 'logout' })
+  async handleLogout(logoutDto: { user: { id: string; email: string } }) {
+    console.log('Received logoutDto:', logoutDto);
+    const { user } = logoutDto;
+
+    if (!user || !user.email || !user.id) {
+      throw new InternalServerErrorException('User information is incomplete');
+    }
+
+    await this.authService.logout(user);
+    return { message: `Logout successful for user with email: ${user.email}` };
   }
 }

@@ -128,4 +128,21 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token');
     }
   }
+
+  async logout(user: { id: string; email: string }): Promise<void> {
+    this.logger.log(`Logging out user with email: ${user.email}`);
+
+    try {
+      const query = `UPDATE "Utilisateurs" SET token = NULL WHERE id = $1`;
+      await this.pool.query(query, [user.id]);
+
+      this.logger.log(`User with email: ${user.email} logged out successfully`);
+    } catch (error) {
+      this.logger.error(
+        `Database update tokens failed for email: ${user.email}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Database update failed');
+    }
+  }
 }

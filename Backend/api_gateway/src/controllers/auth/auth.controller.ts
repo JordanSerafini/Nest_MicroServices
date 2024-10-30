@@ -1,4 +1,11 @@
-import { Controller, Post, Body, Inject } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Inject,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Controller('')
@@ -20,5 +27,21 @@ export class AuthController {
     return this.authServiceClient
       .send({ cmd: 'register' }, registerDto)
       .toPromise();
+  }
+
+  @Post('logout')
+  async logout(@Body() logoutDto: { user: { id: string; email: string } }) {
+    try {
+      const result = await this.authServiceClient
+        .send({ cmd: 'logout' }, logoutDto)
+        .toPromise();
+      return result;
+    } catch (error) {
+      console.error('Logout failed:', error);
+      throw new HttpException(
+        'Logout failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
