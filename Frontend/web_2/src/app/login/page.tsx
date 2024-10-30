@@ -31,31 +31,33 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
+  
     if (!email || !password) {
       setErrorMessage("Veuillez remplir tous les champs");
       return;
     }
-
+  
     try {
       const data = await login(email, password);
       console.log(data);
-
+  
       if (!data.access_token) {
         setErrorMessage(data.message || "Échec de la connexion. Vérifiez vos identifiants.");
         return;
       }
-
-      // Stocke le token et l'utilisateur dans les cookies
+  
       Cookies.set('token', data.access_token, { expires: 1000, sameSite: 'Strict' });
       Cookies.set('user', JSON.stringify(data.user), { expires: 1000, sameSite: 'Strict' });
+      localStorage.setItem('welcomeMessage', `Bonjour ${data.user.prenom} ${data.user.nom}, bienvenue dans votre espace EBP.`);
 
       router.push('/');
+  
     } catch (error) {
       console.error("Failed to login:", error);
       setErrorMessage("Échec de la connexion. Vérifiez vos identifiants.");
     }
   };
+  
 
   return (
     <div className="flex h-screen">
