@@ -5,7 +5,7 @@ function Dashboard() {
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-start text-gray-500 text-lg border bg-white">
-      <h3 className="text-black font-bold text-xl p-4 pb-12">
+      <h3 className="text-black font-bold text-xl p-4 pb-20">
         Solution Logique
       </h3>
       <div className="flex flex-col items-center justify-start w-full gap-8">
