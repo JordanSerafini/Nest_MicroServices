@@ -122,29 +122,29 @@ export default function Ventes_dashboard() {
   function getTextColorClass(prefix: string): string {
     switch (prefix) {
       case "BR":
-        return "text-red-800";
+        return "red-800";
       case "FC":
-        return "text-blue-800";
+        return "blue-800";
       case "AD":
-        return "text-green-800";
+        return "green-800";
       case "BL":
-        return "text-yellow-800";
+        return "yellow-800";
       case "FA":
-        return "text-purple-800";
+        return "purple-800";
       case "DEX":
-        return "text-pink-800";
+        return "pink-800";
       case "FD":
-        return "text-indigo-800";
+        return "indigo-800";
       case "CC":
-        return "text-gray-800";
+        return "gray-800";
       case "CM":
-        return "text-teal-800";
+        return "teal-800";
       case "AV":
-        return "text-orange-800";
+        return "orange-800";
       case "DE":
-        return "text-cyan-800";
+        return "cyan-800";
       default:
-        return "text-black";
+        return "black";
     }
   }
 
@@ -166,7 +166,7 @@ export default function Ventes_dashboard() {
             <div className="flex justify-between text-black">
               <div className="flex gap-1">
                 <p
-                  className={`text-sm font-bold tracking-widest ${getTextColorClass(
+                  className={`text-sm font-bold tracking-widest text-${getTextColorClass(
                     sale.NumberPrefix
                   )}`}
                 >
@@ -229,12 +229,12 @@ export default function Ventes_dashboard() {
                     ? ((currentAmount - previousAmount) /
                         Math.abs(previousAmount)) *
                       100
-                    : null; // null si pas de pourcentage de changement calculable
+                    : null;
 
                 const isPositiveChange =
                   (currentAmount < 0 &&
-                    Math.abs(currentAmount) < Math.abs(previousAmount)) || // Amélioration pour un avoir
-                  (currentAmount > 0 && currentAmount > previousAmount); // Augmentation pour une vente
+                    Math.abs(currentAmount) < Math.abs(previousAmount)) ||
+                  (currentAmount > 0 && currentAmount > previousAmount);
 
                 return (
                   <div
@@ -243,7 +243,7 @@ export default function Ventes_dashboard() {
                   >
                     <div className="flex justify-between text-black">
                       <h4
-                        className={`text-sm font-bold tracking-widest ${getTextColorClass(
+                        className={`text-sm font-bold tracking-widest text-${getTextColorClass(
                           income.numberPrefix
                         )}`}
                       >
@@ -258,7 +258,7 @@ export default function Ventes_dashboard() {
                         <p>Montant mensuel:</p>
                         <p>{currentAmount.toFixed(2)} €</p>
                       </div>
-                      <div className="flex justify-between text-xs text-gray-400">
+                      <div className="flex justify-between text-xs text-gray-400 italic">
                         <p>Mois précédent:</p>
                         <p>{previousAmount.toFixed(2)} €</p>
                       </div>
