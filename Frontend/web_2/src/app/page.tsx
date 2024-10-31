@@ -17,8 +17,8 @@ const Home: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen bg-gray-100">
-      <div className='h-full w-52'>
+    <div className="w-screen h-screen bg-gray-100 overflow-hidden">
+      <div className='h-screen w-52'>
         <Dashboard />
       </div>      
       <ToastContainer

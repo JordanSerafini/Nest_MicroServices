@@ -27,3 +27,26 @@ body {
 .gradient-inactive {
   background-image: linear-gradient(45deg, #e0e0e0, #d5d5d5);
 }
+
+/* Appliquez ce style à un conteneur spécifique avec overflow */
+.your-scrollable-container {
+  overflow-y: auto;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ccc transparent; /* Firefox */
+}
+
+/* Pour les navigateurs basés sur Webkit (Chrome, Safari, Edge) */
+.your-scrollable-container::-webkit-scrollbar {
+  width: 6px; /* Largeur de la scrollbar */
+}
+
+.your-scrollable-container::-webkit-scrollbar-track {
+  background: transparent; /* Fond de la scrollbar */
+}
+
+.your-scrollable-container::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 10px; /* Coins arrondis pour un effet plus doux */
+  border: 2px solid transparent; /* Espace autour de la poignée pour l'affiner */
+}
+

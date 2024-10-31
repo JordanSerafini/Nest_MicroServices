@@ -62,6 +62,7 @@ export class SaleService {
         saleDocument,
       };
     } catch (error) {
+      console.log(error);
       this.logger.error(
         `Error while finding sale with ID: ${Id}`,
         `User: ${email}`,
@@ -98,6 +99,70 @@ export class SaleService {
       }
 
       query += ` ORDER BY "NumberPrefix" ASC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+
+      queryParams.push(limitValue);
+      queryParams.push(offset);
+
+      try {
+        const [saleResult, totalResult] = await Promise.all([
+          this.pool.query(query, queryParams),
+          this.pool.query(countQuery, countParams),
+        ]);
+
+        const totalSaleDocuments = parseInt(totalResult.rows[0].count, 10);
+        const totalPages =
+          totalSaleDocuments > 0
+            ? Math.ceil(totalSaleDocuments / limitValue)
+            : 0;
+
+        const response = {
+          totalSaleDocuments,
+          totalPages,
+          saleDocuments: saleResult.rows,
+        };
+
+        // Cacher le résultat pour 1 heure
+        await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
+
+        return response;
+      } catch (error) {
+        this.logger.error(
+          `Error while paginating SaleDocuments with query: ${searchQuery}`,
+          error.message,
+        );
+        return [];
+      }
+    }
+  }
+
+  async paginateByDate(searchQuery: string, limit: number, page: number) {
+    this.logger.log(`Paginating SaleDocuments with query: ${searchQuery}`);
+
+    const limitValue = limit > 0 ? limit : 10;
+    const offset = page * limitValue;
+
+    const cacheKey = `saleDocuments_paginated_date_${limitValue}_${offset}_${searchQuery}`;
+    const cachedData = await this.redisClient.get(cacheKey);
+
+    if (cachedData) {
+      console.log('Cache hit');
+      return JSON.parse(cachedData);
+    } else {
+      console.log('Cache miss');
+
+      let query = `SELECT * FROM "SaleDocument"`;
+      let countQuery = `SELECT COUNT(*) FROM "SaleDocument"`;
+      const queryParams: (string | number)[] = [];
+      const countParams: (string | number)[] = [];
+
+      if (searchQuery) {
+        query += ` WHERE "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1 OR "NumberPrefix" ILIKE $1`;
+        countQuery += ` WHERE "CustomerName" ILIKE $1 OR "DocumentNumber" ILIKE $1 OR "NumberPrefix" ILIKE $1`;
+        queryParams.push(`%${searchQuery}%`);
+        countParams.push(`%${searchQuery}%`);
+      }
+
+      query += ` ORDER BY "DocumentDate" DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
 
       queryParams.push(limitValue);
       queryParams.push(offset);

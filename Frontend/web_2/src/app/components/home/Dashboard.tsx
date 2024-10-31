@@ -47,7 +47,7 @@ function Dashboard() {
         <Top_Dashboard />
       </div>
       {/* --------------------------------------------------------------  Content Dashboard ----------------------------------------------------------------------------------- */}
-      <div>
+      <div className="w-full h-full">
         {active === "Dashboard" && <div>Dashboard</div>}
         {active === "Planing" && <div>Planing</div>}
         {active === "Articles" && <div>Articles</div>}

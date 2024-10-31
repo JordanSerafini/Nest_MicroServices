@@ -28,6 +28,14 @@ export class SaleController {
     return this.SaleService.paginate(searchQuery, limit, page);
   }
 
+  @MessagePattern({ cmd: 'paginate_date' })
+  paginateDate(
+    @Payload()
+    { date, limit, page }: { date: string; limit: number; page: number },
+  ) {
+    return this.SaleService.paginateByDate(date, limit, page);
+  }
+
   @MessagePattern({ cmd: 'paginate_category' })
   paginateCategory(
     @Payload()

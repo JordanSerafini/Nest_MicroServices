@@ -42,6 +42,29 @@ export class SaleController {
     return this.saleServiceClient.send({ cmd: 'paginate' }, paginationParams);
   }
 
+  @Get('paginate_date')
+  paginateDate(
+    @Request() req,
+    @Query('searchQuery') searchQuery: string,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string,
+  ) {
+    const email = req.user.email;
+    this.logger.log(`Fetching paginated sale for user: ${email}`);
+
+    const paginationParams = {
+      email,
+      searchQuery: searchQuery || '',
+      limit: parseInt(limit, 10) || 25,
+      page: Math.floor(parseInt(offset, 10) / parseInt(limit, 10)) || 0,
+    };
+
+    return this.saleServiceClient.send(
+      { cmd: 'paginate_date' },
+      paginationParams,
+    );
+  }
+
   //* ------------------- Dynamic Routes ------------------- *//
   @Get('paginate/:category([A-Z]{2})')
   paginateCategory(

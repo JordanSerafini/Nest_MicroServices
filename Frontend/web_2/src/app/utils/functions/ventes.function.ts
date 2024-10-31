@@ -32,6 +32,33 @@ export const getSalePaginated = async (searchQuery: string, limit: number, offse
   }
 };
 
+export const getSalePaginated_Date = async (searchQuery: string, limit: number, offset: number) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('Token not found');
+      }
+  
+      const response = await fetch(`${url.api_gateway}/sale/paginate_date?searchQuery=${searchQuery}&limit=${limit}&offset=${offset}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching paginated sales:', error);
+      throw error;
+    }
+  };
+
 export const getSaleById = async (DocumentId: string) => {
   try {
     const token = getToken();
