@@ -69,8 +69,8 @@ export default function Ventes_dashboard() {
 
   // États pour le mois et l'année sélectionnés
   const today = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1); // Mois actuel (commence à 0 en JavaScript)
-  const [selectedYear, setSelectedYear] = useState(today.getFullYear()); // Année actuelle
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -120,7 +120,6 @@ export default function Ventes_dashboard() {
     fetchSales();
   }, [searchQuery, limit, offset]);
 
-  // Fetch uniquement lors du changement de mois/année
   useEffect(() => {
     const fetchIncomeData = async () => {
       try {
@@ -211,10 +210,9 @@ export default function Ventes_dashboard() {
   }
 
   //* ------------------------------------------------------------------------------------------------- Charts --------------------------------------
-// Définir lastSixMonths en dehors du useEffect pour qu'elle soit accessible globalement dans le composant
 const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
   const date = new Date();
-  date.setMonth(date.getMonth() - (5 - i)); // Ajuste pour commencer il y a 5 mois jusqu'au mois actuel
+  date.setMonth(date.getMonth() - (5 - i));
   return { month: date.getMonth() + 1, year: date.getFullYear() };
 });
 
