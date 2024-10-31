@@ -10,6 +10,12 @@ import { FaEuroSign, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { BsCalendarDate } from "react-icons/bs";
 import { GrDocumentVerified } from "react-icons/gr";
 
+import { Line } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+
 // Définir l'interface pour les données de revenu
 interface IncomeData {
   numberPrefix: string;
@@ -24,6 +30,13 @@ interface IncomeData {
   percentageChange: number;
 }
 
+interface IncomeDataGraph {
+  numberPrefix: string;
+  month: number;
+  year: number;
+  totalDueAmount: number;
+}
+
 export default function Ventes_dashboard() {
   const [sales, setSales] = useState<SaleDocument[]>([]);
   const [sales_byDate, setSales_byDate] = useState<SaleDocument[]>([]);
@@ -34,6 +47,8 @@ export default function Ventes_dashboard() {
 
   // États pour le revenu mensuel avec typage correct
   const [monthlyIncome, setMonthlyIncome] = useState<IncomeData[]>([]);
+  const [graphIncome, setGraphIncome] = useState<IncomeDataGraph[]>([]);
+
   const [error, setError] = useState<string | null>(null);
 
   // États pour le mois et l'année sélectionnés
@@ -179,10 +194,86 @@ export default function Ventes_dashboard() {
     }
   }
 
+  //* ------------------------------------------------------------------------------------------------- Charts --------------------------------------
+
+  useEffect(() => {
+    const fetchGraphIncomeData = async () => {
+        try {
+            const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                return { month: date.getMonth() + 1, year: date.getFullYear() };
+            }).reverse();
+
+            const promises = lastSixMonths.map(({ month, year }) =>
+                fetchMonthlyIncome(month, year)
+            );
+
+            const incomeDataByMonth = await Promise.all(promises);
+            const flattenedData = incomeDataByMonth.flat();
+            setGraphIncome(flattenedData);
+
+
+        } catch (error) {
+            console.error("Error fetching graph income data:", error);
+            setError("Error fetching graph income data");
+        }
+    };
+
+    fetchGraphIncomeData();
+}, [selectedYear]);
+
+
+  const graphData = {
+    labels: ["-5 mois", "-4 mois", "-3 mois", "-2 mois", "-1 mois", "Ce mois"],
+    datasets: [...new Set(graphIncome.map(data => data.numberPrefix))].map((prefix) => {
+        const prefixData = graphIncome.filter((income) => income.numberPrefix === prefix);
+
+        const totalAmounts = prefixData.map((income) => income.totalDueAmount || 0);
+
+        return {
+            label: prefix,
+            data: totalAmounts,
+            borderColor: getBorderColor(prefix),
+            backgroundColor: getBackgroundColorClass(prefix),
+            fill: false,
+        };
+    }),
+};
+
+const options = {
+  responsive: true,
+  plugins: {
+      legend: { position: "top" as const },
+      title: { display: true, text: `Évolution du revenu mensuel sur les 6 derniers mois (${selectedYear})` },
+  },
+  scales: {
+      y: {
+          beginAtZero: true,
+      },
+  },
+};
+
+
+  function getBorderColor(prefix: string): string {
+    switch (prefix) {
+      case "BR":
+        return "rgba(255, 99, 132, 1)";
+      case "FC":
+        return "rgba(54, 162, 235, 1)";
+      case "AD":
+        return "rgba(75, 192, 192, 1)";
+      default:
+        return "rgba(0, 0, 0, 1)";
+    }
+  }
+
+
   return (
-    <div className="h-full w-full text-gray-500 p-4 flex gap-8 m-4">
+    <div className="h-full w-full text-gray-500 p-4 flex-col gap-8 m-4">
+      <div className="flex h-5/10 w-full gap-8">
       {/* ----------------------------------------------------------------------------------------------------------- Encart Dernières ventes -------------------------------------------------------- */}
-      <div className="w-3/10 border h-3.5/10 rounded-xl p-2 bg-white shadow-2xl">
+      <div className="w-3/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">
         {/* En-tête fixe */}
         <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
           <GrDocumentVerified />
@@ -225,8 +316,8 @@ export default function Ventes_dashboard() {
           ))}
         </div>
       </div>
-      {/* ----------------------------------------------------------------------------------------- Encart Revenu Mensuel -------------------------------------------------------- */}
-      <div className="w-3/10 border h-4.5/10 rounded-xl p-2 bg-white shadow-2xl">
+      {/* -------------------------------------------------------------------------------------------------- Encart Revenu Mensuel -------------------------------------------------------- */}
+      <div className="w-3/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">
         {/* En-tête fixe */}
         <div className="flex items-center justify-center gap-4 p-2 border-b">
           <MdOutlinePointOfSale />
@@ -344,6 +435,16 @@ export default function Ventes_dashboard() {
           )}
         </div>
       </div>
+      </div>
+      {/* -------------------------------------------------------------------------------------------------- Graph -------------------------------------------------------- */}
+      <div className="flex justify-between w-full h-5/10 p-2">
+      <div className="w-5/10"></div>
+      <div className="w-/10 border h-8/10 rounded-xl p-8 bg-white shadow-2xl">
+        <h3 className="text-center tracking-widest italic">Graphique des Revenus Mensuels</h3>
+        <Line data={graphData} options={options} />
+      </div>
+      </div>
+
     </div>
   );
 }
