@@ -10,6 +10,8 @@ import Cookies from 'js-cookie';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Button from '../components/UI/Button';
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>('jordan@solution-logique.fr');
   const [password, setPassword] = useState<string>('pass123');
@@ -80,7 +82,7 @@ const Login: React.FC = () => {
               {errorMessage}
             </p>
           )}
-          <form onSubmit={handleSubmit}>
+          <form >
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
@@ -108,13 +110,8 @@ const Login: React.FC = () => {
                 minLength={3}
               />
             </div>
-            <button
-              type="submit"
-              className="w-full gradient-active text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Connexion
-            </button>
-          </form>
+            <Button name="Connexion" onClick={handleSubmit} type="submit" style='gradient' />
+            </form>
         </div>
       </div>
 
