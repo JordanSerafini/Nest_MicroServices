@@ -439,7 +439,7 @@ const options = {
       {/* -------------------------------------------------------------------------------------------------- Graph -------------------------------------------------------- */}
       <div className="flex justify-between w-full h-5/10 p-2">
       <div className="w-5/10"></div>
-      <div className="w-/10 border h-8/10 rounded-xl p-8 bg-white shadow-2xl">
+      <div className="w-4/10 border h-8/10 rounded-xl p-8 bg-white shadow-2xl">
         <h3 className="text-center tracking-widest italic">Graphique des Revenus Mensuels</h3>
         <Line data={graphData} options={options} />
       </div>
