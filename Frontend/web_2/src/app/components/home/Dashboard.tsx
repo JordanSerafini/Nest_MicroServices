@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import Top_Dashboard from "./Top_Dashboard";
+import Ventes_dashboard from "../Ventes/Ventes_dashboard";
 
 import { BiSolidDashboard } from "react-icons/bi";
 import { FaCalendarAlt, FaFileAlt, FaUsers, FaBox } from "react-icons/fa";
@@ -13,11 +14,12 @@ function Dashboard() {
     { name: "Planing", icon: <FaCalendarAlt /> },
     { name: "Articles", icon: <FaBox /> },
     { name: "Clients", icon: <FaUsers /> },
-    { name: "Documents", icon: <FaFileAlt /> },
+    { name: "Ventes", icon: <FaFileAlt /> },
   ];
 
   return (
     <div className="w-screen h-screen flex ">
+      {/* --------------------------------------------------------------  Menu Dashboard -------------------------------------------------------------------------------------- */}
       <div className=" text-gray-500 text-lg border-r bg-white tracking-wide flex-col items-center justify-start w-64 p-1">
         <h3 className="text-black border-b border-black font-bold text-xl p-4 mb-20">
           Solution Logique
@@ -39,8 +41,19 @@ function Dashboard() {
           ))}
         </div>
       </div>
-      <div className="w-full h-16">
+      {/* --------------------------------------------------------------  Top Dashboard --------------------------------------------------------------------------------------- */}
+      <div className="w-full flex-col">
+      <div className="h-16">
         <Top_Dashboard />
+      </div>
+      {/* --------------------------------------------------------------  Content Dashboard ----------------------------------------------------------------------------------- */}
+      <div>
+        {active === "Dashboard" && <div>Dashboard</div>}
+        {active === "Planing" && <div>Planing</div>}
+        {active === "Articles" && <div>Articles</div>}
+        {active === "Clients" && <div>Clients</div>}
+        {active === "Ventes" && < Ventes_dashboard />}
+      </div>
       </div>
     </div>
   );

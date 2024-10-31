@@ -1,6 +1,10 @@
-import { LuSearch } from "react-icons/lu";
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Cookies from 'js-cookie';
+
+import { LuSearch } from "react-icons/lu";
+
+import { logout } from "../../utils/functions/auth.function";
 
 function Top_Dashboard() {
   const [user, setUser] = useState({ nom: "", prenom: "", email: "" });
@@ -24,6 +28,17 @@ function Top_Dashboard() {
 
   }, []);
 
+  const handleLogout = () => {
+    try {
+    logout();
+    } catch (error) {
+        console.error("Erreur de déconnexion:", error);
+    }
+    Cookies.remove("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+}
+
   return (
     <div className="w-full h-full bg-white text-black flex justify-between items-center px-20">
       <div className="h-fit flex items-center justify-evenly gap-2 p-1 border w-64 rounded-lg">
@@ -41,6 +56,7 @@ function Top_Dashboard() {
           width={40}
           height={40}
           className="rounded-full h-auto"
+          onClick={handleLogout}
         />
         <div className="text-gray-800">
           <p className='font-bold tracking-wide'>{user.nom} {user.prenom}</p>
