@@ -6,6 +6,8 @@ import {
   UseGuards,
   Request,
   Query,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { CustomLogger } from '../../logging/custom-logger.service';
@@ -63,6 +65,31 @@ export class SaleController {
       { cmd: 'paginate_date' },
       paginationParams,
     );
+  }
+
+  @Get('monthly_income')
+  async getMonthlyIncome(
+    @Request() req,
+    @Query('month') month: number,
+    @Query('year') year: number,
+  ) {
+    const email = req.user.email;
+    this.logger.log(
+      `Fetching monthly income for user: ${email}, month: ${month}, year: ${year}`,
+    );
+
+    try {
+      const result = await this.saleServiceClient
+        .send({ cmd: 'monthly_income' }, { month, year })
+        .toPromise();
+      return result;
+    } catch (error) {
+      this.logger.error('Error fetching monthly income', error.message);
+      throw new HttpException(
+        'Failed to fetch monthly income',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   //* ------------------- Dynamic Routes ------------------- *//

@@ -277,6 +277,88 @@ export class SaleService {
     }
   }
 
+  async getMonthlyIncome(month: number, year: number) {
+    this.logger.log(`Fetching monthly income for ${month}/${year}`);
+
+    const previousMonth = month === 1 ? 12 : month - 1;
+    const previousYear = month === 1 ? year - 1 : year;
+
+    const query = `
+      WITH current_month AS (
+        SELECT 
+          "NumberPrefix",
+          COUNT(*) AS document_count,
+          SUM("TotalDueAmount") AS total_due_amount
+        FROM 
+          "SaleDocument"
+        WHERE 
+          EXTRACT(MONTH FROM "DocumentDate") = $1
+          AND EXTRACT(YEAR FROM "DocumentDate") = $2
+        GROUP BY 
+          "NumberPrefix"
+      ),
+      previous_month AS (
+        SELECT 
+          "NumberPrefix",
+          COUNT(*) AS document_count,
+          SUM("TotalDueAmount") AS total_due_amount
+        FROM 
+          "SaleDocument"
+        WHERE 
+          EXTRACT(MONTH FROM "DocumentDate") = $3
+          AND EXTRACT(YEAR FROM "DocumentDate") = $4
+        GROUP BY 
+          "NumberPrefix"
+      )
+      SELECT 
+        cm."NumberPrefix",
+        cm.document_count AS current_document_count,
+        cm.total_due_amount AS current_total_due,
+        pm.document_count AS previous_document_count,
+        pm.total_due_amount AS previous_total_due,
+        CASE 
+          WHEN pm.total_due_amount > 0 THEN 
+            ROUND(((cm.total_due_amount - pm.total_due_amount) / pm.total_due_amount) * 100, 2)
+          ELSE 
+            NULL
+        END AS percentage_change
+      FROM 
+        current_month cm
+      LEFT JOIN 
+        previous_month pm ON cm."NumberPrefix" = pm."NumberPrefix"
+      ORDER BY 
+        cm."NumberPrefix";
+    `;
+
+    try {
+      const result = await this.pool.query(query, [
+        month,
+        year,
+        previousMonth,
+        previousYear,
+      ]);
+
+      // Formatage du résultat
+      const incomeByPrefix = result.rows.map((row) => ({
+        numberPrefix: row.NumberPrefix,
+        currentMonth: {
+          documentCount: parseInt(row.current_document_count, 10),
+          totalDueAmount: parseFloat(row.current_total_due),
+        },
+        previousMonth: {
+          documentCount: parseInt(row.previous_document_count || '0', 10),
+          totalDueAmount: parseFloat(row.previous_total_due || '0'),
+        },
+        percentageChange: row.percentage_change || 0,
+      }));
+
+      return incomeByPrefix;
+    } catch (error) {
+      this.logger.error('Error fetching monthly income', error.message);
+      return [];
+    }
+  }
+
   private async fetchData(url: string, dataType: string) {
     try {
       const response = await fetch(url, {

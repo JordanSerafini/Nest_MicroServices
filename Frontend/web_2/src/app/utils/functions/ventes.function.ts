@@ -139,3 +139,32 @@ export const getSaleByCategory = async (category: string, limit: number, offset:
     throw error;
   }
 };
+
+
+export async function fetchMonthlyIncome(month: number, year: number) {
+  try {
+    // Récupérer le token JWT depuis les cookies
+    const token = Cookies.get('token');
+    if (!token) throw new Error("Token not found");
+
+    const response = await fetch(`${url.api_gateway}/sale/monthly_income?month=${month}&year=${year}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch monthly income");
+    }
+
+    // Récupérer et retourner les données JSON
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching monthly income:", error);
+    throw error;
+  }
+}
+

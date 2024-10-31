@@ -36,6 +36,11 @@ export class SaleController {
     return this.SaleService.paginateByDate(date, limit, page);
   }
 
+  @MessagePattern({ cmd: 'monthly_income' })
+  monthlyIncome(@Payload() { month, year }: { month: number; year: number }) {
+    return this.SaleService.getMonthlyIncome(month, year);
+  }
+
   @MessagePattern({ cmd: 'paginate_category' })
   paginateCategory(
     @Payload()
