@@ -123,29 +123,29 @@ export default function Ventes_dashboard() {
   function getTextColorClass(prefix: string): string {
     switch (prefix) {
       case "BR":
-        return "red-800";
+        return "text-red-800";
       case "FC":
-        return "blue-800";
+        return "text-blue-800";
       case "AD":
-        return "green-800";
+        return "text-green-800";
       case "BL":
-        return "yellow-800";
+        return "text-yellow-800";
       case "FA":
-        return "purple-800";
+        return "text-purple-800";
       case "DEX":
-        return "pink-800";
+        return "text-pink-800";
       case "FD":
-        return "indigo-800";
+        return "text-indigo-800";
       case "CC":
-        return "gray-800";
+        return "text-gray-800";
       case "CM":
-        return "teal-800";
+        return "text-teal-800";
       case "AV":
-        return "orange-800";
+        return "text-orange-800";
       case "DE":
-        return "cyan-800";
+        return "text-cyan-800";
       default:
-        return "black";
+        return "text-black";
     }
   }
 
