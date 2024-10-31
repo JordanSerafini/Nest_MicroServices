@@ -1,5 +1,3 @@
-// app/login/page.tsx
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -29,7 +27,6 @@ const Login: React.FC = () => {
     }
   }, []);
   
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
   
@@ -46,11 +43,27 @@ const Login: React.FC = () => {
         setErrorMessage(data.message || "Échec de la connexion. Vérifiez vos identifiants.");
         return;
       }
-  
+
+      Cookies.remove('token');
+
+      // Stocker uniquement le token dans les cookies si besoin
       Cookies.set('token', data.access_token, { expires: 1000, sameSite: 'Strict' });
-      Cookies.set('user', JSON.stringify(data.user), { expires: 1000, sameSite: 'Strict' });
+
+      // Stocker les informations de l'utilisateur dans le localStorage
+      const userData = {
+        id: data.user.id,
+        nom: data.user.nom,
+        prenom: data.user.prenom,
+        email: data.user.email,
+        role: data.user.role,
+        telephone: data.user.telephone,
+      };
+      localStorage.setItem('user', JSON.stringify(userData)); // Stockage au format JSON
+
+      // Message de bienvenue
       localStorage.setItem('welcomeMessage', `Bonjour ${data.user.prenom} ${data.user.nom}, bienvenue dans votre espace EBP.`);
 
+      // Redirection après connexion
       router.push('/');
   
     } catch (error) {
@@ -59,13 +72,12 @@ const Login: React.FC = () => {
     }
   };
   
-
   return (
     <div className="flex h-screen">
       {/* Colonne gauche pour le logo et le texte */}
       <div className="flex flex-col items-center justify-center w-1/2 p-8 text-white gradient-active">
         <Image
-          src="/SLIlogo.png" // Assurez-vous que le chemin est correct
+          src="/SLIlogo.png"
           alt="Logo"
           width={328}
           height={328}
@@ -82,7 +94,7 @@ const Login: React.FC = () => {
               {errorMessage}
             </p>
           )}
-          <form >
+          <form>
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
@@ -111,7 +123,7 @@ const Login: React.FC = () => {
               />
             </div>
             <Button name="Connexion" onClick={handleSubmit} type="submit" style='gradient' />
-            </form>
+          </form>
         </div>
       </div>
 

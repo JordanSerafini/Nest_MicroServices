@@ -1,0 +1,54 @@
+import { LuSearch } from "react-icons/lu";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+function Top_Dashboard() {
+  const [user, setUser] = useState({ nom: "", prenom: "", email: "" });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      try {
+        const userObject = JSON.parse(storedUser);
+        setUser({
+          nom: userObject.nom || "Nom",
+          prenom: userObject.prenom || "Prénom",
+          email: userObject.email || "email@example.com",
+        });
+      } catch (error) {
+        console.error("Erreur de parsing du localStorage:", error);
+      }
+    }
+
+
+  }, []);
+
+  return (
+    <div className="w-full h-full bg-white text-black flex justify-between items-center px-20">
+      <div className="h-fit flex items-center justify-evenly gap-2 p-1 border w-64 rounded-lg">
+        <LuSearch className="text-gray-700 text-xl" />
+        <input
+          type="text"
+          className="border-l border-gray-300 pl-3 focus:outline-none"
+          placeholder="recherche"
+        />
+      </div>
+      <div className="flex items-center gap-3 text-sm">
+        <Image
+          src="/pp.jpg"
+          alt="Profile Picture"
+          width={40}
+          height={40}
+          className="rounded-full h-auto"
+        />
+        <div className="text-gray-800">
+          <p className='font-bold tracking-wide'>{user.nom} {user.prenom}</p>
+          <p>{user.email}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Top_Dashboard;
