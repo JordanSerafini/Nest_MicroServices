@@ -149,10 +149,10 @@ export default function Ventes_dashboard() {
   }
 
   return (
-<div className="h-full w-full text-gray-500 p-4 flex gap-8">
+<div className="h-full w-full text-gray-500 p-4 flex gap-8 m-4">
 {/* ----------------------------------------------------------------------------------------------------------- Encart Dernières ventes -------------------------------------------------------- */}
       <div
-        className="your-scrollable-container w-3/10 border h-3.5/10 rounded-xl p-2 bg-white overflow-y-auto"
+        className="your-scrollable-container w-3/10 border h-3.5/10 rounded-xl p-2 bg-white overflow-y-auto shadow-2xl"
         onScroll={handleScroll_date}
       >
         <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
@@ -190,7 +190,7 @@ export default function Ventes_dashboard() {
       </div>
 
       {/* ----------------------------------------------------------------------------------------- Encart Revenu Mensuel -------------------------------------------------------- */}
-      <div className="your-scrollable-container w-3/10 border h-3.5/10 rounded-xl p-2 bg-white overflow-y-auto">
+      <div className="your-scrollable-container w-3/10 border h-3.5/10 rounded-xl p-2 bg-white overflow-y-auto shadow-2xl">
       <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
           <MdOutlinePointOfSale />
           <h3 className="text-center tracking-widest italic">Revenu Mensuel</h3>
