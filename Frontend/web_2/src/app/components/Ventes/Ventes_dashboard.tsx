@@ -7,6 +7,8 @@ import {
 } from "@/app/utils/functions/ventes.function";
 import { MdOutlinePointOfSale } from "react-icons/md";
 import { FaEuroSign, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { BsCalendarDate } from "react-icons/bs";
+
 
 // Définir l'interface pour les données de revenu
 interface IncomeData {
@@ -148,9 +150,38 @@ export default function Ventes_dashboard() {
     }
   }
 
+  function getBackgroundColorClass(prefix: string): string {
+    switch (prefix) {
+      case "BR":
+        return "bg-red-800";
+      case "FC":
+        return "bg-blue-800";
+      case "AD":
+        return "bg-green-800";
+      case "BL":
+        return "bg-yellow-800";
+      case "FA":
+        return "bg-purple-800";
+      case "DEX":
+        return "bg-pink-800";
+      case "FD":
+        return "bg-indigo-800";
+      case "CC":
+        return "bg-gray-800";
+      case "CM":
+        return "bg-teal-800";
+      case "AV":
+        return "bg-orange-800";
+      case "DE":
+        return "bg-cyan-800";
+      default:
+        return "bg-black";
+    }
+  }
+
   return (
-<div className="h-full w-full text-gray-500 p-4 flex gap-8 m-4">
-{/* ----------------------------------------------------------------------------------------------------------- Encart Dernières ventes -------------------------------------------------------- */}
+    <div className="h-full w-full text-gray-500 p-4 flex gap-8 m-4">
+      {/* ----------------------------------------------------------------------------------------------------------- Encart Dernières ventes -------------------------------------------------------- */}
       <div
         className="your-scrollable-container w-3/10 border h-3.5/10 rounded-xl p-2 bg-white overflow-y-auto shadow-2xl"
         onScroll={handleScroll_date}
@@ -191,15 +222,17 @@ export default function Ventes_dashboard() {
 
       {/* ----------------------------------------------------------------------------------------- Encart Revenu Mensuel -------------------------------------------------------- */}
       <div className="your-scrollable-container w-3/10 border h-3.5/10 rounded-xl p-2 bg-white overflow-y-auto shadow-2xl">
-      <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
+        <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
           <MdOutlinePointOfSale />
           <h3 className="text-center tracking-widest italic">Revenu Mensuel</h3>
         </div>
-        <div className="flex justify-center gap-4 mb-2">
+        <div className="flex justify-center gap-4 mb-2 items-center">
+        <BsCalendarDate className="text-2xl" />
+
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="border rounded p-2"
+            className="border rounded p-2 text-center tracking-widest focus:outline-none" 
           >
             {[...Array(12).keys()].map((month) => (
               <option key={month + 1} value={month + 1}>
@@ -211,7 +244,7 @@ export default function Ventes_dashboard() {
             type="number"
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="border rounded p-2 w-20"
+            className="border rounded p-2 w-20 focus:outline-none"
           />
         </div>
         {error ? (
@@ -242,13 +275,16 @@ export default function Ventes_dashboard() {
                     className="flex flex-col border-b p-2 gap-2"
                   >
                     <div className="flex justify-between text-black">
-                      <h4
-                        className={`text-sm font-bold tracking-widest text-${getTextColorClass(
-                          income.numberPrefix
-                        )}`}
-                      >
-                        {income.numberPrefix}
+                      <h4 className="text-sm font-bold tracking-widest flex items-center gap-2">
+                        <span
+                          className={`text-white ${getBackgroundColorClass(
+                            income.numberPrefix
+                          )} rounded-full p-1`}
+                        >
+                          {income.numberPrefix}
+                        </span>
                       </h4>
+
                       <p className="text-gray-500 text-sm">
                         {income.currentMonth.documentCount} documents
                       </p>
