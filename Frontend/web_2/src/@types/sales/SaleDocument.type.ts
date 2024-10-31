@@ -4,6 +4,8 @@ export class SaleDocument {
     id?: number ;
     Id: string = "";
     DocumentNumber: string = "";
+    NumberPrefix: string = "";
+    NumberSuffix: string = "";
     DocumentDate: string = "";
     xx_Soldee: boolean = false;
     xx_Fin_Loc: boolean = false;

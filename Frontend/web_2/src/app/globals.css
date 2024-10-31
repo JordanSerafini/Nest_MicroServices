@@ -32,7 +32,7 @@ body {
 .your-scrollable-container {
   overflow-y: auto;
   scrollbar-width: thin; /* Firefox */
-  scrollbar-color: #ccc transparent; /* Firefox */
+  scrollbar-color: #ccc transparent !important; /* Firefox */
 }
 
 /* Pour les navigateurs basés sur Webkit (Chrome, Safari, Edge) */
