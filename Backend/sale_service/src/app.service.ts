@@ -162,7 +162,7 @@ export class SaleService {
         countParams.push(`%${searchQuery}%`);
       }
 
-      query += ` ORDER BY "DocumentDate" DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+      query += ` ORDER BY CAST("DocumentDate" AS TIMESTAMP) DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
 
       queryParams.push(limitValue);
       queryParams.push(offset);
@@ -226,54 +226,38 @@ export class SaleService {
     const limitValue = limit > 0 ? limit : 10;
     const offset = page * limitValue;
 
-    const cacheKey = `saleDocuments_paginated_by_category_${category}_${limitValue}_${offset}`;
-    const cachedData = await this.redisClient.get(cacheKey);
+    let query = `SELECT * FROM "SaleDocument" WHERE "NumberPrefix" = $1`;
+    const countQuery = `SELECT COUNT(*) FROM "SaleDocument" WHERE "NumberPrefix" = $1`;
+    const queryParams: (string | number)[] = [category];
+    const countParams: (string | number)[] = [category];
 
-    if (cachedData) {
-      console.log('Cache hit');
-      return JSON.parse(cachedData);
-    } else {
-      console.log('Cache miss');
+    // Tri par "DocumentDate" DESC
+    query += ` ORDER BY "DocumentDate" DESC LIMIT $2 OFFSET $3`;
 
-      let query = `SELECT * FROM "SaleDocument" WHERE "NumberPrefix" = $1`;
-      const countQuery = `SELECT COUNT(*) FROM "SaleDocument" WHERE "NumberPrefix" = $1`;
-      const queryParams: (string | number)[] = [category];
-      const countParams: (string | number)[] = [category];
+    queryParams.push(limitValue);
+    queryParams.push(offset);
 
-      query += ` ORDER BY "NumberPrefix" DESC LIMIT $2 OFFSET $3`;
+    try {
+      const [saleResult, totalResult] = await Promise.all([
+        this.pool.query(query, queryParams),
+        this.pool.query(countQuery, countParams),
+      ]);
 
-      queryParams.push(limitValue);
-      queryParams.push(offset);
+      const totalSaleDocuments = parseInt(totalResult.rows[0].count, 10);
+      const totalPages =
+        totalSaleDocuments > 0 ? Math.ceil(totalSaleDocuments / limitValue) : 0;
 
-      try {
-        const [saleResult, totalResult] = await Promise.all([
-          this.pool.query(query, queryParams),
-          this.pool.query(countQuery, countParams),
-        ]);
-
-        const totalSaleDocuments = parseInt(totalResult.rows[0].count, 10);
-        const totalPages =
-          totalSaleDocuments > 0
-            ? Math.ceil(totalSaleDocuments / limitValue)
-            : 0;
-
-        const response = {
-          totalSaleDocuments,
-          totalPages,
-          saleDocuments: saleResult.rows,
-        };
-
-        // Cacher le résultat pour 1 heure
-        await this.redisClient.setEx(cacheKey, 3600, JSON.stringify(response));
-
-        return response;
-      } catch (error) {
-        this.logger.error(
-          `Error while paginating SaleDocuments by category: ${category}`,
-          error.message,
-        );
-        return [];
-      }
+      return {
+        totalSaleDocuments,
+        totalPages,
+        saleDocuments: saleResult.rows,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error while paginating SaleDocuments by category: ${category}`,
+        error.message,
+      );
+      return [];
     }
   }
 

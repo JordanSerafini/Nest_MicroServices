@@ -34,17 +34,15 @@ function Last_sale() {
         }
 
         if (data.saleDocuments.length < limit) {
-          setHasMore(false); // Si moins de données sont reçues que la limite, nous avons atteint la fin
+          setHasMore(false);
         }
 
         const combinedSales = [...sales_byDate, ...data.saleDocuments];
         const uniqueSales = combinedSales.filter(
           (sale, index, self) => index === self.findIndex((s) => s.Id === sale.Id)
         );
-        const sortedSales = uniqueSales.sort(
-          (a, b) => new Date(b.DocumentDate).getTime() - new Date(a.DocumentDate).getTime()
-        );
-        setSales_byDate(sortedSales);
+
+        setSales_byDate(uniqueSales);
       } catch (error) {
         console.error("Error fetching sales data:", error);
       } finally {
