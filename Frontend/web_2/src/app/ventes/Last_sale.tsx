@@ -19,7 +19,6 @@ function Last_sale() {
   const [isFetching, setIsFetching] = useState(false);
   const [category_selected_forDate, setCategory_selected_forDate] = useState("");
   const [hasMore, setHasMore] = useState(true); // Nouvel état pour suivre s’il y a plus de données
-
   //* ------------------------------------------------------------------------------------------------- UseEffects --------------------------------------
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -54,6 +53,49 @@ function Last_sale() {
     fetchSalesData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, limit, offset, category_selected_forDate]);
+
+  /*
+  useEffect(() => {
+  // Réinitialiser `offset` et `sales_byDate` chaque fois que `searchQuery` change.
+  setOffset(0);
+  setSales_byDate([]);
+  setHasMore(true);
+}, [searchQuery]);
+
+useEffect(() => {
+  const fetchSalesData = async () => {
+    if (isFetching || searchQuery === undefined || !hasMore) return;
+    setIsFetching(true);
+
+    try {
+      let data;
+      if (category_selected_forDate) {
+        data = await getSaleByCategory(category_selected_forDate, limit, offset);
+      } else {
+        data = await getSalePaginated_Date(searchQuery || "", limit, offset);
+      }
+
+      if (data.saleDocuments.length < limit) {
+        setHasMore(false);
+      }
+
+      const combinedSales = offset === 0 ? data.saleDocuments : [...sales_byDate, ...data.saleDocuments];
+      const uniqueSales = combinedSales.filter(
+        (sale, index, self) => index === self.findIndex((s) => s.Id === sale.Id)
+      );
+
+      setSales_byDate(uniqueSales);
+    } catch (error) {
+      console.error("Error fetching sales data:", error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  fetchSalesData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [searchQuery, limit, offset, category_selected_forDate]);
+*/
 
 
   //* ------------------------------------------------------------------------------------------------- HandleScroll --------------------------------
@@ -141,7 +183,7 @@ function Last_sale() {
         onScroll={handleScroll_date}
       >
         {sales_byDate.map((sale: SaleDocument) => (
-          <div key={sale.Id} className="flex flex-col border-b p-2 gap-2" onClick={() => setContent(`detail-${sale.Id}`)}>
+          <div key={sale.Id} className="flex flex-col border-b p-2 gap-2 cursor-pointer" onClick={() => setContent(`detail-${sale.Id}`)}>
             <div className="flex justify-between text-black ">
               <div className="flex gap-2">
               <p className={`text-sm font-bold tracking-widest ${getTextColorClass(sale.NumberPrefix)}`}>

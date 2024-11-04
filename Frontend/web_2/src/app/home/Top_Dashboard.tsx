@@ -46,6 +46,7 @@ function Top_Dashboard() {
     const handler = setTimeout(() => {
       if (dashboardSearchQuery) {
         console.log("Recherche en cours pour :", dashboardSearchQuery);
+        
       }
     }, 200);
 
