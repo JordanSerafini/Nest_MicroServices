@@ -140,7 +140,6 @@ export const getSaleByCategory = async (category: string, limit: number, offset:
   }
 };
 
-
 export async function fetchMonthlyIncome(month: number, year: number) {
   try {
     // Récupérer le token JWT depuis les cookies
