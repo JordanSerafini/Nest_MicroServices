@@ -287,10 +287,10 @@ const options = {
 
 
   return (
-    <div className="h-full w-full text-gray-500 p-4 flex-col gap-8 m-4">
-      <div className="flex h-5/10 w-full gap-8">
+    <div className="h-full w-full text-gray-500 p-4 flex-col gap-8 ">
+      <div className="flex h-5/10 w-full gap-8 p-2">
         {/* ----------------------------------------------------------------------------------------------------------- Encart Dernières ventes -------------------------------------------------------- */}
-        <div className="w-3/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">
+        <div className="w-3.5/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">
           {/* En-tête fixe */}
           <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
             <GrDocumentVerified />
@@ -456,17 +456,16 @@ const options = {
             )}
           </div>
         </div>
-      </div>
       {/* -------------------------------------------------------------------------------------------------- Graph -------------------------------------------------------- */}
-      <div className="flex justify-between w-full h-5/10 p-2">
-        <div className="w-5/10"></div>
-        <div className="w-4/10 border h-8/10 rounded-xl p-8 bg-white shadow-2xl">
+
+        <div className="w-3.5/10 border h-8/10 rounded-xl p-8 bg-white shadow-2xl">
           <h3 className="text-center tracking-widest italic">
             Graphique des Revenus Mensuels
           </h3>
           <Line data={graphData} options={options} />
         </div>
       </div>
+      
     </div>
   );
 }
