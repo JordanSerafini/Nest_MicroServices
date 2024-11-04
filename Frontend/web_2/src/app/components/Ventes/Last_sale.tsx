@@ -49,7 +49,7 @@ console.log(searchQuery)
   
     fetchSalesData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, limit, offset, category_selected_forDate]);
+  }, [searchQuery, limit, offset]);
   
 
   const handleScroll_date = useCallback(

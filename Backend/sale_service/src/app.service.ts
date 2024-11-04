@@ -240,7 +240,7 @@ export class SaleService {
       const queryParams: (string | number)[] = [category];
       const countParams: (string | number)[] = [category];
 
-      query += ` ORDER BY "NumberPrefix" ASC LIMIT $2 OFFSET $3`;
+      query += ` ORDER BY "NumberPrefix" DESC LIMIT $2 OFFSET $3`;
 
       queryParams.push(limitValue);
       queryParams.push(offset);

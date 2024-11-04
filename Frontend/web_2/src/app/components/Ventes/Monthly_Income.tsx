@@ -25,6 +25,7 @@ function Monthly_Income() {
     const [error, setError] = useState("");
 
     useEffect(() => {
+      console.log("Fetching monthly income data...");
         const fetchIncomeData = async () => {
           try {
             const data = await fetchMonthlyIncome(selectedMonth, selectedYear);
@@ -36,7 +37,8 @@ function Monthly_Income() {
         };
         fetchIncomeData();
       }, [selectedMonth, selectedYear]);
-    
+      console.log("Initial Selected Month:", selectedMonth, "Initial Selected Year:", selectedYear);
+
   function getBackgroundColorClass(prefix: string): string {
     switch (prefix) {
       case "BR":

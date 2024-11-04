@@ -28,7 +28,7 @@ logs/
 *.tsbuildinfo
 
 # Docker files
-**/docker-compose.override.yml
+**/docker-compose.yml
 **/Dockerfile
 
 # Ignore npm debug files
