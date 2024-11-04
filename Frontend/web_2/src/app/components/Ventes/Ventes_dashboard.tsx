@@ -1,7 +1,6 @@
 import { SaleDocument } from "@/@types/sales/SaleDocument.type";
 import { useEffect, useState, useCallback } from "react";
 import {
-  getSalePaginated,
   getSalePaginated_Date,
   getSaleByCategory,
 } from "@/app/utils/functions/ventes.function";
@@ -11,9 +10,7 @@ import { GrDocumentVerified } from "react-icons/gr";
 import Sales_Graph from "./Sales_Graph";
 import Monthly_Income from "./Monthly_Income";
 
-
 export default function Ventes_dashboard() {
-  const [sales, setSales] = useState<SaleDocument[]>([]);
   const [sales_byDate, setSales_byDate] = useState<SaleDocument[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [limit, setLimit] = useState(10);
@@ -24,31 +21,20 @@ export default function Ventes_dashboard() {
 
   //* ------------------------------------------------------------------------------------------------- UseEffects --------------------------------------
   useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const data = await getSalePaginated(searchQuery, limit, offset);
-        const combinedSales = [...sales, ...data.saleDocuments];
-        const uniqueSales = combinedSales.filter(
-          (sale, index, self) =>
-            index === self.findIndex((s) => s.Id === sale.Id)
-        );
-        const sortedSales = uniqueSales.sort(
-          (a, b) =>
-            new Date(b.DocumentDate).getTime() -
-            new Date(a.DocumentDate).getTime()
-        );
-        setSales(sortedSales);
-      } catch (error) {
-        console.error("Error fetching sales:", error);
-      }
-    };
-
-    const fetchSales_byDate = async () => {
+    const fetchSalesData = async () => {
       if (isFetching) return;
       setIsFetching(true);
-
+  
       try {
-        const data = await getSalePaginated_Date(searchQuery, limit, offset);
+        let data;
+        if (category_selected_forDate) {
+          // Récupérer les ventes par catégorie
+          data = await getSaleByCategory(category_selected_forDate, limit, offset);
+        } else {
+          // Récupérer toutes les ventes
+          data = await getSalePaginated_Date(searchQuery, limit, offset);
+        }
+  
         const combinedSales = [...sales_byDate, ...data.saleDocuments];
         const uniqueSales = combinedSales.filter(
           (sale, index, self) =>
@@ -56,23 +42,20 @@ export default function Ventes_dashboard() {
         );
         const sortedSales = uniqueSales.sort(
           (a, b) =>
-            new Date(b.DocumentDate).getTime() -
-            new Date(a.DocumentDate).getTime()
+            new Date(b.DocumentDate).getTime() - new Date(a.DocumentDate).getTime()
         );
         setSales_byDate(sortedSales);
         setIsFetching(false);
       } catch (error) {
-        console.error("Error fetching sales by date:", error);
+        console.error("Error fetching sales data:", error);
         setIsFetching(false);
       }
     };
-
-    fetchSales_byDate();
-    fetchSales();
+  
+    fetchSalesData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, limit, offset]);
-
-
+  }, [searchQuery, limit, offset, category_selected_forDate]);
+  
 
   const handleScroll_date = useCallback(
     (event: React.UIEvent<HTMLDivElement>) => {
@@ -124,34 +107,15 @@ export default function Ventes_dashboard() {
   }
 
 
-  const handleCategorySearch = async (category: string) => {
-    try {
-      setOffset(0);
-      setSales([]);
-      setSales_byDate([]);
-      const data = await getSaleByCategory(category, limit, offset);
-      const combinedSales = [...sales, ...data.saleDocuments];
-      const uniqueSales = combinedSales.filter(
-        (sale, index, self) => index === self.findIndex((s) => s.Id === sale.Id)
-      );
-      const sortedSales = uniqueSales.sort(
-        (a, b) =>
-          new Date(b.DocumentDate).getTime() -
-          new Date(a.DocumentDate).getTime()
-      );
-      setSales_byDate(sortedSales);
-    } catch (error) {
-      console.error("Error fetching sales by category:", error);
-    }
-  };
-
-  const handleSelectCategorySearch = (event) => {
+  const handleSelectCategorySearch = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = event.target.value;
     setCategory_selected_forDate(newValue);
-    handleCategorySearch(newValue);
+    setOffset(0);
+    setSales_byDate([]);
   };
-
   
+  
+
   //* ------------------------------------------------------------------------------------------------- Return --------------------------------------
   return (
     <div className="h-full w-full text-gray-500 p-4 flex-col gap-8 ">
@@ -166,19 +130,16 @@ export default function Ventes_dashboard() {
             </h3>
             <div className="flex justify-center text-xs">
               <select
-                className="border p-2 rounded-lg shadow-sm bg-white"
+                className="border p-2 rounded-lg shadow-sm bg-white focus:outline-blue-800"
                 value={category_selected_forDate}
                 onChange={handleSelectCategorySearch}
               >
-                <option value="" disabled>
-                  Sélectionner
-                </option>
+                <option value="">Toutes les catégories</option>
                 <option value="BR">BR</option>
                 <option value="FC">FC</option>
                 <option value="AD">AD</option>
                 <option value="BL">BL</option>
                 <option value="FA">FA</option>
-                <option value="DEX">DEX</option>
                 <option value="FD">FD</option>
                 <option value="CC">CC</option>
                 <option value="CM">CM</option>
@@ -223,7 +184,7 @@ export default function Ventes_dashboard() {
           </div>
         </div>
         {/* -------------------------------------------------------------------------------------------------- Encart Revenu Mensuel -------------------------------------------------------- */}
-        <Monthly_Income/>
+        <Monthly_Income />
         {/* -------------------------------------------------------------------------------------------------- Graph -------------------------------------------------------- */}
         <Sales_Graph />
       </div>

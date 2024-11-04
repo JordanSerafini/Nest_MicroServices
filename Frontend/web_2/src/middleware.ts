@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
-  console.log("Token dans le middleware:", token);
+  //console.log("Token dans le middleware:", token);
 
   if (!token && req.nextUrl.pathname !== '/login') {
     const loginUrl = new URL('/login', req.url);

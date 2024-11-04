@@ -3,10 +3,11 @@ import Image from "next/image";
 import Cookies from 'js-cookie';
 
 import { LuSearch } from "react-icons/lu";
-
 import { logout } from "../../utils/functions/auth.function";
+import { useDashboardContext } from "../../context/DashboardContext";
 
 function Top_Dashboard() {
+  const { dashboardSearchQuery, setDashboardSearchQuery } = useDashboardContext();
   const [user, setUser] = useState({ nom: "", prenom: "", email: "" });
 
   useEffect(() => {
@@ -24,20 +25,32 @@ function Top_Dashboard() {
         console.error("Erreur de parsing du localStorage:", error);
       }
     }
-
-
   }, []);
 
   const handleLogout = () => {
     try {
-    logout();
+      logout();
     } catch (error) {
-        console.error("Erreur de déconnexion:", error);
+      console.error("Erreur de déconnexion:", error);
     }
     Cookies.remove("token");
     localStorage.removeItem("user");
     window.location.href = "/login";
-}
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDashboardSearchQuery(event.target.value);
+  };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (dashboardSearchQuery) {
+        console.log("Recherche en cours pour :", dashboardSearchQuery);
+      }
+    }, 200);
+
+    return () => clearTimeout(handler);
+  }, [dashboardSearchQuery]);
 
   return (
     <div className="w-full h-full bg-white text-black flex justify-between items-center px-20">
@@ -47,6 +60,8 @@ function Top_Dashboard() {
           type="text"
           className="border-l border-gray-300 pl-3 focus:outline-none"
           placeholder="recherche"
+          value={dashboardSearchQuery}
+          onChange={handleSearchChange}
         />
       </div>
       <div className="flex items-center gap-3 text-sm">
