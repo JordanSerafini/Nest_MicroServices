@@ -1,4 +1,6 @@
-import { useDashboardContext } from "@/app/context/DashboardContext"
+"use client";
+
+import { useDashboardContext } from "@/app/context/DashboardContext";
 import { SaleDocument } from "@/@types/sales/SaleDocument.type";
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -15,62 +17,63 @@ function Last_sale() {
   const [offset, setOffset] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [category_selected_forDate, setCategory_selected_forDate] = useState("");
-console.log(searchQuery)
+  const [hasMore, setHasMore] = useState(true); // Nouvel état pour suivre s’il y a plus de données
+
   //* ------------------------------------------------------------------------------------------------- UseEffects --------------------------------------
   useEffect(() => {
     const fetchSalesData = async () => {
-      if (isFetching) return;
+      if (isFetching || searchQuery === undefined || !hasMore) return;
       setIsFetching(true);
-  
+
       try {
         let data;
         if (category_selected_forDate) {
           data = await getSaleByCategory(category_selected_forDate, limit, offset);
         } else {
-          data = await getSalePaginated_Date(searchQuery, limit, offset);
+          data = await getSalePaginated_Date(searchQuery || "", limit, offset);
         }
-  
+
+        if (data.saleDocuments.length < limit) {
+          setHasMore(false); // Si moins de données sont reçues que la limite, nous avons atteint la fin
+        }
+
         const combinedSales = [...sales_byDate, ...data.saleDocuments];
         const uniqueSales = combinedSales.filter(
-          (sale, index, self) =>
-            index === self.findIndex((s) => s.Id === sale.Id)
+          (sale, index, self) => index === self.findIndex((s) => s.Id === sale.Id)
         );
         const sortedSales = uniqueSales.sort(
-          (a, b) =>
-            new Date(b.DocumentDate).getTime() - new Date(a.DocumentDate).getTime()
+          (a, b) => new Date(b.DocumentDate).getTime() - new Date(a.DocumentDate).getTime()
         );
         setSales_byDate(sortedSales);
-        setIsFetching(false);
       } catch (error) {
         console.error("Error fetching sales data:", error);
+      } finally {
         setIsFetching(false);
       }
     };
-  
+
     fetchSalesData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, limit, offset]);
-  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, limit, offset, category_selected_forDate]);
 
   const handleScroll_date = useCallback(
     (event: React.UIEvent<HTMLDivElement>) => {
       const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-      if (scrollTop + clientHeight >= scrollHeight - 5) {
+      if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && !isFetching) {
         setOffset((prevOffset) => prevOffset + limit);
       }
     },
-    [limit]
+    [limit, hasMore, isFetching] // Ajout de `hasMore` et `isFetching` aux dépendances
   );
 
   //* ------------------------------------------------------------------------------------------------- Functions --------------------------------------
-
-  function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
+  const handleSelectCategorySearch = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = event.target.value;
+    setCategory_selected_forDate(newValue);
+    setOffset(0);
+    setSales_byDate([]);
+    setHasMore(true); 
+  };
 
   function getTextColorClass(prefix: string): string {
     switch (prefix) {
@@ -100,79 +103,69 @@ console.log(searchQuery)
         return "text-black";
     }
   }
-
-  const handleSelectCategorySearch = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = event.target.value;
-    setCategory_selected_forDate(newValue);
-    setOffset(0);
-    setSales_byDate([]);
-  };
-  
   
 
   return (
-<div className="w-3.5/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">
-          {/* En-tête fixe */}
-          <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
-            <GrDocumentVerified />
-            <h3 className="text-center tracking-widest italic">
-              Dernières ventes
-            </h3>
-            <div className="flex justify-center text-xs">
-              <select
-                className="border p-2 rounded-lg shadow-sm bg-white focus:outline-blue-800"
-                value={category_selected_forDate}
-                onChange={handleSelectCategorySearch}
-              >
-                <option value="">Toutes les catégories</option>
-                <option value="BR">BR</option>
-                <option value="FC">FC</option>
-                <option value="AD">AD</option>
-                <option value="BL">BL</option>
-                <option value="FA">FA</option>
-                <option value="FD">FD</option>
-                <option value="CC">CC</option>
-                <option value="CM">CM</option>
-                <option value="AV">AV</option>
-                <option value="DE">DE</option>
-              </select>
+    <div className="w-3.5/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">
+      {/* En-tête fixe */}
+      <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
+        <GrDocumentVerified />
+        <h3 className="text-center tracking-widest italic">
+          Dernières ventes
+        </h3>
+        <div className="flex justify-center text-xs">
+          <select
+            className="border p-2 rounded-lg shadow-sm bg-white focus:outline-blue-800"
+            value={category_selected_forDate}
+            onChange={handleSelectCategorySearch}
+          >
+            <option value="">Toutes les catégories</option>
+            <option value="BR">BR</option>
+            <option value="FC">FC</option>
+            <option value="AD">AD</option>
+            <option value="BL">BL</option>
+            <option value="FA">FA</option>
+            <option value="FD">FD</option>
+            <option value="CC">CC</option>
+            <option value="CM">CM</option>
+            <option value="AV">AV</option>
+            <option value="DE">DE</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Liste des ventes défilable */}
+      <div
+        className="overflow-y-auto your-scrollable-container"
+        style={{ maxHeight: "calc(100% - 4rem)" }}
+        onScroll={handleScroll_date}
+      >
+        {sales_byDate.map((sale: SaleDocument) => (
+          <div key={sale.Id} className="flex flex-col border-b p-2 gap-2">
+            <div className="flex justify-between text-black ">
+              <div className="flex gap-2">
+              <p className={`text-sm font-bold tracking-widest ${getTextColorClass(sale.NumberPrefix)}`}>
+              {sale.NumberPrefix}
+                </p>
+                <p className="text-sm tracking-wide">{sale.NumberSuffix}</p>
+              </div>
+              <p className="text-gray-500 text-sm">
+                {new Date(sale.DocumentDate).toLocaleDateString("fr-FR")}
+              </p>
+            </div>
+            <div className="flex justify-between text-xs">
+              <p>{sale.CustomerId}</p>
+              <div className="flex items-center gap-1">
+                <FaEuroSign className="text-black text-sm" />
+                <p className="font-bold">{sale.TotalDueAmount}</p>
+              </div>
             </div>
           </div>
-
-          {/* Liste des ventes défilable */}
-          <div
-            className="overflow-y-auto your-scrollable-container"
-            style={{ maxHeight: "calc(100% - 4rem)" }}
-            onScroll={handleScroll_date}
-          >
-            {sales_byDate.map((sale: SaleDocument) => (
-              <div key={sale.Id} className="flex flex-col border-b p-2 gap-2">
-                <div className="flex justify-between text-black">
-                  <div className="flex gap-1">
-                    <p
-                      className={`text-sm font-bold tracking-widest ${getTextColorClass(
-                        sale.NumberPrefix
-                      )}`}
-                    >
-                      {sale.NumberPrefix}
-                    </p>
-                    <p className="text-sm tracking-wide">{sale.NumberSuffix}</p>
-                  </div>
-                  <p className="text-gray-500 text-sm">
-                    {formatDate(sale.DocumentDate)}
-                  </p>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <p>{sale.CustomerId}</p>
-                  <div className="flex items-center gap-1">
-                    <FaEuroSign className="text-black text-sm" />
-                    <p>{sale.TotalDueAmount}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>  )
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export default Last_sale
+export default Last_sale;
+

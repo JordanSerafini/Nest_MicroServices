@@ -1,7 +1,9 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { MdOutlinePointOfSale } from "react-icons/md";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { BsCalendarDate } from "react-icons/bs";
-import { useEffect, useState } from "react";
 import { fetchMonthlyIncome } from "@/app/utils/functions/ventes.function";
 
 interface IncomeData {
@@ -24,8 +26,8 @@ function Monthly_Income() {
     const [monthlyIncome, setMonthlyIncome] = useState<IncomeData[]>([]);
     const [error, setError] = useState("");
 
+
     useEffect(() => {
-      console.log("Fetching monthly income data...");
         const fetchIncomeData = async () => {
           try {
             const data = await fetchMonthlyIncome(selectedMonth, selectedYear);
@@ -37,8 +39,7 @@ function Monthly_Income() {
         };
         fetchIncomeData();
       }, [selectedMonth, selectedYear]);
-      console.log("Initial Selected Month:", selectedMonth, "Initial Selected Year:", selectedYear);
-
+      
   function getBackgroundColorClass(prefix: string): string {
     switch (prefix) {
       case "BR":
@@ -67,7 +68,6 @@ function Monthly_Income() {
         return "bg-black";
     }
   }
-
 
   return (
     <div className="w-3/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">

@@ -1,74 +1,76 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState, useMemo } from "react";
 import { fetchMonthlyIncome } from "@/app/utils/functions/ventes.function";
 import { Line } from "react-chartjs-2";
-
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-  } from "chart.js";
-  
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-  );
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-  interface IncomeDataGraph {
-    numberPrefix: string;
-    month: number;
-    year: number;
-    totalDueAmount: number;
-  }
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+interface IncomeDataGraph {
+  numberPrefix: string;
+  month: number;
+  year: number;
+  totalDueAmount: number;
+}
 
 function Sales_Graph() {
-    const [graphIncome, setGraphIncome] = useState<IncomeDataGraph[]>([]);
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    
-    function getBackgroundColorClass(prefix: string): string {
-        switch (prefix) {
-          case "BR":
-            return "bg-red-800";
-          case "FC":
-            return "bg-blue-800";
-          case "AD":
-            return "bg-green-800";
-          case "BL":
-            return "bg-yellow-800";
-          case "FA":
-            return "bg-purple-800";
-          case "DEX":
-            return "bg-pink-800";
-          case "FD":
-            return "bg-indigo-800";
-          case "CC":
-            return "bg-gray-800";
-          case "CM":
-            return "bg-teal-800";
-          case "AV":
-            return "bg-orange-800";
-          case "DE":
-            return "bg-cyan-800";
-          default:
-            return "bg-black";
-        }
-      }
+  const [graphIncome, setGraphIncome] = useState<IncomeDataGraph[]>([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-    //* ------------------------------------------------------------------------------------------------- Charts --------------------------------------
-  const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - (5 - i));
-    return { month: date.getMonth() + 1, year: date.getFullYear() };
-  });
+  function getBackgroundColorClass(prefix: string): string {
+    switch (prefix) {
+      case "BR":
+        return "bg-red-800";
+      case "FC":
+        return "bg-blue-800";
+      case "AD":
+        return "bg-green-800";
+      case "BL":
+        return "bg-yellow-800";
+      case "FA":
+        return "bg-purple-800";
+      case "DEX":
+        return "bg-pink-800";
+      case "FD":
+        return "bg-indigo-800";
+      case "CC":
+        return "bg-gray-800";
+      case "CM":
+        return "bg-teal-800";
+      case "AV":
+        return "bg-orange-800";
+      case "DE":
+        return "bg-cyan-800";
+      default:
+        return "bg-black";
+    }
+  }
+
+  const lastSixMonths = useMemo(() => {
+    return Array.from({ length: 6 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - (5 - i));
+      return { month: date.getMonth() + 1, year: date.getFullYear() };
+    });
+  }, [selectedYear]);
 
   useEffect(() => {
     const fetchGraphIncomeData = async () => {
@@ -76,7 +78,6 @@ function Sales_Graph() {
         const promises = lastSixMonths.map(({ month, year }) =>
           fetchMonthlyIncome(month, year)
         );
-
         const incomeDataByMonth = await Promise.all(promises);
         const flattenedData = incomeDataByMonth.flat();
         setGraphIncome(flattenedData);
@@ -86,7 +87,7 @@ function Sales_Graph() {
     };
 
     fetchGraphIncomeData();
-  }, [selectedYear, lastSixMonths]);
+  }, [lastSixMonths]);
 
   const graphData = {
     labels: lastSixMonths.map(({ month }) => `Mois ${month}`),
@@ -146,13 +147,13 @@ function Sales_Graph() {
   }
 
   return (
-
     <div className="w-3.5/10 border h-9.5/10 rounded-xl p-8 bg-white shadow-2xl">
-    <h3 className="text-center tracking-widest italic">
-      Graphique des Revenus Mensuels
-    </h3>
-    <Line data={graphData} options={options} />
-  </div>  )
+      <h3 className="text-center tracking-widest italic">
+        Graphique des Revenus Mensuels
+      </h3>
+      <Line data={graphData} options={options} />
+    </div>
+  );
 }
 
-export default Sales_Graph
+export default Sales_Graph;

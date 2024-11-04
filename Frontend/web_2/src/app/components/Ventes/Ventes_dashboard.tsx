@@ -1,11 +1,11 @@
+"use client";
 
 import Last_sale from "./Last_sale";
 import Monthly_Income from "./Monthly_Income";
-import Sales_Graph from "./Sales_Graph";
+//import Sales_Graph from "./Sales_Graph";
 
 export default function Ventes_dashboard() {
  
-
   //* ------------------------------------------------------------------------------------------------- Return --------------------------------------
   return (
     <div className="h-full w-full text-gray-500 p-4 flex-col gap-8 ">
@@ -15,7 +15,7 @@ export default function Ventes_dashboard() {
         {/* -------------------------------------------------------------------------------------------------- Encart Revenu Mensuel -------------------------------------------------------- */}
         <Monthly_Income />
         {/* -------------------------------------------------------------------------------------------------- Graph -------------------------------------------------------- */}
-        <Sales_Graph />
+        {/* <Sales_Graph /> */}
       </div>
     </div>
   );
