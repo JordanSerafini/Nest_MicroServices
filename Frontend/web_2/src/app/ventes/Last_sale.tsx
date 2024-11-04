@@ -7,11 +7,12 @@ import {
   getSalePaginated_Date,
   getSaleByCategory,
 } from "@/app/utils/functions/ventes.function";
+
 import { FaEuroSign } from "react-icons/fa";
 import { GrDocumentVerified } from "react-icons/gr";
 
 function Last_sale() {
-  const { dashboardSearchQuery: searchQuery } = useDashboardContext();
+  const { dashboardSearchQuery: searchQuery, setContent } = useDashboardContext();
   const [sales_byDate, setSales_byDate] = useState<SaleDocument[]>([]);
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
@@ -54,6 +55,8 @@ function Last_sale() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, limit, offset, category_selected_forDate]);
 
+
+  //* ------------------------------------------------------------------------------------------------- HandleScroll --------------------------------
   const handleScroll_date = useCallback(
     (event: React.UIEvent<HTMLDivElement>) => {
       const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
@@ -101,11 +104,10 @@ function Last_sale() {
         return "text-black";
     }
   }
-  
 
   return (
     <div className="w-3.5/10 border h-9.5/10 rounded-xl p-2 bg-white shadow-2xl">
-      {/* En-tête fixe */}
+      {/* -------------------------------------------------------- En-tête fixe */}
       <div className="flex items-center justify-center gap-4 p-2 border-b mb-2">
         <GrDocumentVerified />
         <h3 className="text-center tracking-widest italic">
@@ -132,14 +134,14 @@ function Last_sale() {
         </div>
       </div>
 
-      {/* Liste des ventes défilable */}
+      {/* ------------------------------------------------------- Liste des ventes défilable */}
       <div
         className="overflow-y-auto your-scrollable-container"
         style={{ maxHeight: "calc(100% - 4rem)" }}
         onScroll={handleScroll_date}
       >
         {sales_byDate.map((sale: SaleDocument) => (
-          <div key={sale.Id} className="flex flex-col border-b p-2 gap-2">
+          <div key={sale.Id} className="flex flex-col border-b p-2 gap-2" onClick={() => setContent(`detail-${sale.Id}`)}>
             <div className="flex justify-between text-black ">
               <div className="flex gap-2">
               <p className={`text-sm font-bold tracking-widest ${getTextColorClass(sale.NumberPrefix)}`}>

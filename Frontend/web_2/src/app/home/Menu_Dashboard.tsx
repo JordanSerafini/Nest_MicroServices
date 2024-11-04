@@ -2,8 +2,11 @@
 
 import { BiSolidDashboard } from "react-icons/bi";
 import { FaCalendarAlt, FaFileAlt, FaUsers, FaBox } from "react-icons/fa";
+import { useDashboardContext } from "../context/DashboardContext";
 
 function Menu_Dashboard({active, setActive}: {active: string, setActive: (name: string) => void}) {
+
+    const { setContent } = useDashboardContext();
 
     const tabs = [
         { name: "Dashboard", icon: <BiSolidDashboard /> },
@@ -22,8 +25,10 @@ function Menu_Dashboard({active, setActive}: {active: string, setActive: (name: 
           {tabs.map((tab) => (
             <div
               key={tab.name}
-              onClick={() => setActive(tab.name)}
-              className={`cursor-pointer flex items-center gap-3 w-4/5 py-2 px-4 ${
+              onClick={() => {
+                setActive(tab.name);
+                setContent("");
+              }}              className={`cursor-pointer flex items-center gap-3 w-4/5 py-2 px-4 ${
                 active === tab.name
                   ? "text-gray-900 font-bold bg-gray-100 rounded-md"
                   : "text-gray-500"

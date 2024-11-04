@@ -6,15 +6,18 @@ import React, { createContext, useContext, useState } from 'react';
 interface DashboardContextProps {
   dashboardSearchQuery: string;
   setDashboardSearchQuery: (query: string) => void;
+  content: string;
+  setContent: (content: string) => void;
 }
 
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
 
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [dashboardSearchQuery, setDashboardSearchQuery] = useState("");
+  const [content, setContent] = useState(""); // Créez l'état pour "content"
 
   return (
-    <DashboardContext.Provider value={{ dashboardSearchQuery, setDashboardSearchQuery }}>
+    <DashboardContext.Provider value={{ dashboardSearchQuery, setDashboardSearchQuery, content, setContent }}>
       {children}
     </DashboardContext.Provider>
   );

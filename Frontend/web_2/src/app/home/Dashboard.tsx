@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import Top_Dashboard from "./Top_Dashboard";
-import Ventes_dashboard from "../Ventes/Ventes_dashboard";
+import Ventes_dashboard from "../ventes/Ventes_dashboard";
 import Menu_Dashboard from "./Menu_Dashboard";
 
 function Dashboard() {

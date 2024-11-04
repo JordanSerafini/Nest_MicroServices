@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Dashboard from './components/home/Dashboard';
+import Dashboard from './home/Dashboard';
 
 const Home: React.FC = () => {
   useEffect(() => {

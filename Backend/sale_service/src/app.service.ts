@@ -40,7 +40,7 @@ export class SaleService {
           .map((row) => ({
             LineOrder: row.LineOrder,
             ItemId: row.ItemId,
-            Description: row.Description,
+            Description: row.DescriptionClear,
             Quantity: row.Quantity,
             RealQuantity: row.RealQuantity,
             NetAmountVatExcluded: row.NetAmountVatExcluded,

@@ -3,8 +3,8 @@ import Image from "next/image";
 import Cookies from 'js-cookie';
 
 import { LuSearch } from "react-icons/lu";
-import { logout } from "../../utils/functions/auth.function";
-import { useDashboardContext } from "../../context/DashboardContext";
+import { logout } from "../utils/functions/auth.function";
+import { useDashboardContext } from "../context/DashboardContext";
 
 function Top_Dashboard() {
   const { dashboardSearchQuery, setDashboardSearchQuery } = useDashboardContext();
