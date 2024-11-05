@@ -53,6 +53,7 @@ function Last_sale() {
     fetchSalesData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, limit, offset, category_selected_forDate]);
+  
 
   /*
   useEffect(() => {
