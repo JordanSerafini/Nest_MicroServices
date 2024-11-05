@@ -36,17 +36,17 @@ const DetailView: React.FC<DetailViewProps> = ({ saleId }) => {
       
 
       {/* --------------------------------------------------------------------------- Tableau  */}
-      <div className="overflow-x-auto mt-6">
-        <table className="min-w-full bg-white border border-gray-200">
+      <div className="mt-6">
+        <table className="min-w-full bg-white border border-gray-200 overflow-x-auto ">
           <thead>
             <tr className="bg-white border-b border-gray-300 text-black">
-              <th className="px-4 py-2 w-6/10 text-center border-r">
+              <th className="px-4 py-2 w-6/10 text-center border-r italic">
                 Description
               </th>
-              <th className="px-4 py-2 w-0.5/10 text-center border-r">
+              <th className="px-4 py-2 w-0.5/10 text-center border-r italic">
                 Quantité
               </th>
-              <th className="px-4 py-2 w-1/10 text-center">Prix TTC</th>
+              <th className="px-4 py-2 w-1/10 text-center italic">Prix TTC</th>
             </tr>
           </thead>
           <tbody>
@@ -54,7 +54,7 @@ const DetailView: React.FC<DetailViewProps> = ({ saleId }) => {
             saleDetail.SaleDocumentLine.length > 0 ? (
               saleDetail.SaleDocumentLine.map((line, index) => (
                 <tr key={index} className="border-b border-gray-200">
-                  <td className="px-4 py-2 text-sm text-gray-700 border-r max-h-20 overflow-y-auto">
+                  <td className="px-6 py-4 text-xs text-gray-700 border-r max-h-20 overflow-y-auto">
                     <div className="max-h-20 overflow-y-auto">
                       {line.Description || "description manquante"}
                     </div>
@@ -78,8 +78,8 @@ const DetailView: React.FC<DetailViewProps> = ({ saleId }) => {
         </table>
         <div className="flex items-center gap-2 pt-2">
           <div className="w-9/10"></div>
-          <p className="text-base font-bold text-black border-r">
-            Total : 
+          <p className="text-base font-bold text-black">
+            Total
           </p>
           <p className="">{saleDetail.TotalDueAmount} €</p>
         </div>

@@ -138,7 +138,7 @@ export class ChantierService {
       // Pagination
       queryParams.push(limit);
       queryParams.push(offset);
-      query += ` ORDER BY cs."Caption" ASC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+      query += ` ORDER BY cs."StartDate" DESC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
       countQuery += `;`;
 
       const [chantierResult, totalResult] = await Promise.all([

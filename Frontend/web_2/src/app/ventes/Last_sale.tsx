@@ -14,11 +14,11 @@ import { GrDocumentVerified } from "react-icons/gr";
 function Last_sale() {
   const { dashboardSearchQuery: searchQuery, setContent } = useDashboardContext();
   const [sales_byDate, setSales_byDate] = useState<SaleDocument[]>([]);
-  const [limit, setLimit] = useState(10);
+  const [ limit ] = useState(10);
   const [offset, setOffset] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [category_selected_forDate, setCategory_selected_forDate] = useState("");
-  const [hasMore, setHasMore] = useState(true); // Nouvel état pour suivre s’il y a plus de données
+  const [hasMore, setHasMore] = useState(true);
   //* ------------------------------------------------------------------------------------------------- UseEffects --------------------------------------
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -51,9 +51,9 @@ function Last_sale() {
     };
 
     fetchSalesData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, limit, offset, category_selected_forDate]);
-  
+
 
   /*
   useEffect(() => {
@@ -107,7 +107,7 @@ useEffect(() => {
         setOffset((prevOffset) => prevOffset + limit);
       }
     },
-    [limit, hasMore, isFetching] // Ajout de `hasMore` et `isFetching` aux dépendances
+    [limit, hasMore, isFetching]
   );
 
   //* ------------------------------------------------------------------------------------------------- Functions --------------------------------------
