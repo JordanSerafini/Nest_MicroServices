@@ -24,7 +24,7 @@ function Menu_Dashboard({
   ];
 
   return (
-    <div className=" text-gray-500 text-lg border-r bg-white tracking-wide flex-col items-center justify-start w-64 p-1">
+    <div className="text-gray-500 text-lg border-r bg-white tracking-wide flex flex-col items-center justify-start h-full w-64 p-1">
       <h3 className="text-black border-b border-black font-bold text-xl p-4 mb-20">
         Solution Logique
       </h3>
@@ -36,10 +36,10 @@ function Menu_Dashboard({
               setActive(tab.name);
               setContent("");
             }}
-            className={`cursor-pointer flex items-center gap-3 w-4/5 py-2 px-4 ${
+            className={`cursor-pointer flex items-center gap-3 w-4/5 py-2 px-4 rounded-md transition-colors duration-200 ${
               active === tab.name
-                ? "text-gray-900 font-bold bg-gray-100 rounded-md"
-                : "text-gray-500"
+                ? "text-gray-900 font-bold bg-gray-100"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
             {tab.icon}

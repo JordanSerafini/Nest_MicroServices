@@ -54,7 +54,7 @@ function Top_Dashboard() {
   }, [dashboardSearchQuery]);
 
   return (
-    <div className="w-full h-full bg-white text-black flex justify-between items-center px-20">
+    <div className="w-full h-16 bg-white text-black flex justify-between items-center px-20">
       <div className="h-fit flex items-center justify-evenly gap-2 p-1 border w-64 rounded-lg">
         <LuSearch className="text-gray-700 text-xl" />
         <input

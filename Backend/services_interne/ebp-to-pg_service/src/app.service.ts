@@ -154,6 +154,7 @@ export class AppService {
     return `INSERT INTO "${tableInfo.tableName}" (${columnNames}) VALUES (${values});`;
   }
 
+  //! Attention sur Barrachin
   async insertDataFromMSSQLToPGSQL(): Promise<void> {
     const tables = await this.getTables();
     for (const tableInfo of tables) {
@@ -178,7 +179,7 @@ export class AppService {
       let result;
 
       try {
-        result = await this.mssqlPool.query(selectQuery);
+        result = await this.barrachinPool.query(selectQuery);
       } catch (err) {
         console.error(
           `Erreur lors de la requête de données de la table ${tableInfo.tableName}:`,
@@ -230,6 +231,7 @@ export class AppService {
     }
   }
 
+  //! Attention sur Barrachin
   async insertDataFromMSSQLToPGSQLSelect(): Promise<void> {
     try {
       const startTime = Date.now();

@@ -116,15 +116,14 @@ export class ChantierService {
 
     try {
       let query = `
-        SELECT 
+        SELECT DISTINCT ON (cs."Id") 
           cs.*, 
           row_to_json(customer) AS customer
-            FROM "ConstructionSite" cs
-            JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
-
+        FROM "ConstructionSite" cs
+        JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
       `;
 
-      let countQuery = `SELECT COUNT(*) FROM "ConstructionSite" cs`;
+      let countQuery = `SELECT COUNT(DISTINCT cs."Id") FROM "ConstructionSite" cs`;
       const queryParams: (string | number)[] = [];
       const countParams: (string | number)[] = [];
 
@@ -138,7 +137,7 @@ export class ChantierService {
       // Pagination
       queryParams.push(limit);
       queryParams.push(offset);
-      query += ` ORDER BY cs."StartDate" DESC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
+      query += ` ORDER BY cs."Id", cs."StartDate" DESC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
       countQuery += `;`;
 
       const [chantierResult, totalResult] = await Promise.all([

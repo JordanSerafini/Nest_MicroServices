@@ -11,21 +11,14 @@ const Home: React.FC = () => {
     const welcomeMessage = localStorage.getItem('welcomeMessage');
     if (welcomeMessage) {
       toast.info(welcomeMessage);
-
       localStorage.removeItem('welcomeMessage');
     }
   }, []);
 
   return (
-    <div className="w-screen h-screen bg-gray-100 overflow-y-auto overflow-x-hidden">
-      <div className='h-screen w-52'>
-        <Dashboard />
-      </div>      
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        //toastClassName="w-4/5 mx-auto"
-      />
+    <div className="w-screen h-screen bg-gray-100 flex flex-col overflow-hidden">
+      <Dashboard />
+      <ToastContainer position="top-center" autoClose={3000} />
     </div>
   );
 };

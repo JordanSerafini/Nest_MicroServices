@@ -1,10 +1,10 @@
-import { ConstructionSite } from "@/@types/chantier.type";
+import { ConstructionSite } from '@/@types/chantiers/chantier.type';
 import { url } from "../url";
 import Cookies from 'js-cookie';
 
 // Fonction pour récupérer le token
 const getToken = () => {
-  return Cookies.get("userToken");
+  return Cookies.get("token");
 };
 
 // Fonction pour récupérer tous les chantiers
@@ -177,3 +177,93 @@ export const getChantiersPaginated = async (searchQuery: string, limit: number, 
     throw new Error('Unknown error occurred');
   }
 };
+
+export const getChantiersDocLineByChantierId = async (id: string) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Token not found');
+    }
+
+    const response = await fetch(`${url.api_gateway}/chantiers/document_line/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error fetching doclines by chantier ID:', error.message);
+      throw error;
+    }
+    throw new Error('Unknown error occurred');
+  }
+}
+
+export const getChantierDealByChantierId = async (id: string) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Token not found');
+    }
+
+    const response = await fetch(`${url.api_gateway}/chantiers/deal/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error fetching deal by chantier ID:', error.message);
+      throw error;
+    }
+    throw new Error('Unknown error occurred');
+  }
+}
+
+export const getChantierDocmumentByChantierId = async (id: string) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Token not found');
+    }
+
+    const response = await fetch(`${url.api_gateway}/chantiers/document/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error fetching document by chantier ID:', error.message);
+      throw error;
+    }
+    throw new Error('Unknown error occurred');
+  }
+}
