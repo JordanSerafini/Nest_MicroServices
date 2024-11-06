@@ -16,6 +16,7 @@ function Chantier_Dashboard() {
   const fetchChantiers = useCallback(async () => {
     try {
       const data = await getChantiersPaginated("", limit, offset);
+      console.log("Data:", data);
       const chantiersData: ConstructionSite[] = data.chantiers;
 
       const uniqueChantiers = Array.from(
@@ -61,6 +62,7 @@ function Chantier_Dashboard() {
 
     return () => observerRef.current?.disconnect();
   }, [chantiers, limit]);
+
 
   return (
     <div className="h-10/10 text-gray-500 p-4 flex-col">

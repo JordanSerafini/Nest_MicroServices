@@ -115,30 +115,35 @@ export class ChantierService {
     );
 
     try {
-      let query = `
-      SELECT DISTINCT ON (cs."Id") 
-        cs.*, 
-        row_to_json(customer) AS customer
-      FROM "ConstructionSite" cs
-      JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
-    `;
+      const query = `
+        SELECT *
+        FROM (
+          SELECT DISTINCT ON (cs."Id")
+            cs.*, 
+            row_to_json(customer) AS customer
+          FROM "ConstructionSite" cs
+          JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
+          ${searchQuery ? `WHERE cs."Caption" ILIKE $1` : ''}
+          ORDER BY cs."Id", cs."StartDate" DESC
+        ) AS sorted_chantiers
+        ORDER BY sorted_chantiers."StartDate" DESC
+        LIMIT $${searchQuery ? 2 : 1} OFFSET $${searchQuery ? 3 : 2};
+      `;
 
-      let countQuery = `SELECT COUNT(DISTINCT cs."Id") FROM "ConstructionSite" cs`;
+      const countQuery = `SELECT COUNT(DISTINCT cs."Id") FROM "ConstructionSite" cs ${searchQuery ? `WHERE cs."Caption" ILIKE $1` : ''};`;
+
       const queryParams: (string | number)[] = [];
       const countParams: (string | number)[] = [];
 
+      // Ajoute le paramètre de recherche si `searchQuery` est défini
       if (searchQuery) {
-        query += ` WHERE cs."Caption" ILIKE $1`;
-        countQuery += ` WHERE cs."Caption" ILIKE $1`;
         queryParams.push(`%${searchQuery}%`);
         countParams.push(`%${searchQuery}%`);
       }
 
-      // Pagination
+      // Ajoute les paramètres pour la pagination
       queryParams.push(limit);
       queryParams.push(offset);
-      query += ` ORDER BY cs."Id", cs."StartDate" DESC LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}`;
-      countQuery += `;`;
 
       const [chantierResult, totalResult] = await Promise.all([
         this.pool.query(query, queryParams),

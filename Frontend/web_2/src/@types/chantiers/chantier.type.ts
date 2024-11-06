@@ -1,8 +1,9 @@
-import { Customer } from "./customer.type";
+import { Customer } from "../customer.type";
 
 export class ConstructionSite {
   Id?: string;
   id?: number;
+  NotesClear?: string;
   ProfitsOnDuration?: number;
   sysCreatedDate?: Date;
   PredictedSales?: number;
