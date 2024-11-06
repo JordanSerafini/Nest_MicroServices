@@ -116,12 +116,12 @@ export class ChantierService {
 
     try {
       let query = `
-        SELECT DISTINCT ON (cs."Id") 
-          cs.*, 
-          row_to_json(customer) AS customer
-        FROM "ConstructionSite" cs
-        JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
-      `;
+      SELECT DISTINCT ON (cs."Id") 
+        cs.*, 
+        row_to_json(customer) AS customer
+      FROM "ConstructionSite" cs
+      JOIN "Customer" customer ON cs."CustomerId" = customer."Id"
+    `;
 
       let countQuery = `SELECT COUNT(DISTINCT cs."Id") FROM "ConstructionSite" cs`;
       const queryParams: (string | number)[] = [];

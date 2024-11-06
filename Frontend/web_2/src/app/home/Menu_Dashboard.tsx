@@ -24,8 +24,8 @@ function Menu_Dashboard({
   ];
 
   return (
-    <div className="text-gray-500 text-lg border-r bg-white tracking-wide flex flex-col items-center justify-start h-full w-64 p-1">
-      <h3 className="text-black border-b border-black font-bold text-xl p-4 mb-20">
+<div className="text-gray-500 text-lg border-r bg-white tracking-wide flex flex-col items-center justify-start h-full min-w-64 max-w-64 p-1">
+<h3 className="text-black border-b border-black font-bold text-xl p-4 mb-20">
         Solution Logique
       </h3>
       <div className="flex flex-col items-center justify-start w-full gap-4">
