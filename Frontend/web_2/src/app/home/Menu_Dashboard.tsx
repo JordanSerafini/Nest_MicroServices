@@ -2,6 +2,7 @@
 
 import { BiSolidDashboard } from "react-icons/bi";
 import { FaCalendarAlt, FaFileAlt, FaUsers, FaBox } from "react-icons/fa";
+import { MdConstruction } from "react-icons/md";
 import { useDashboardContext } from "../context/DashboardContext";
 
 function Menu_Dashboard({
@@ -16,6 +17,7 @@ function Menu_Dashboard({
   const tabs = [
     { name: "Dashboard", icon: <BiSolidDashboard /> },
     { name: "Planing", icon: <FaCalendarAlt /> },
+    { name: "Chantiers", icon: <MdConstruction /> },
     { name: "Articles", icon: <FaBox /> },
     { name: "Clients", icon: <FaUsers /> },
     { name: "Ventes", icon: <FaFileAlt /> },

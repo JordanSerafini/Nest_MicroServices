@@ -3,8 +3,10 @@
 import { useState } from "react";
 
 import Top_Dashboard from "./Top_Dashboard";
-import Ventes_dashboard from "../ventes/Ventes_dashboard";
 import Menu_Dashboard from "./Menu_Dashboard";
+
+import Ventes_dashboard from "../ventes/Ventes_dashboard";
+import Chantier_Dashboard from "../chantiers/Chantier_Dashboard";
 
 function Dashboard() {
   const [active, setActive] = useState("Dashboard");
@@ -27,6 +29,7 @@ function Dashboard() {
         {active === "Articles" && <div>Articles</div>}
         {active === "Clients" && <div>Clients</div>}
         {active === "Ventes" && < Ventes_dashboard />}
+        {active === "Chantiers" && < Chantier_Dashboard />}
       </div>
       </div>
     </div>

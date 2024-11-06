@@ -55,49 +55,6 @@ function Last_sale() {
   }, [searchQuery, limit, offset, category_selected_forDate]);
 
 
-  /*
-  useEffect(() => {
-  // Réinitialiser `offset` et `sales_byDate` chaque fois que `searchQuery` change.
-  setOffset(0);
-  setSales_byDate([]);
-  setHasMore(true);
-}, [searchQuery]);
-
-useEffect(() => {
-  const fetchSalesData = async () => {
-    if (isFetching || searchQuery === undefined || !hasMore) return;
-    setIsFetching(true);
-
-    try {
-      let data;
-      if (category_selected_forDate) {
-        data = await getSaleByCategory(category_selected_forDate, limit, offset);
-      } else {
-        data = await getSalePaginated_Date(searchQuery || "", limit, offset);
-      }
-
-      if (data.saleDocuments.length < limit) {
-        setHasMore(false);
-      }
-
-      const combinedSales = offset === 0 ? data.saleDocuments : [...sales_byDate, ...data.saleDocuments];
-      const uniqueSales = combinedSales.filter(
-        (sale, index, self) => index === self.findIndex((s) => s.Id === sale.Id)
-      );
-
-      setSales_byDate(uniqueSales);
-    } catch (error) {
-      console.error("Error fetching sales data:", error);
-    } finally {
-      setIsFetching(false);
-    }
-  };
-
-  fetchSalesData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [searchQuery, limit, offset, category_selected_forDate]);
-*/
-
 
   //* ------------------------------------------------------------------------------------------------- HandleScroll --------------------------------
   const handleScroll_date = useCallback(
