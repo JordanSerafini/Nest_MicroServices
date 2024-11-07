@@ -10,11 +10,15 @@ function Chantier_Dashboard() {
   const [chantiers, setChantiers] = useState<ConstructionSite[]>([]);
   const [limit] = useState(18);
   const [offset, setOffset] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetRef = useRef<HTMLDivElement | null>(null);
 
   const fetchChantiers = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const data = await getChantiersPaginated("", limit, offset);
       const chantiersData: ConstructionSite[] = data.chantiers;
@@ -25,16 +29,21 @@ function Chantier_Dashboard() {
 
       setChantiers((prevChantiers) => [...prevChantiers, ...uniqueChantiers]);
     } catch (error) {
+      setError("Erreur lors du chargement des chantiers.");
       console.error(
         "Error fetching all chantiers:",
         error instanceof Error ? error.message : error
       );
+    } finally {
+      setIsLoading(false);
     }
   }, [limit, offset]);
 
   useEffect(() => {
-    fetchChantiers();
-  }, [offset, fetchChantiers]);
+    if (content === "" || content.startsWith("detail-")) {
+      fetchChantiers();
+    }
+  }, [content, offset, fetchChantiers]);
 
   useEffect(() => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -69,9 +78,10 @@ function Chantier_Dashboard() {
     }
   }, [content]);
 
-
   return (
     <div className="h-10/10 text-gray-500 p-4 flex-col">
+      {isLoading && <p>Chargement en cours...</p>}
+      {error && <p className="text-red-500">{error}</p>}
       {content === "" && (
         <div className="grid grid-cols-3 gap-6">
           {chantiers.map((chantier, index) => (
