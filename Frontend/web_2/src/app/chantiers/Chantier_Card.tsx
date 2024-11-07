@@ -1,10 +1,15 @@
 import { ConstructionSite } from "@/@types/chantiers/chantier.type";
 
+import { useDashboardContext } from "../context/DashboardContext";
+
 import { IoIosContact } from "react-icons/io";
 import { FaPhoneFlip } from "react-icons/fa6";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 
 function Chantier_Card({ chantier }: { chantier: ConstructionSite }) {
+
+  const { setContent } = useDashboardContext();
+
   const formattedStartDate = chantier.StartDate
     ? new Date(chantier.StartDate).toLocaleDateString("fr-FR", {
         day: "2-digit",
@@ -21,9 +26,10 @@ function Chantier_Card({ chantier }: { chantier: ConstructionSite }) {
       })
     : "";
 
+
   return (
     <div className="bg-white border p-3 rounded-xl w-full min-h-[22vh] flex flex-col items-center justify-start gap-4 overflow-auto shadow-xl">
-      <div className="flex w-full justify-between font-bold text-blue-900">
+      <div className="flex w-full justify-between font-bold text-blue-900 cursor-pointer"  onClick={() => setContent(`detail-${chantier.Id}`)}>
         <p className="italic">{chantier.Caption}</p>
         <p className="">{chantier.DealId}</p>
       </div>

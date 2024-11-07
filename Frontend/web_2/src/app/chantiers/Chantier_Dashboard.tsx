@@ -3,6 +3,7 @@ import { getChantiersPaginated } from "../utils/functions/chantier.function";
 import { ConstructionSite } from "@/@types/chantiers/chantier.type";
 import { useDashboardContext } from "../context/DashboardContext";
 import Chantier_Card from "./Chantier_Card";
+import Chantier_Detail from "./Chantier_Detail";
 
 function Chantier_Dashboard() {
   const { content } = useDashboardContext();
@@ -75,6 +76,7 @@ function Chantier_Dashboard() {
           ))}
         </div>
       )}
+      {content.startsWith("detail-") && <Chantier_Detail chantier_id={content.replace("detail-", "")} />}
     </div>
   );
 }
