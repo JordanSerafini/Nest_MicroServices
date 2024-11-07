@@ -4,6 +4,8 @@ export class ConstructionSite {
   Id?: string;
   id?: number;
   NotesClear?: string;
+  DealId?: string;
+  ConstructionSiteAddress_City?: string;
   ProfitsOnDuration?: number;
   sysCreatedDate?: Date;
   PredictedSales?: number;
