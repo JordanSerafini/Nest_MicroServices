@@ -14,7 +14,7 @@ const DashboardContext = createContext<DashboardContextProps | undefined>(undefi
 
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [dashboardSearchQuery, setDashboardSearchQuery] = useState("");
-  const [content, setContent] = useState(""); // Créez l'état pour "content"
+  const [content, setContent] = useState("");
 
   return (
     <DashboardContext.Provider value={{ dashboardSearchQuery, setDashboardSearchQuery, content, setContent }}>

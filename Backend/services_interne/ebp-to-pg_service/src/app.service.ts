@@ -178,7 +178,7 @@ export class AppService {
       let result;
 
       try {
-        result = await this.mssqlPool.query(selectQuery);
+        result = await this.barrachinPool.query(selectQuery);
       } catch (err) {
         console.error(
           `Erreur lors de la requête de données de la table ${tableInfo.tableName}:`,

@@ -45,7 +45,7 @@ function Top_Dashboard() {
   useEffect(() => {
     const handler = setTimeout(() => {
       if (dashboardSearchQuery) {
-        console.log("Recherche en cours pour :", dashboardSearchQuery);
+        //console.log("Recherche en cours pour :", dashboardSearchQuery);
         
       }
     }, 200);
