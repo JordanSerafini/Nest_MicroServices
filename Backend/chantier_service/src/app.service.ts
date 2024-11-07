@@ -333,7 +333,7 @@ export class ChantierService {
 
     try {
       const query = `
-        SELECT * FROM "ConstructionSiteReferenceDocument" WHERE "Id" = $1
+        SELECT * FROM "ConstructionSiteReferenceDocument" WHERE "ConstructionSiteId" = $1
       `;
       const values = [chantierDocId];
       const result = await this.pool.query(query, values);

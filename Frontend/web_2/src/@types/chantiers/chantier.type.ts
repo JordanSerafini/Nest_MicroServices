@@ -1112,6 +1112,7 @@ export class ConstructionSiteReferenceDocumentEx {
 
 export class ConstructionSiteReferenceDocumentLine {
   id?: number;
+  Id?: string;
   GrossInterestRate?: number;
   sysCreatedDate?: Date;
   CoordinatedActivity?: number;
