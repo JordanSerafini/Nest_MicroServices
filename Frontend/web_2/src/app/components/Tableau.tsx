@@ -48,8 +48,8 @@ type SaleLine = {
             )}
           </tbody>
         </table>
-        <div className="flex items-center gap-2 pt-2">
-          <div className="w-9/10"></div>
+        <div className="flex items-end justify-end gap-2 pt-2 w-full pr-6">
+          
           <p className="text-base font-bold text-black">Total</p>
           <p className="">{totalDueAmount.toFixed(2)} €</p>
         </div>

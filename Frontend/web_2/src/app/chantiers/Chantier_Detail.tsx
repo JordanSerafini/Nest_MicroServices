@@ -16,9 +16,11 @@ import {
 
 function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
   const [chantier, setChantier] = useState<ConstructionSite | null>(null);
-  const [chantier_document, setChantierDocument] = useState<ConstructionSiteReferenceDocument | null>(null);
-  const [chantier_documents_lines, setChantierDocumentsLines] = useState<ConstructionSiteReferenceDocumentLine[]>([]);
-
+  const [chantier_document, setChantierDocument] =
+    useState<ConstructionSiteReferenceDocument | null>(null);
+  const [chantier_documents_lines, setChantierDocumentsLines] = useState<
+    ConstructionSiteReferenceDocumentLine[]
+  >([]);
 
   //* ---------------------------------------------------------------------------------- UseEffect
   useEffect(() => {
@@ -48,7 +50,9 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
 
   const fetchDocument = async () => {
     try {
-      const chantierDocument = await getChantierDocmumentByChantierId(chantier_id);
+      const chantierDocument = await getChantierDocmumentByChantierId(
+        chantier_id
+      );
       setChantierDocument(chantierDocument[0]);
     } catch (error) {
       console.error("Error fetching chantier document:", error);
@@ -58,7 +62,9 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
   const fetchDocumentsLines = async () => {
     try {
       if (chantier_document && chantier_document.Id) {
-        const chantierDocumentsLines = await getChantiersDocLineByChantierId(chantier_document.Id);
+        const chantierDocumentsLines = await getChantiersDocLineByChantierId(
+          chantier_document.Id
+        );
         setChantierDocumentsLines(chantierDocumentsLines);
       } else {
         console.error("chantier_document is null or Id is missing");
@@ -76,9 +82,7 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
 
   return (
     <div>
-
-    < Tableau saleLines={formattedLines} />
-      
+      <Tableau saleLines={formattedLines} />
     </div>
   );
 }

@@ -17,7 +17,6 @@ function Chantier_Dashboard() {
   const fetchChantiers = useCallback(async () => {
     try {
       const data = await getChantiersPaginated("", limit, offset);
-      console.log("Data:", data);
       const chantiersData: ConstructionSite[] = data.chantiers;
 
       const uniqueChantiers = Array.from(
@@ -40,7 +39,6 @@ function Chantier_Dashboard() {
   useEffect(() => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       if (entries[0].isIntersecting) {
-        console.log("Le quatrième dernier chantier est visible");
         setOffset((prevOffset) => prevOffset + limit);
       }
     };
@@ -63,6 +61,13 @@ function Chantier_Dashboard() {
 
     return () => observerRef.current?.disconnect();
   }, [chantiers, limit]);
+
+  useEffect(() => {
+    if (content === "") {
+      setChantiers([]);
+      setOffset(0);
+    }
+  }, [content]);
 
 
   return (
