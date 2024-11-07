@@ -6,13 +6,14 @@ import Chantier_Card from "./Chantier_Card";
 import Chantier_Detail from "./Chantier_Detail";
 
 function Chantier_Dashboard() {
-  const { content } = useDashboardContext();
+  const { content, dashboardSearchQuery } = useDashboardContext();
   const [chantiers, setChantiers] = useState<ConstructionSite[]>([]);
   const [limit] = useState(18);
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  //* --------------------------------------------------------------------------  Intersection Observer    */
   const observerRef = useRef<IntersectionObserver | null>(null);
   const targetRef = useRef<HTMLDivElement | null>(null);
 
@@ -24,7 +25,12 @@ function Chantier_Dashboard() {
       const chantiersData: ConstructionSite[] = data.chantiers;
 
       const uniqueChantiers = Array.from(
-        new Map(chantiersData.map((chantier: ConstructionSite) => [chantier.Id, chantier])).values()
+        new Map(
+          chantiersData.map((chantier: ConstructionSite) => [
+            chantier.Id,
+            chantier,
+          ])
+        ).values()
       );
 
       setChantiers((prevChantiers) => [...prevChantiers, ...uniqueChantiers]);
@@ -39,6 +45,7 @@ function Chantier_Dashboard() {
     }
   }, [limit, offset]);
 
+  //* --------------------------------------------------------------------------  useEffect    */
   useEffect(() => {
     if (content === "" || content.startsWith("detail-")) {
       fetchChantiers();
@@ -61,7 +68,9 @@ function Chantier_Dashboard() {
 
     if (chantiers.length >= 4) {
       const fourthLastItemIndex = chantiers.length - 4;
-      const newTarget = document.getElementById(`chantier-${fourthLastItemIndex}`);
+      const newTarget = document.getElementById(
+        `chantier-${fourthLastItemIndex}`
+      );
       if (newTarget) {
         targetRef.current = newTarget as HTMLDivElement;
         observerRef.current.observe(targetRef.current);
@@ -78,20 +87,69 @@ function Chantier_Dashboard() {
     }
   }, [content]);
 
+  useEffect(() => {
+    if (dashboardSearchQuery == "") {
+      setOffset(0);
+      setChantiers([]);
+      fetchChantiers();
+    }
+  }, [dashboardSearchQuery]);
+  
+  //* --------------------------------------------------------------------------  Filtered Chantiers    */
+  const filteredChantiers = chantiers.filter((chantier) => {
+    const formattedStartDate = chantier.StartDate
+      ? new Date(chantier.StartDate).toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : "";
+
+    const formattedEndDate = chantier.EndDate
+      ? new Date(chantier.EndDate).toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : "";
+
+    const query = dashboardSearchQuery.toLowerCase();
+    return (
+      chantier.Caption?.toLowerCase().includes(query) ||
+      chantier.DealId?.toLowerCase().includes(query) ||
+      chantier.CustomerId?.toLowerCase().includes(query) ||
+      formattedStartDate.includes(query) ||
+      formattedEndDate.includes(query) ||
+      (chantier.ConstructionSiteAddress_City?.trim()
+        .toLowerCase()
+        .includes(query) ??
+        false) ||
+      chantier.customer?.MainInvoicingContact_Name?.toLowerCase().includes(
+        query
+      )
+    );
+  });
+
   return (
     <div className="h-10/10 text-gray-500 p-4 flex-col">
       {isLoading && <p>Chargement en cours...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {content === "" && (
         <div className="grid grid-cols-3 gap-6">
-          {chantiers.map((chantier, index) => (
-            <div id={`chantier-${index}`} key={`${chantier.Id}-${index}`} className="col-span-1">
+          {filteredChantiers.map((chantier, index) => (
+            <div
+              id={`chantier-${index}`}
+              key={`${chantier.Id}-${index}`}
+              className="col-span-1"
+            >
               <Chantier_Card chantier={chantier} />
             </div>
           ))}
         </div>
       )}
-      {content.startsWith("detail-") && <Chantier_Detail chantier_id={content.replace("detail-", "")} />}
+      {content.startsWith("detail-") && (
+        <Chantier_Detail chantier_id={content.replace("detail-", "")} />
+      )}
     </div>
   );
 }
