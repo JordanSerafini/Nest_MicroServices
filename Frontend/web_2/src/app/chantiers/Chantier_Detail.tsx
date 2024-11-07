@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import Tableau from "../components/Tableau";
+
 import {
   getChantierById,
   getChantierDocmumentByChantierId,
@@ -66,41 +68,17 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
     }
   };
 
-  console.log("chantier", chantier_document);
+  const formattedLines = chantier_documents_lines.map((line) => ({
+    description: line.DescriptionClear || "Description manquante",
+    price: line.NetPriceVatExcluded || "Prix manquant",
+    quantity: line.Quantity || "Quantité manquante",
+  }));
 
   return (
     <div>
-      <h2>Détails du Chantier {chantier_id}</h2>
-      {chantier ? (
-        <div>
-          <p>Nom du chantier : {chantier.Caption}</p>
-          <p>Adresse : {chantier.ConstructionSiteAddress_City}</p>
-        </div>
-      ) : (
-        <p>Chargement des détails du chantier...</p>
-      )}
 
-      <h3>Document associé</h3>
-      {chantier_document ? (
-        <div>
-          <p>Document ID: {chantier_document.Id}</p>
-
-        </div>
-      ) : (
-        <p>Aucun document trouvé.</p>
-      )}
-
-      <h3>Lignes de documents</h3>
-      {chantier_documents_lines.length > 0 ? (
-        chantier_documents_lines.map((line) => (
-          <div key={line.Id}>
-            <p>Ligne ID: {line.Id}</p>
-            <p>Quantité: {line.Quantity}</p>
-          </div>
-        ))
-      ) : (
-        <p>Aucune ligne de document trouvée.</p>
-      )}
+    < Tableau saleLines={formattedLines} />
+      
     </div>
   );
 }
