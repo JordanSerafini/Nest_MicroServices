@@ -81,8 +81,14 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
   return (
     <div>
       {error && <p className="text-red-500">{error}</p>}
-      {!isLoading && !error && chantier && <Tableau saleLines={formattedLines} />}
       {!isLoading && !error && !chantier && <p>Aucun détail de chantier disponible.</p>}
+      {/* ---------------------------------------------------------------------------- Chantier --------------------------------------------------------- */}
+
+      {/* ---------------------------------------------------------------------------- Document --------------------------------------------------------- */}
+      {chantier?.NotesClear && <p>Notes: {chantier?.NotesClear}</p>}
+
+      {/* ---------------------------------------------------------------------------- Tableau --------------------------------------------------------- */}
+      {!isLoading && !error && chantier && <Tableau saleLines={formattedLines} />}
     </div>
   );
 }
