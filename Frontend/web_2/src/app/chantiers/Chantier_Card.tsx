@@ -41,7 +41,7 @@ function Chantier_Card({ chantier }: { chantier: ConstructionSite }) {
         </div>
       </div>
       <div className="flex w-full justify-between pt-2">
-        <div className="flex items-start gap-2">
+        <div className="flex items-start gap-1">
           <IoIosContact className="text-xl text-green-800" />
           <p className="">
             {chantier.customer?.MainInvoicingContact_Name}{" "}
@@ -49,11 +49,11 @@ function Chantier_Card({ chantier }: { chantier: ConstructionSite }) {
           </p>
         </div>
         <div className="flex flex-col items-end">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <FaPhoneFlip className="text-xl text-blue-800"/>
             <p>{chantier.customer?.MainInvoicingContact_Phone}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <MdOutlineAlternateEmail className="text-xl text-blue-800"/>
             <p>{chantier.customer?.MainDeliveryContact_Email}</p>
           </div>
