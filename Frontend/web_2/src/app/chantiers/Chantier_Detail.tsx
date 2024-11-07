@@ -17,13 +17,14 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
   const [chantier, setChantier] = useState<ConstructionSite | null>(null);
   const [chantier_document, setChantierDocument] = useState<ConstructionSiteReferenceDocument | null>(null);
   const [chantier_documents_lines, setChantierDocumentsLines] = useState<ConstructionSiteReferenceDocumentLine[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAllData = async () => {
       setIsLoading(true);
       setError(null);
+
       try {
         await fetchChantier();
         await fetchDocument();
@@ -38,37 +39,36 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
   }, [chantier_id]);
 
   useEffect(() => {
-    if (chantier_document && chantier_document.Id) {
-      fetchDocumentsLines();
-    }
+    const fetchLinesIfNeeded = async () => {
+      if (chantier_document && chantier_document.Id) {
+        try {
+          setIsLoading(true);
+          await fetchDocumentsLines();
+        } catch (error) {
+          setError(`Erreur lors de la récupération des lignes de documents, ${error}`);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchLinesIfNeeded();
   }, [chantier_document]);
 
   const fetchChantier = async () => {
-    try {
-      const chantierData = await getChantierById(chantier_id);
-      setChantier(chantierData);
-    } catch (error) {
-      throw new Error(`Erreur lors de la récupération du chantier, ${error}`);
-    }
+    const chantierData = await getChantierById(chantier_id);
+    setChantier(chantierData);
   };
 
   const fetchDocument = async () => {
-    try {
-      const chantierDocument = await getChantierDocmumentByChantierId(chantier_id);
-      setChantierDocument(chantierDocument[0]);
-    } catch (error) {
-      throw new Error(`Erreur lors de la récupération du document associé, ${error}`);
-    }
+    const chantierDocument = await getChantierDocmumentByChantierId(chantier_id);
+    setChantierDocument(chantierDocument[0]);
   };
 
   const fetchDocumentsLines = async () => {
-    try {
-      if (chantier_document && chantier_document.Id) {
-        const chantierDocumentsLines = await getChantiersDocLineByChantierId(chantier_document.Id);
-        setChantierDocumentsLines(chantierDocumentsLines);
-      }
-    } catch (error) {
-      setError(`Erreur lors de la récupération des lignes de documents, ${error}`);
+    if (chantier_document && chantier_document.Id) {
+      const chantierDocumentsLines = await getChantiersDocLineByChantierId(chantier_document.Id);
+      setChantierDocumentsLines(chantierDocumentsLines);
     }
   };
 
@@ -80,11 +80,12 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
 
   return (
     <div>
-      {isLoading && <p>Chargement en cours...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      {!isLoading && chantier && <Tableau saleLines={formattedLines} />}
+      {!isLoading && !error && chantier && <Tableau saleLines={formattedLines} />}
+      {!isLoading && !error && !chantier && <p>Aucun détail de chantier disponible.</p>}
     </div>
   );
 }
+
 
 export default Chantier_Detail;
