@@ -39,7 +39,6 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
     try {
       const chantierData = await getChantierById(chantier_id);
       setChantier(chantierData);
-      console.log("chantierData", chantierData);
     } catch (error) {
       console.error("Error fetching chantier data:", error);
     }
@@ -48,8 +47,7 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
   const fetchDocument = async () => {
     try {
       const chantierDocument = await getChantierDocmumentByChantierId(chantier_id);
-      setChantierDocument(chantierDocument);
-      console.log("chantierDocument", chantierDocument);
+      setChantierDocument(chantierDocument[0]);
     } catch (error) {
       console.error("Error fetching chantier document:", error);
     }
@@ -60,7 +58,6 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
       if (chantier_document && chantier_document.Id) {
         const chantierDocumentsLines = await getChantiersDocLineByChantierId(chantier_document.Id);
         setChantierDocumentsLines(chantierDocumentsLines);
-        console.log("chantierDocumentsLines", chantierDocumentsLines);
       } else {
         console.error("chantier_document is null or Id is missing");
       }
@@ -68,6 +65,8 @@ function Chantier_Detail({ chantier_id }: { chantier_id: string }) {
       console.error("Error fetching chantier documents lines:", error);
     }
   };
+
+  console.log("chantier", chantier_document);
 
   return (
     <div>
