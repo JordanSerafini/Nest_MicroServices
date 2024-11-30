@@ -320,6 +320,7 @@ services:
     #   - schedule_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
+
   api_gateway:
     image: node:22-alpine
     working_dir: /app
@@ -348,6 +349,9 @@ services:
     #   - schedule_service
     #   - supplier_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
+
+
+
     
 
 networks:
