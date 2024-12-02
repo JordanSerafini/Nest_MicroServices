@@ -6,6 +6,7 @@ services:
     networks:
       - nestjs_network
 
+
   item_service:
     image: node:22-alpine
     working_dir: /app
