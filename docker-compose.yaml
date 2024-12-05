@@ -296,6 +296,7 @@ services:
     #   - sale_service
     command: "sh -c 'npm install && npx nodemon --watch src --ext ts --exec \"ts-node\" src/main.ts'"
 
+
   supplier_service:
     image: node:22-alpine
     working_dir: /app
