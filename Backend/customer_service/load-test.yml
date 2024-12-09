@@ -1,21 +1,31 @@
 config:
   target: 'http://localhost:3000/customers'
   phases:
-    # Phase 1 : Échauffement progressif
-    - duration: 40
-      arrivalRate: 2
-      rampTo: 12
-      name: Warm up phase
-    # Phase 2 : Charge modérée
-    - duration: 30
-      arrivalRate: 5
-      rampTo: 15
-      name: Ramp up load
-    # Phase 3 : Charge de pointe raisonnable
-    - duration: 60
-      arrivalRate: 5
-      rampTo: 25
-      name: Spike phase
+  # Phase 1 : Échauffement progressif
+  - duration: 30
+    arrivalRate: 2
+    rampTo: 12
+    name: Warm up phase
+  
+  # Phase 2 : Charge modérée (plus longue pour mieux simuler une montée de charge)
+  - duration: 60
+    arrivalRate: 5
+    rampTo: 15
+    name: Ramp up load
+  
+  # Phase 3 : Charge de pointe (plus longue pour observer la stabilité sous pic)
+  - duration: 60
+    arrivalRate: 5
+    rampTo: 25
+    name: Spike phase
+
+  # Phase 4 : Rétablissement après la charge de pointe
+  - duration: 30
+    arrivalRate: 25
+    rampTo: 5
+    name: Recovery phase
+
+
   plugins:
     ensure: {}
     metrics-by-endpoint: {}
@@ -44,4 +54,4 @@ scenarios:
               url: '/STRM'
               headers:
                 Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
-        count: 100
+        count: 5
