@@ -79,13 +79,29 @@ scenarios:
           - json:
             data.token: true
 
-      # - post:
-      #     url: '/logout'
+  #* ---------------------------------------------------------- Scénario pour les items
+  - name: "Test Microservice Item"
+    flow:
+      - get:
+          url: '/items/paginate'
+          headers:
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
+          qs:
+            limit: 10
+            offset: 0
 
-      #     json:
-      #       user: 
-      #         email: 'jordan@solution-logique.fr' 
-      #     headers:
-      #       Authorization: 'Bearer {{ $json.token }}' 
-
-      # - log: "Token utilisé pour la déconnexion: {{ $json.token }}"
+  #* ---------------------------------------------------------- Scénario pour les chantiers
+  - name: "Test Microservice Chantier"
+    flow:
+      - get:
+          url: '/chantiers/paginate'
+          headers:
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
+          qs:
+            limit: 10
+            offset: 0
+      # document chantier by chantierDoc ID
+      - get:
+          url: '/chantiers/document/a84a01b6-703e-477e-ac2f-000cd3e97b72'
+          headers:
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
