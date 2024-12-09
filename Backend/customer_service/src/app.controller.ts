@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CustomerService } from './app.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -103,5 +103,20 @@ export class CustomerController {
     },
   ) {
     return this.customerService.paginate(email, limit, offset, searchQuery);
+  }
+
+  @Get('paginateArtillery')
+  paginateArtillery(
+    @Query('email') email: string,
+    @Query('limit') limit: number,
+    @Query('offset') offset: number,
+    @Query('searchQuery') searchQuery: string,
+  ) {
+    return this.customerService.paginate(email, limit, offset, searchQuery);
+  }
+
+  @Get('findAllArtillery')
+  findAllArtillery(@Query('email') email: string) {
+    return this.customerService.findAll(email);
   }
 }
