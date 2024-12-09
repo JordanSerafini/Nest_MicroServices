@@ -40,10 +40,20 @@ jobs:
             exit 1
           fi
 
-       # Démarrer les services Docker (en utilisant Docker Compose)
-      - name: Start Docker Compose
-        run: |
-          docker-compose -f docker-compose.yml up -d 
+        # Installer Docker
+    - name: Set up Docker
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker.io
+        sudo systemctl start docker
+        sudo systemctl enable docker
+
+    # Installer Docker Compose
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+
 
       # Faire les tests artillery
       - name: Run Artillery tests
