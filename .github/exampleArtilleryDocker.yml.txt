@@ -1,0 +1,105 @@
+name: Auto Merge Jordan to Dev
+
+on:
+  push:
+    branches:
+      - jordan
+
+jobs:
+  auto-merge:
+    name: Auto Merge Jordan to Dev
+    runs-on: ubuntu-latest
+
+    steps:
+      # Vérifiez le code du dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Récupère toutes les branches et l'historique complet 
+
+      # Installer Docker proprement
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+          sudo systemctl enable docker
+          sudo systemctl start docker
+
+      # Installer Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      # Vérifiez la version de Docker Compose
+      - name: Check Docker Compose version
+        run: docker-compose --version
+
+      # Configurez Git pour effectuer le merge
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      # Récupérez toutes les branches pour garantir la présence de `dev` et `jordan`
+      - name: Fetch all branches
+        run: |
+          git fetch origin
+
+      # Vérifiez si le merge est possible sans conflit
+      - name: Check mergeability
+        run: |
+          git checkout dev
+          if git merge --no-commit --no-ff origin/jordan; then
+            echo "Able to merge."
+            git merge --abort  # Annule l'état de merge après vérification
+          else
+            echo "Merge conflict detected!"
+            exit 1
+          fi
+
+      # Démarrer les services Docker
+      - name: Start Docker Compose
+        run: |
+          docker-compose -f ./docker-compose.yaml up -d
+
+      # Attendre que le service backend soit prêt
+      - name: Wait for backend service
+        run: |
+          sudo apt-get install -y wait-for-it
+          wait-for-it -t 60 localhost:3000 -- echo "Backend is ready!"  # Changez le port si nécessaire
+
+      # Faire les tests Artillery
+      - name: Run Artillery tests
+        run: |
+          npm install -g artillery
+          artillery run ./Backend/artillery/load-test.yml
+
+      # Vérifiez les résultats des tests Artillery
+      - name: Check Artillery test results
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "Artillery tests passed."
+          else
+            echo "Artillery tests failed!"
+            exit 1  # Si les tests échouent, arrêtez le workflow et renvoyez une erreur
+          fi
+
+      # Si aucun conflit, effectuez le merge
+      - name: Merge Jordan to Dev
+        run: |
+          git merge origin/jordan --no-ff -m "Automated merge from jordan to dev"
+
+      # Poussez les changements sur `dev`
+      - name: Push changes
+        run: |
+          git push origin dev
+
+      # Arrêter les services Docker après les tests
+      - name: Stop Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml down
