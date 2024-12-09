@@ -141,12 +141,12 @@ export class AuthService {
     }
   }
 
-  async logout(user: { id: string; email: string }): Promise<void> {
+  async logout(user: { email: string }): Promise<void> {
     this.logger.log(`Logging out user with email: ${user.email}`);
 
     try {
-      const query = `UPDATE "Utilisateurs" SET token = NULL WHERE id = $1`;
-      await this.pool.query(query, [user.id]);
+      const query = `UPDATE "Utilisateurs" SET token = NULL WHERE email = $1`;
+      await this.pool.query(query, [user.email]);
 
       this.logger.log(`User with email: ${user.email} logged out successfully`);
     } catch (error) {

@@ -1,0 +1,1 @@
+npx artillery run --output report.json ./load-test.yml
