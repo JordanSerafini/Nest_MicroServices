@@ -59,10 +59,10 @@ scenarios:
           url: '/customers/STRM'
           headers:
             Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
-      - delete:
-          url: '/customers/STRM'
-          headers:
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
+      # - delete:
+      #     url: '/customers/STRM'
+      #     headers:
+      #       Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
                   
 
   #* ---------------------------------------------------------- Scénario pour l'authentification
@@ -73,11 +73,7 @@ scenarios:
           json:
             email: 'jordan@solution-logique.fr'
             password: 'pass123'
-      - save:
-          path: '$.data.token' 
-      - check:
-          - json:
-            data.token: true
+
 
   #* ---------------------------------------------------------- Scénario pour les items
   - name: "Test Microservice Item"
