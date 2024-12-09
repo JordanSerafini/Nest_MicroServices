@@ -45,6 +45,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+          
       # Récupérez toutes les branches pour garantir la présence de `dev` et `jordan`
       - name: Fetch all branches
         run: |
