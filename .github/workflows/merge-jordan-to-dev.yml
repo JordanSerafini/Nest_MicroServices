@@ -40,6 +40,11 @@ jobs:
             exit 1
           fi
 
+       # Démarrer les services Docker (en utilisant Docker Compose)
+      - name: Start Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml up -d 
+
       # Faire les tests artillery
       - name: Run Artillery tests
         run: |
