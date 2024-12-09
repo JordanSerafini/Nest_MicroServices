@@ -65,7 +65,7 @@ jobs:
       # Démarrer les services Docker
       - name: Start Docker Compose
         run: |
-          docker-compose -f docker-compose.yml up -d
+          docker-compose -f ./docker-compose.yaml up -d
 
       # Faire les tests Artillery
       - name: Run Artillery tests
