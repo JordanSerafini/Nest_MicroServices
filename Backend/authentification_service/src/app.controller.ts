@@ -77,11 +77,11 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'logout' })
-  async handleLogout(logoutDto: { user: { id: string; email: string } }) {
+  async handleLogout(logoutDto: { user: { email: string } }) {
     console.log('Received logoutDto:', logoutDto);
     const { user } = logoutDto;
 
-    if (!user || !user.email || !user.id) {
+    if (!user || !user.email) {
       throw new InternalServerErrorException('User information is incomplete');
     }
 

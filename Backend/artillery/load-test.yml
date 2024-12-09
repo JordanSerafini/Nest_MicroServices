@@ -1,0 +1,91 @@
+config:
+  target: 'http://localhost:3000'  # L'URL de base pour vos microservices
+  
+  phases:
+    # Phase 1 : Échauffement progressif
+    - duration: 30
+      arrivalRate: 2
+      rampTo: 12
+      name: Warm up phase
+    
+    # Phase 2 : Charge modérée (plus longue pour mieux simuler une montée de charge)
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 15
+      name: Ramp up load
+    
+    # Phase 3 : Charge de pointe (plus longue pour observer la stabilité sous pic)
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 25
+      name: Spike phase
+
+    # Phase 4 : Rétablissement après la charge de pointe
+    - duration: 30
+      arrivalRate: 25
+      rampTo: 5
+      name: Recovery phase
+
+  plugins:
+    ensure: {}
+    metrics-by-endpoint: {}
+    apdex: {}
+
+  ensure:
+  maxErrorRate: 0.01 
+  thresholds:
+    - http.response_time.p99: 850
+    - http.response_time.p95: 500
+    - http.response_time.mean: 300  
+    - http.requests.count: 1000 
+
+apdex:
+  threshold: 500  
+ 
+
+scenarios:
+  #* ---------------------------------------------------------- Scénario pour Customer
+  - name: "Test Microservice Customer"
+    flow:
+      - get:
+          url: '/customers/paginate'
+          headers:
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
+          qs:
+            email: 'test@example.com'
+            limit: 10
+            offset: 0
+      - get:
+          url: '/customers/STRM'
+          headers:
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
+      - delete:
+          url: '/customers/STRM'
+          headers:
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvcmRhbkBzb2x1dGlvbi1sb2dpcXVlLmZyIiwic3ViIjoxLCJpYXQiOjE3MzM3MzIxOTksImV4cCI6MTc2OTczMjE5OX0.B_UmypuQ1-O-lYtfUCfdhhloqPNXoStFqEm5PzEt2cY'
+                  
+
+  #* ---------------------------------------------------------- Scénario pour l'authentification
+  - name: "Test Microservice Authentification"
+    flow:
+      - post:
+          url: '/login'
+          json:
+            email: 'jordan@solution-logique.fr'
+            password: 'pass123'
+      - save:
+          path: '$.data.token' 
+      - check:
+          - json:
+            data.token: true
+
+      # - post:
+      #     url: '/logout'
+
+      #     json:
+      #       user: 
+      #         email: 'jordan@solution-logique.fr' 
+      #     headers:
+      #       Authorization: 'Bearer {{ $json.token }}' 
+
+      # - log: "Token utilisé pour la déconnexion: {{ $json.token }}"
