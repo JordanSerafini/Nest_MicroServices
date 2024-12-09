@@ -44,7 +44,7 @@ jobs:
       - name: Run Artillery tests
         run: |
           npm install -g artillery
-          artillery run ../Backend/artillery/load-test.yml
+          artillery run ./Backend/artillery/load-test.yml
           
       # Vérifiez les résultats des tests Artillery
       - name: Check Artillery test results
