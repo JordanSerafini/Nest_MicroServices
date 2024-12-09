@@ -2,6 +2,7 @@
 
 # Parcours de chaque sous-dossier
 for dir in */; do
+
   # Vérification que c'est bien un répertoire
   if [ -d "$dir" ]; then
     echo "Installation dans le répertoire : $dir"

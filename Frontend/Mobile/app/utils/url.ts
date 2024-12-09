@@ -6,7 +6,7 @@ export const url = {
     chantier: "http://192.168.20.12:5005",
     staff:"http://192.168.20.12:5006",
     logger_api: "http://192.168.20.12:5050",
-    api_gateway: "http://192.168.20.12:3000",
+    api_gateway: "https://dcb6-2a01-cb15-d1-4700-3e7c-3fff-feee-7c7.ngrok-free.app",
 
     homeUser: "http://192.168.1.10:5001",
     homeAuth: "http://192.168.1.10:5002",
