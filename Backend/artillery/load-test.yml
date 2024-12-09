@@ -3,25 +3,25 @@ config:
   
   phases:
     # Phase 1 : Échauffement progressif
-    - duration: 30
+    - duration: 20
       arrivalRate: 2
       rampTo: 12
       name: Warm up phase
     
     # Phase 2 : Charge modérée (plus longue pour mieux simuler une montée de charge)
-    - duration: 60
+    - duration: 40
       arrivalRate: 5
       rampTo: 15
       name: Ramp up load
     
     # Phase 3 : Charge de pointe (plus longue pour observer la stabilité sous pic)
-    - duration: 60
+    - duration: 40
       arrivalRate: 10
       rampTo: 25
       name: Spike phase
 
     # Phase 4 : Rétablissement après la charge de pointe
-    - duration: 30
+    - duration: 20
       arrivalRate: 25
       rampTo: 5
       name: Recovery phase

@@ -40,6 +40,22 @@ jobs:
             exit 1
           fi
 
+      # Faire les tests artillery
+      - name: Run Artillery tests
+        run: |
+          npm install -g artillery
+          artillery run ./Backend/artillery/load-test.yml
+          
+      # Vérifiez les résultats des tests Artillery
+      - name: Check Artillery test results
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "Artillery tests passed."
+          else
+            echo "Artillery tests failed!"
+            exit 1  # Si les tests échouent, arrêtez le workflow et renvoyez une erreur
+          fi
+
       # Si aucun conflit, effectuez le merge
       - name: Merge Jordan to Dev
         run: |
