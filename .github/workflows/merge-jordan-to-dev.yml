@@ -17,7 +17,6 @@ jobs:
         with:
           fetch-depth: 0  # Récupère toutes les branches et l'historique complet 
           
-
       # Configurez Git pour effectuer le merge
       - name: Set up Git
         run: |
